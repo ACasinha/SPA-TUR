@@ -1,15 +1,11 @@
 // ============================================================
-// login.js — UI de login e ciclo de sessão nas páginas
+// login.js — UI de login e ciclo de sessão (versão SPA)
 // Registo Diário de Nacionalidades — Município de Reguengos de Monsaraz
 //
-// Responsabilidade:
-//   • Mostrar/esconder o overlay de login
-//   • Submeter credenciais (delega em auth.js → apiAutenticar)
-//   • Observar sessões persistidas e logout via apiObservarAuth
-//   • Chamar onSucesso / onSessaoTerminada das páginas
-//
-// NÃO contém: Firebase init, JWT, gestão de sessão (auth.js),
-// lógica de negócio (app.js).
+// Diferenças face à versão multi-página:
+//   • Não há idWrap por página — o shell é controlado pelo app-shell.js
+//   • Após sucesso, chama routerInit em vez de activar um wrap específico
+//   • O overlay de carregamento é único e global
 // ============================================================
 
 'use strict';
@@ -18,30 +14,21 @@ var _opcoesLogin       = null;
 var _erroLoginPendente = '';
 
 // ============================================================
-// inicializarLogin — ponto de entrada de cada página
-//
-// opcoes = {
-//   idWrap:            string | null
-//   verificarAcesso:   fn(perfil) → bool
-//   mensagemSemAcesso: string
-//   onSucesso:         fn(perfil)
-//   onSessaoTerminada: fn()
-// }
+// inicializarLogin — ponto de entrada chamado pelo app-shell.js
 // ============================================================
 
 function inicializarLogin(opcoes) {
   _opcoesLogin = opcoes;
 
-  // Mostrar overlay de carregamento imediatamente
   _mostrarLoadingOverlay();
 
-  // Ocultar overlay de login enquanto o Firebase resolve
+  // Ocultar overlay de login enquanto o Firebase resolve sessão persistida
   if (typeof sessaoValida === 'function' && sessaoValida()) {
     var overlay = document.getElementById('loginOverlay');
     if (overlay) overlay.style.visibility = 'hidden';
   }
 
-  apiObservarAuth(function (user) {
+  apiObservarAuth(function(user) {
     if (!user) {
       var overlay = document.getElementById('loginOverlay');
       if (overlay) overlay.style.visibility = '';
@@ -54,7 +41,7 @@ function inicializarLogin(opcoes) {
 }
 
 // ============================================================
-// fazerLogin — chamado pelo botão "Entrar" no HTML
+// fazerLogin — chamado pelo botão "Entrar"
 // ============================================================
 
 function fazerLogin() {
@@ -75,9 +62,6 @@ function fazerLogin() {
     email,
     pass,
     function onSuccess(dados) {
-      // apiAutenticar já registou a sessão; agora só precisamos
-      // de obter o perfil Firestore e desbloquear a página.
-      // Não dependemos do onAuthStateChanged para este caminho.
       _processarUtilizador(dados);
     },
     function onFailure(err) {
@@ -90,7 +74,7 @@ function fazerLogin() {
 }
 
 // ============================================================
-// logout — chamado pelas páginas
+// logout — chamado pelo nav-menu e pelas views
 // ============================================================
 
 function logout(temAlteracoes) {
@@ -106,67 +90,59 @@ function logout(temAlteracoes) {
     _opcoesLogin.onSessaoTerminada();
   }
 
-  // apiLogout está em auth.js; o onAuthStateChanged re-mostrará o login
-  apiLogout().then(function () {
+  apiLogout().then(function() {
     _mostrarEcraLogin();
   });
 }
 
 // ============================================================
-// _processarUtilizador — partilhado pelo login activo e pelo
-// listener de sessões persistidas
+// _processarUtilizador — partilhado pelo login activo e sessões
 // ============================================================
 
 function _processarUtilizador(userOuDados) {
   obterPerfilUtilizador()
-    .then(function (perfil) {
+    .then(function(perfil) {
       if (!perfil.ativo) {
-        _mostrarErroLogin('Esta conta foi desativada. Contacte o administrador.');
+        _mostrarErroLoginPendente('Esta conta foi desativada. Contacte o administrador.');
         _fazerSignOut();
         return;
       }
 
-      if (!_opcoesLogin.verificarAcesso(perfil)) {
-        _mostrarErroLogin(_opcoesLogin.mensagemSemAcesso || 'Acesso negado.');
+      if (_opcoesLogin && !_opcoesLogin.verificarAcesso(perfil)) {
+        _mostrarErroLoginPendente(_opcoesLogin.mensagemSemAcesso || 'Acesso negado.');
         _fazerSignOut();
         return;
       }
 
       _esconderEcraLogin();
-      _opcoesLogin.onSucesso(perfil);
+
+      if (_opcoesLogin && typeof _opcoesLogin.onSucesso === 'function') {
+        _opcoesLogin.onSucesso(perfil);
+      }
     })
-    .catch(function () {
-      // Falha ao ler perfil (ex.: sem ligação)
+    .catch(function(err) {
+      console.warn('[login] Falha ao obter perfil:', err);
+      _ocultarLoadingOverlay();
       _mostrarEcraLogin();
     });
 }
 
 // ============================================================
-// Auxiliares de UI — privados
+// Auxiliares de UI
 // ============================================================
 
 function _esconderEcraLogin() {
   _ocultarLoadingOverlay();
-  document.documentElement.classList.remove('tem-sessao');
-  
+
   var overlay = document.getElementById('loginOverlay');
   if (overlay) overlay.classList.add('hidden');
-
-  if (_opcoesLogin && _opcoesLogin.idWrap) {
-    var wrap = document.getElementById(_opcoesLogin.idWrap);
-    if (wrap) wrap.style.display = '';
-  }
 }
 
 function _mostrarEcraLogin() {
-  document.documentElement.classList.remove('tem-sessao');
-  
   var overlay = document.getElementById('loginOverlay');
-  if (overlay) overlay.classList.remove('hidden');
-
-  if (_opcoesLogin && _opcoesLogin.idWrap) {
-    var wrap = document.getElementById(_opcoesLogin.idWrap);
-    if (wrap) wrap.style.display = 'none';
+  if (overlay) {
+    overlay.classList.remove('hidden');
+    overlay.style.visibility = '';
   }
 
   var passEl = document.getElementById('loginPass');
@@ -185,7 +161,7 @@ function _mostrarEcraLogin() {
   }
 }
 
-function _mostrarErroLogin(mensagem) {
+function _mostrarErroLoginPendente(mensagem) {
   _erroLoginPendente = mensagem;
 }
 
@@ -201,11 +177,10 @@ function _fazerSignOut() {
 }
 
 // ============================================================
-// OVERLAY DE CARREGAMENTO ENTRE PÁGINAS
+// OVERLAY DE CARREGAMENTO INICIAL
 // ============================================================
 
 function _mostrarLoadingOverlay() {
-  // Reutilizar se já existir (navegação rápida)
   if (document.getElementById('pageLoadingOverlay')) return;
 
   var div = document.createElement('div');
@@ -215,8 +190,6 @@ function _mostrarLoadingOverlay() {
     '<img class="page-loading-logo" src="img/logo-small.png" alt="">' +
     '<div class="page-loading-spinner"></div>' +
     '<span class="page-loading-texto">A carregar...</span>';
-
-  // Inserir antes de qualquer outro elemento para garantir z-index
   document.body.insertBefore(div, document.body.firstChild);
 }
 
@@ -224,7 +197,6 @@ function _ocultarLoadingOverlay() {
   var overlay = document.getElementById('pageLoadingOverlay');
   if (!overlay) return;
   overlay.classList.add('oculto');
-  // Remover do DOM após a transição
   setTimeout(function() {
     if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
   }, 350);

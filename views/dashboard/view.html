@@ -1,10 +1,73 @@
-<!-- views/dashboard/view.html — Fase 2 -->
-<div class="spa-stub-view">
-  <div class="spa-stub-icone">📊</div>
-  <h2>Dashboard</h2>
-  <p>Esta view será migrada na Fase 2.</p>
-  <p class="spa-stub-nota">
-    Neste momento pode aceder ao dashboard na versão anterior em
-    <a href="dashboard.html" target="_blank">dashboard.html</a>.
-  </p>
+<div class="dashboard-container">
+
+  <!-- Cabeçalho -->
+  <div class="dashboard-header">
+    <div class="dashboard-header-info">
+      <h1>📊 Dashboard de Análise</h1>
+      <p>Gráficos e estatísticas de visitantes — Município de Reguengos de Monsaraz</p>
+    </div>
+  </div>
+
+  <!-- Barra admin -->
+  <div class="admin-bar" id="adminBar">
+    <div class="admin-bar-info">
+      <strong>Modo Administrador</strong>
+      Pode editar secções, adicionar gráficos e configurar os iframes do Google Sheets.
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-wrapper">
+    <div class="tabs-scroll">
+      <div class="tabs-bar" id="tabsBar" role="tablist"></div>
+    </div>
+  </div>
+
+  <!-- PAINÉIS -->
+  <div id="paineis"></div>
+
+</div><!-- /dashboard-container -->
+
+<!-- Modal de edição (admin) -->
+<div class="edit-overlay" id="editOverlay">
+  <div class="edit-box">
+    <h2 id="editBoxTitulo">Editar Gráfico</h2>
+    <div class="edit-field">
+      <label id="editLabelTitulo">Título</label>
+      <input type="text" id="editTitulo" placeholder="Título do gráfico"
+             onkeydown="if(event.key==='Enter')guardarEdicao()">
+    </div>
+    <div class="edit-field">
+      <label id="editLabelSub">Subtítulo</label>
+      <input type="text" id="editSub" placeholder="Subtítulo (opcional)">
+    </div>
+    <div class="edit-field" id="editGrupoUrl">
+      <label id="editLabelUrl">URL do iframe (Google Sheets)</label>
+      <textarea id="editUrl" rows="3"
+        placeholder="https://docs.google.com/spreadsheets/d/.../pubchart?..."></textarea>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div class="edit-field" id="editGrupoLargura" style="flex:1;min-width:140px">
+        <label>Largura</label>
+        <select id="editLargura">
+          <option value="metade">½ — Metade</option>
+          <option value="dois-tercos">⅔ — Dois terços</option>
+          <option value="total">Largura total</option>
+        </select>
+      </div>
+      <div class="edit-field" id="editGrupoAltura" style="flex:1;min-width:140px">
+        <label>Altura</label>
+        <select id="editAltura">
+          <option value="sm">Pequena (260px)</option>
+          <option value="md" selected>Média (360px)</option>
+          <option value="lg">Grande (480px)</option>
+          <option value="xl">Extra-grande (600px)</option>
+        </select>
+      </div>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-edit-cancelar" onclick="fecharEditOverlay()">Cancelar</button>
+      <button class="btn-edit-guardar"  onclick="guardarEdicao()">💾 Guardar</button>
+    </div>
+  </div>
 </div>

@@ -1,9 +1,11 @@
 // ============================================================
-// nav-menu.js — Menu de navegação contextual (header)
+// nav-menu.js — Menu de navegação contextual (versão SPA)
 // Registo Diário de Nacionalidades — Município de Reguengos de Monsaraz
 //
-// Partilhado por index.html, admin.html, dashboard.html, editor.html
-// Renderiza os itens de menu consoante o perfil do utilizador.
+// Diferenças face à versão multi-página:
+//   • Navegação via routerNavegar() em vez de window.location
+//   • Marca item activo por caminho SPA (/, /dashboard, etc.)
+//   • data-rota em cada <a> para o router actualizar o estado activo
 // ============================================================
 
 'use strict';
@@ -12,25 +14,19 @@
 
   var _menuAberto = false;
 
-  // ── Definição dos itens de menu ──────────────────────────
-  // visible: função que recebe o perfil e devolve true/false
-  // current: string com a página actual (para marcar activo)
-
   var MENU_ITEMS = [
     {
-      id:      'nav-app',
-      label:   '📋 Registo Diário',
-      href:    'index.html',
-      page:    'index',
+      id:    'nav-app',
+      label: '📋 Registo Diário',
+      rota:  '/',
       visible: function(p) {
         return p.role === 'administrador' || p.role === 'utilizador';
       }
     },
     {
-      id:      'nav-dashboard',
-      label:   '📊 Dashboard',
-      href:    'dashboard.html',
-      page:    'dashboard',
+      id:    'nav-dashboard',
+      label: '📊 Dashboard',
+      rota:  '/dashboard',
       visible: function(p) {
         return p.role === 'administrador'
             || p.role === 'visualizador'
@@ -38,50 +34,47 @@
       }
     },
     {
-      id:      'nav-editor',
-      label:   '✏️ Editor Mensal',
-      href:    'editor.html',
-      page:    'editor',
+      id:    'nav-editor',
+      label: '✏️ Editor Mensal',
+      rota:  '/editor',
       visible: function(p) {
         return p.role === 'administrador' || p.acessoEditor === true;
       }
     },
     {
-      id:      'nav-admin',
-      label:   '🛡️ Gestão de Utilizadores',
-      href:    'admin.html',
-      page:    'admin',
+      id:    'nav-admin',
+      label: '🛡️ Gestão de Utilizadores',
+      rota:  '/admin',
       visible: function(p) {
         return p.role === 'administrador';
       }
     }
   ];
 
-  // ── Detectar página actual ────────────────────────────────
-  function paginaActual() {
-    var path = window.location.pathname.split('/').pop().replace('.html', '');
-    if (!path || path === '') return 'index';
+  // ── Rota actual ───────────────────────────────────────────
+  function rotaActual() {
+    var path = window.location.pathname.replace(/\/+$/, '') || '/';
     return path;
   }
 
-  // ── Construir e injectar o menu no header ─────────────────
+  // ── Construir e injectar o menu ───────────────────────────
   function construirMenu(perfil) {
-    var pagina   = paginaActual();
+    var rota          = rotaActual();
     var itemsVisiveis = MENU_ITEMS.filter(function(item) {
       return item.visible(perfil);
     });
 
-    // Destruir menu anterior se existir (re-login com perfil diferente)
+    // Destruir menu anterior
     var btnAntigo    = document.getElementById('navMenuBtn');
     var painelAntigo = document.getElementById('navMenuPainel');
     if (btnAntigo)    btnAntigo.parentNode.removeChild(btnAntigo);
     if (painelAntigo) painelAntigo.parentNode.removeChild(painelAntigo);
     _menuAberto = false;
 
-    // Botão hamburger — injectado no header-right
     var headerRight = document.querySelector('.header-right');
     if (!headerRight) return;
 
+    // Botão hamburger
     var btn = document.createElement('button');
     btn.id        = 'navMenuBtn';
     btn.className = 'nav-menu-btn';
@@ -93,8 +86,6 @@
         '<span></span><span></span><span></span>' +
       '</span>' +
       '<span class="nav-menu-btn-label">Menu</span>';
-
-    // Adicionar ao fim do header-right — fica sempre o elemento mais à direita
     headerRight.appendChild(btn);
 
     // Painel dropdown
@@ -114,20 +105,22 @@
       '<span class="nav-menu-cab-role">' + _labelRole(perfil) + '</span>';
     painel.appendChild(cab);
 
-    // Separador
-    var sep = document.createElement('div');
-    sep.className = 'nav-menu-sep';
-    painel.appendChild(sep);
+    painel.appendChild(_separador());
 
-    // Itens
+    // Itens de navegação
     itemsVisiveis.forEach(function(item) {
-      var a = document.createElement('a');
-      a.href      = item.href;
-      a.className = 'nav-menu-item' + (item.page === pagina ? ' activo' : '');
+      var eActivo = item.rota === rota;
+      var a       = document.createElement('a');
+
+      // href real para acessibilidade e ctrl+clique
+      a.href      = item.rota;
+      // data-rota usado pelo router para marcar activo sem recarregar
+      a.setAttribute('data-rota', item.rota);
+      a.className = 'nav-menu-item' + (eActivo ? ' activo' : '');
       a.id        = item.id;
       a.innerHTML = '<span class="nav-menu-item-label">' + item.label + '</span>';
 
-      if (item.page === pagina) {
+      if (eActivo) {
         a.setAttribute('aria-current', 'page');
         var badge = document.createElement('span');
         badge.className   = 'nav-menu-item-badge';
@@ -135,24 +128,26 @@
         a.appendChild(badge);
       }
 
+      // Navegação SPA — interceptar clique normal
       a.addEventListener('click', function(e) {
-        if (item.page === pagina) {
-          e.preventDefault();
-          fecharMenu();
+        e.preventDefault();
+        fecharMenu();
+        if (typeof routerNavegar === 'function') {
+          routerNavegar(item.rota);
+        } else {
+          window.location.href = item.rota;
         }
       });
 
       painel.appendChild(a);
     });
 
-    // Separador + botão sair
-    var sep2 = document.createElement('div');
-    sep2.className = 'nav-menu-sep';
-    painel.appendChild(sep2);
+    painel.appendChild(_separador());
 
+    // Botão sair
     var btnSair = document.createElement('button');
-    btnSair.className   = 'nav-menu-item nav-menu-sair';
-    btnSair.innerHTML   = '<span class="nav-menu-item-label">↩ Terminar sessão</span>';
+    btnSair.className = 'nav-menu-item nav-menu-sair';
+    btnSair.innerHTML = '<span class="nav-menu-item-label">↩ Terminar sessão</span>';
     btnSair.addEventListener('click', function() {
       fecharMenu();
       if (typeof logout === 'function') logout();
@@ -161,7 +156,7 @@
 
     document.body.appendChild(painel);
 
-    // Eventos
+    // Eventos do botão hamburger
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
       _menuAberto ? fecharMenu() : abrirMenu();
@@ -178,6 +173,12 @@
     });
   }
 
+  function _separador() {
+    var sep = document.createElement('div');
+    sep.className = 'nav-menu-sep';
+    return sep;
+  }
+
   function abrirMenu() {
     var btn    = document.getElementById('navMenuBtn');
     var painel = document.getElementById('navMenuPainel');
@@ -189,7 +190,6 @@
     btn.setAttribute('aria-expanded', 'true');
     painel.classList.add('visivel');
 
-    // Focar no primeiro item
     var primeiro = painel.querySelector('.nav-menu-item:not(.activo)');
     if (primeiro) setTimeout(function() { primeiro.focus(); }, 50);
   }
@@ -217,6 +217,24 @@
     if (_menuAberto) _posicionarPainel();
   });
 
+  // Actualizar estado activo quando o router muda de rota
+  // (o router chama _actualizarNavActivo, que já lida com data-rota)
+  window.addEventListener('popstate', function() {
+    var rota   = rotaActual();
+    var painel = document.getElementById('navMenuPainel');
+    if (!painel) return;
+    painel.querySelectorAll('.nav-menu-item[data-rota]').forEach(function(el) {
+      var r      = el.getAttribute('data-rota');
+      var activo = r === rota;
+      el.classList.toggle('activo', activo);
+      if (activo) {
+        el.setAttribute('aria-current', 'page');
+      } else {
+        el.removeAttribute('aria-current');
+      }
+    });
+  });
+
   function _labelRole(perfil) {
     if (perfil.role === 'administrador') return 'Administrador';
     if (perfil.role === 'visualizador')  return 'Visualizador';
@@ -227,7 +245,6 @@
     return 'Utilizador';
   }
 
-  // ── API pública ───────────────────────────────────────────
   window.construirMenuNav = construirMenu;
   window.fecharMenuNav    = fecharMenu;
 
