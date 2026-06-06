@@ -1,0 +1,142 @@
+<!-- ============================================================
+     views/registo/view.html
+     Injectado pelo router.js no #spa-outlet
+     NÃO incluir <html>, <head>, <body> — apenas o conteúdo da view
+============================================================ -->
+
+<!-- AVISO SEM LIGAÇÃO -->
+<div class="offline-banner" id="offlineBanner" style="display:none">
+  <div class="offline-icone">📡</div>
+  <div class="offline-texto">
+    <strong>Sem ligação à Internet</strong>
+    <span>Os registos serão guardados localmente e enviados ao reconectar.</span>
+  </div>
+  <div class="offline-acoes">
+    <button class="btn-reconectar" id="btnReconectar"
+            onclick="tentarReconectar()">🔄 Verificar ligação</button>
+    <button class="btn-imprimir-pdf"
+            onclick="imprimirPDF()">🖨 Imprimir formulário</button>
+  </div>
+</div>
+
+<!-- CONTEÚDO PRINCIPAL -->
+<div class="container">
+
+  <div class="estado-banner" id="estadoBanner">
+    <div class="spinner" id="estadoSpinner" style="display:none"></div>
+    <span id="estadoTexto"></span>
+  </div>
+
+  <!-- META: LOCAL + DATA -->
+  <div class="meta-card">
+    <div class="field-group">
+      <label>📍 Local / Posto</label>
+      <select id="local" onchange="agendarVerificacao()">
+        <option value="" disabled selected>Escolha uma opção...</option>
+        <optgroup label="Lista completa de países">
+          <option value="Posto de Turismo de Monsaraz">Posto de Turismo de Monsaraz</option>
+          <option value="Posto de Turismo de Reguengos">Posto de Turismo de Reguengos</option>
+          <option value="Museu José Mestre Batista">Museu José Mestre Batista</option>
+          <option value="Casa do Barro">Casa do Barro</option>
+        </optgroup>
+        <optgroup label="Nacionais / Estrangeiros">
+          <option value="Museu do Fresco">Museu do Fresco</option>
+          <option value="Casa da Inquisição">Casa da Inquisição</option>
+          <option value="Igreja de Santiago">Igreja de Santiago</option>
+          <option value="Igreja da Misericórdia">Igreja da Misericórdia</option>
+          <option value="Arte Contemporânea">Arte Contemporânea</option>
+          <option value="Auditório António Marcelino">Auditório António Marcelino</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>📅 Data</label>
+      <input type="date" id="data" onchange="agendarVerificacao()">
+    </div>
+  </div>
+
+  <!-- PAÍSES -->
+  <div class="section-card">
+    <div class="section-header">
+      <h2 id="tituloPaises">Países — Turistas e Visitantes</h2>
+      <span class="section-count" id="contadorPaises">0 registos</span>
+    </div>
+    <div id="paisesContainer"></div>
+    <div id="zonaPesquisaPaises" class="zona-pesquisa-paises">
+      <div class="pesquisa-paises-wrap">
+        <span class="pesquisa-icone">🔍</span>
+        <input type="text" id="inputPesquisaPais"
+               placeholder="Adicionar outro país..."
+               autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+      <ul id="listaPesquisaPaises" class="lista-pesquisa-paises"></ul>
+    </div>
+  </div>
+
+  <!-- TOTAL -->
+  <div class="totais-card">
+    <div>
+      <div class="total-label">Total Diário</div>
+      <div class="total-sub">Soma de todos os visitantes</div>
+    </div>
+    <div class="total-num" id="totalDiario">0</div>
+  </div>
+
+  <!-- OPERADORES -->
+  <div class="section-card">
+    <div class="section-header section-toggle"
+         onclick="toggleSecao('corpoOperadores','iconeOperadores')">
+      <h2>Operadores e Agências</h2>
+      <span class="toggle-icone" id="iconeOperadores">▼</span>
+    </div>
+    <div id="corpoOperadores" style="display:none">
+      <div id="secaoOperadoresConteudo"></div>
+    </div>
+  </div>
+
+  <!-- SUGESTÕES -->
+  <div class="section-card">
+    <div class="section-header section-toggle"
+         onclick="toggleSecao('corpoSugestoes','iconeSugestoes')">
+      <h2>Sugestões e Críticas</h2>
+      <span class="toggle-icone" id="iconeSugestoes">▼</span>
+    </div>
+    <div class="verso-body" id="corpoSugestoes" style="display:none">
+      <div class="table-scroll">
+        <table class="sug-table">
+          <thead><tr>
+            <th>Sugestão / Crítica</th>
+            <th>Nacionalidade do turista</th>
+          </tr></thead>
+          <tbody id="tabelaSugestoes"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBSERVAÇÕES -->
+  <div class="section-card">
+    <div class="section-header section-toggle"
+         onclick="toggleSecao('corpoObservacoes','iconeObservacoes')">
+      <h2>Outras Observações</h2>
+      <span class="toggle-icone" id="iconeObservacoes">▼</span>
+    </div>
+    <div class="verso-body" id="corpoObservacoes" style="display:none">
+      <textarea class="obs-area" id="observacoes"
+        placeholder="Registe aqui quaisquer outras observações relevantes do dia..."></textarea>
+    </div>
+  </div>
+
+  <!-- ACÇÕES -->
+  <div class="actions">
+    <button class="btn btn-limpar" onclick="limparFormulario()">🗑 Limpar</button>
+    <button class="btn btn-guardar" id="btnGuardar"
+            onclick="guardarDados()">💾 Guardar Registo</button>
+  </div>
+
+</div><!-- /container -->
+
+<!-- Modal PDF (gerado inline para não depender do DOM global) -->
+<div id="modalEscolhaPDF" class="modal-overlay" style="display:none">
+  <!-- Preenchido por offline.js → mostrarModalPDF() -->
+</div>

@@ -1,0 +1,1030 @@
+/* ============================================================
+   REGISTO DIÁRIO DE NACIONALIDADES — style.css
+   Utilizado por: index.html
+   Município de Reguengos de Monsaraz
+============================================================ */
+
+/* ============================================================
+   BANNER PWA
+============================================================ */
+.install-banner {
+  background: var(--terra); color:white;
+  padding: 10px clamp(12px,3vw,16px); font-size:var(--text-sm);
+  display:none; align-items:center; justify-content:center;
+  gap:10px; flex-wrap:wrap; text-align:center;
+}
+.install-banner.visivel { display:flex; }
+
+.btn-instalar {
+  background:white; color:var(--terra); border:none; border-radius:6px;
+  padding:7px 14px; font-weight:700; font-size:var(--text-sm);
+  cursor:pointer; white-space:nowrap; touch-action:manipulation; min-height:36px;
+}
+.btn-instalar-fechar {
+  background:transparent; border:none; color:rgba(255,255,255,0.7);
+  cursor:pointer; font-size:1.2rem; padding:4px 6px; line-height:1;
+  touch-action:manipulation; min-width:32px; min-height:32px;
+  display:flex; align-items:center; justify-content:center;
+}
+
+
+/* ============================================================
+   AVISO SEM LIGAÇÃO
+============================================================ */
+.offline-banner {
+  background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+  color: white;
+  padding: clamp(12px,2.5vw,18px) clamp(14px,3vw,24px);
+  display: flex; align-items: center;
+  gap: clamp(10px,2vw,20px); flex-wrap: wrap;
+  z-index: 99; box-shadow: 0 4px 16px rgba(192,57,43,0.4);
+  animation: slideIn 0.3s ease;
+}
+.offline-icone { font-size: 2rem; flex-shrink: 0; }
+.offline-texto {
+  flex: 1; min-width: 180px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.offline-texto strong { font-size: var(--text-base); }
+.offline-texto span   { font-size: var(--text-sm); opacity: 0.9; }
+.offline-acoes { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+
+.btn-reconectar, .btn-imprimir-pdf {
+  background: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  color: white; border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: var(--text-sm); font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  touch-action: manipulation; min-height: 40px;
+  transition: background 0.2s;
+}
+.btn-reconectar:hover, .btn-imprimir-pdf:hover { background: rgba(255,255,255,0.35); }
+.btn-reconectar:disabled { opacity:0.5; cursor:not-allowed; }
+.btn-imprimir-pdf { background: rgba(255,255,255,0.9); color: #c0392b; font-weight:700; }
+.btn-imprimir-pdf:hover { background: white; }
+
+
+/* ============================================================
+   CONTAINER PRINCIPAL
+============================================================ */
+.container {
+  max-width: 900px; margin: 0 auto;
+  padding: clamp(12px,3vw,24px) clamp(10px,3vw,20px) clamp(60px,10vw,90px);
+}
+
+
+/* ============================================================
+   FORM — field-group e inputs
+============================================================ */
+.field-group { display:flex; flex-direction:column; gap:5px; }
+.field-group label {
+  font-size:var(--text-xs); font-weight:700; text-transform:uppercase;
+  letter-spacing:1px; color:var(--terra);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"]:not(.num-input),
+input[type="date"],
+select:not(.op-nac-select):not(.sug-nac),
+textarea {
+  width: 100%;
+  border: 1.5px solid var(--cinza-claro);
+  border-radius: var(--radius-sm);
+  padding: clamp(10px, 2vw, 12px) clamp(12px, 2.5vw, 14px);
+  font-size: var(--text-base);
+  color: var(--cinza-escuro);
+  background: var(--branco);
+  transition: border-color var(--transition-base),
+              box-shadow var(--transition-base),
+              background var(--transition-base);
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 50px;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:not(.num-input):focus,
+input[type="date"]:focus,
+select:not(.op-nac-select):not(.sug-nac):focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--terra);
+  box-shadow: 0 0 0 3px rgba(139, 74, 43, 0.12);
+}
+
+input[type="text"]:disabled,
+input[type="email"]:disabled,
+input[type="password"]:disabled,
+input[type="number"]:not(.num-input):disabled,
+input[type="date"]:disabled,
+select:not(.op-nac-select):not(.sug-nac):disabled,
+textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+select:not(.op-nac-select):not(.sug-nac) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B4A2B' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+::placeholder { color: var(--cinza); opacity: 0.5; }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--cinza-escuro);
+  -webkit-box-shadow: 0 0 0px 1000px var(--branco) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+
+/* ============================================================
+   CARDS — meta, section, totais
+============================================================ */
+.meta-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-bottom: var(--gap);
+  box-shadow: var(--sombra);
+  display: grid;
+  gap: var(--spacing-md);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 520px) {
+  .meta-card { grid-template-columns: 1fr 1fr; }
+}
+
+.section-card {
+  background: white; border-radius: var(--radius);
+  margin-bottom: var(--gap); box-shadow: var(--sombra); overflow: hidden;
+}
+
+.section-header {
+  background: white;
+  color: var(--terra);
+  padding: clamp(10px,2vw,14px) clamp(12px,3vw,20px);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  min-height: 50px;
+}
+.section-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: var(--text-lg); font-weight: 600; line-height: 1.3;
+}
+.section-header .section-count {
+  background: rgba(0,0,0,0.04); border-radius: 20px;
+  padding: 3px 10px; font-size: var(--text-xs); white-space: nowrap; flex-shrink: 0;
+}
+
+.totais-card {
+  background: var(--azul);
+  border-radius: var(--radius);
+  padding: clamp(12px,3vw,18px) clamp(14px,3vw,28px);
+  margin-bottom: var(--gap); color: white;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--sombra-forte); gap: 12px;
+}
+.totais-card .total-label { font-family:'Playfair Display',serif; font-size:clamp(0.88rem,2.5vw,1.05rem); }
+.totais-card .total-sub   { font-size:var(--text-xs); opacity:0.6; margin-top:2px; }
+.totais-card .total-num   { font-family:'Playfair Display',serif; font-size:clamp(1.6rem,5.5vw,2.2rem); font-weight:700; color:var(--ouro-light); flex-shrink:0; }
+
+
+/* ============================================================
+   TABELAS
+============================================================ */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+table { width: 100%; border-collapse: collapse; }
+
+table thead tr { background: white; }
+
+table th {
+  padding: clamp(7px,1.5vw,10px) clamp(10px,2vw,16px);
+  font-size: var(--text-xs); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--cinza-escuro); text-align: left; white-space: nowrap;
+}
+
+table td {
+  padding: clamp(6px,1.5vw,9px) clamp(10px,2vw,16px);
+  font-size: var(--text-sm);
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+table tbody tr { transition: background var(--transition-fast); }
+table tbody tr:hover { background: rgba(0,0,0,0.04); }
+
+/* Tabela de países */
+.paises-table th:last-child {
+  text-align: center;
+  width: clamp(160px, 24vw, 200px);
+}
+.paises-table td.num-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Destaque */
+.row-destaque td { background: white }
+.row-destaque td:first-child { color: var(--terra); font-weight: 700; }
+
+/* ============================================================
+   PESQUISA DE PAÍSES 
+============================================================ */
+
+/* ============================================================
+   PESQUISA DE PAÍSES — adicionar ao style.css
+   (após a secção /* TABELAS */)
+============================================================ */
+
+/* ── Zona de pesquisa ──────────────────────────────────────── */
+.zona-pesquisa-paises {
+  position: relative;
+  padding: clamp(8px, 2vw, 12px) clamp(10px, 3vw, 16px) clamp(10px, 2vw, 14px);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  background: rgba(245, 235, 224, 0.3);
+}
+
+.pesquisa-paises-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--branco);
+  padding: 0 12px;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.pesquisa-paises-wrap:focus-within {
+  border-color: var(--terra-light);
+  box-shadow: 0 0 0 3px rgba(139, 74, 43, 0.10);
+}
+
+.pesquisa-icone {
+  font-size: 0.85rem;
+  opacity: 0.5;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+#inputPesquisaPais {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: clamp(9px, 2vw, 11px) 0;
+  font-size: var(--text-base);
+  color: var(--cinza-escuro);
+  min-height: 0; /* override do estilo global */
+  box-shadow: none !important;
+}
+#inputPesquisaPais:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+#inputPesquisaPais::placeholder {
+  color: var(--cinza);
+  opacity: 0.6;
+}
+
+/* ── Dropdown de resultados ─────────────────────────────────── */
+.lista-pesquisa-paises {
+  display: none;
+  /* position e top/left/width definidos por JS via getBoundingClientRect */
+  background: white;
+  border: 1.5px solid var(--cinza-claro);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(139,74,43,0.15);
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 2px;
+}
+
+.pais-sugestao {
+  padding: 10px 14px;
+  font-size: var(--text-sm);
+  color: var(--cinza-escuro);
+  cursor: pointer;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  transition: background var(--transition-fast);
+}
+.pais-sugestao:last-child { border-bottom: none; }
+.pais-sugestao:hover,
+.pais-sugestao:focus {
+  background: var(--terra-pale);
+  color: var(--terra);
+}
+.pais-sugestao:active { background: rgba(139,74,43,0.12); }
+
+/* ── Tabela de países extra (adicionados) ───────────────────── */
+.paises-table-extra thead tr {
+  background: white;
+}
+.paises-table-extra thead th {
+  color: var(--cinza-escuro);
+}
+
+/* ── Botão remover país ─────────────────────────────────────── */
+.btn-remover-pais {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--cinza);
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  opacity: 0.45;
+  transition: opacity var(--transition-fast), color var(--transition-fast),
+              background var(--transition-fast);
+  vertical-align: middle;
+  min-width: 22px;
+  min-height: 22px;
+  touch-action: manipulation;
+}
+.btn-remover-pais:hover {
+  opacity: 1;
+  color: var(--vermelho);
+  background: rgba(192, 57, 43, 0.08);
+}
+
+
+/* ============================================================
+   INPUT NUMÉRICO STEPPER (países)
+============================================================ */
+.num-input {
+  width: clamp(72px, 14vw, 96px);
+  min-width: 72px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--cinza-claro);
+  border-radius: 7px;
+  padding: 8px 4px;
+  text-align: center;
+  font-size: var(--text-base); font-weight: 600;
+  color: var(--cinza-escuro); background: var(--branco);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none; appearance: none;
+  min-height: 44px; overflow: visible; letter-spacing: 0;
+}
+.num-input:focus {
+  outline: none; border-color: var(--ouro);
+  box-shadow: 0 0 0 3px rgba(201,149,42,0.15);
+}
+.num-input:disabled { opacity:0.55; cursor:not-allowed; background:rgba(0,0,0,0.02); }
+
+.num-stepper {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+
+button { font-family: 'Source Sans 3', sans-serif; cursor: pointer; border: none; transition: all var(--transition-base); -webkit-appearance: none; touch-action: manipulation; user-select: none; }
+button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+.btn-stepper {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--cinza-claro);
+  border-radius: 7px; background: var(--branco);
+  font-size: 1.25rem; font-weight: 700; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; min-width: 44px; min-height: 44px;
+}
+.btn-stepper:active:not(:disabled) { background: var(--terra-pale); border-color: var(--terra-light); }
+.btn-menos { color: var(--vermelho); }
+.btn-mais  { color: var(--verde); }
+
+
+/* ============================================================
+   SECÇÕES RECOLHÍVEIS
+============================================================ */
+.section-toggle { cursor:pointer; user-select:none; }
+.section-toggle:hover { filter:brightness(1.08); }
+.toggle-icone { font-size:var(--text-sm); flex-shrink:0; transition:transform 0.2s; margin-left:auto; }
+.verso-body { padding: clamp(10px,2vw,16px); }
+
+
+/* ============================================================
+   OPERADORES — nacionalidades por linha
+============================================================ */
+.op-nac-cell { min-width:220px; }
+.op-nac-lista { display:flex; flex-direction:column; gap:4px; margin-bottom:5px; }
+.op-nac-linha { display:flex; align-items:center; gap:4px; }
+
+.op-nac-linha select {
+  flex:1; min-width:0;
+  border:1.5px solid var(--cinza-claro); border-radius:6px;
+  padding:6px 8px;
+  font-size:var(--text-sm);
+  background:var(--branco); color:var(--cinza-escuro);
+  -webkit-appearance:none; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238B4A2B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 8px center;
+  padding-right:26px; min-height:34px;
+}
+.op-nac-linha select:focus { outline:none; border-color:var(--terra-light); box-shadow:0 0 0 2px rgba(139,74,43,0.08); }
+
+.op-nac-linha input[type="number"] {
+  width:60px; flex-shrink:0;
+  border:1.5px solid var(--cinza-claro); border-radius:6px;
+  padding:6px 4px; text-align:center;
+  font-size:var(--text-sm); background:var(--branco);
+  min-height:34px; -webkit-appearance:none;
+}
+.op-nac-linha input[type="number"]:focus { outline:none; border-color:var(--terra-light); }
+
+.btn-rem-nac {
+  background:none; border:none; color:#c0392b;
+  font-size:0.85rem; cursor:pointer; padding:4px 6px;
+  border-radius:4px; flex-shrink:0; line-height:1;
+  min-width:28px; min-height:28px; touch-action:manipulation;
+}
+.btn-rem-nac:hover { background:rgba(192,57,43,0.08); }
+
+.btn-add-nac {
+  background:none; border:1.5px dashed var(--cinza-claro);
+  color:var(--cinza); border-radius:6px;
+  padding:4px 10px; font-size:var(--text-xs);
+  cursor:pointer; width:100%; text-align:left;
+  transition:border-color 0.2s, color 0.2s;
+  min-height:30px; touch-action:manipulation;
+}
+.btn-add-nac:hover { border-color:var(--terra-light); color:var(--terra); }
+
+.sug-nac {
+  width:100%; border:1.5px solid var(--cinza-claro); border-radius:6px;
+  padding:7px 26px 7px 8px;
+  font-size:var(--text-sm); background:var(--branco); color:var(--cinza-escuro);
+  -webkit-appearance:none; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238B4A2B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 8px center;
+  min-height:38px;
+}
+.sug-nac:focus { outline:none; border-color:var(--terra-light); box-shadow:0 0 0 2px rgba(139,74,43,0.08); }
+
+/* Tabelas operadores / sugestões */
+.op-table, .sug-table { min-width:360px; }
+.op-table td:last-child  { width:clamp(70px,14vw,90px); text-align:center; }
+.sug-table td:last-child { width:clamp(110px,25vw,160px); }
+
+.op-table th, .sug-table th {
+  background: white;
+  padding: clamp(7px,1.5vw,9px) clamp(8px,1.5vw,12px);
+  font-size:var(--text-xs); text-transform:uppercase;
+  letter-spacing:1px; color:var(--cinza-escuro); font-weight:700;
+  text-align:left; white-space:nowrap;
+}
+.op-table td, .sug-table td {
+  padding:4px 5px; border-bottom:1px solid rgba(0,0,0,0.05); vertical-align:middle;
+}
+
+.op-table input, .sug-table input {
+  width:100%; border:1.5px solid var(--cinza-claro); border-radius:6px;
+  padding: clamp(7px,1.5vw,8px) clamp(7px,1.5vw,10px);
+  font-size:var(--text-sm); background:var(--branco);
+  transition:border-color 0.2s; -webkit-appearance:none; min-height:38px;
+}
+.op-table input:focus, .sug-table input:focus {
+  outline:none; border-color:var(--terra-light);
+  box-shadow:0 0 0 2px rgba(139,74,43,0.08);
+}
+
+/* ── Coluna e botão de remover linha (desktop) ─────────── */
+.op-remover-th {
+  width: 36px;
+}
+.op-remover-cell {
+  text-align: center;
+  width: 36px;
+}
+.btn-remover-op-linha {
+  background: none;
+  border: none;
+  color: var(--vermelho);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  min-width: 28px;
+  min-height: 28px;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
+  touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-remover-op-linha:hover {
+  opacity: 1;
+  background: rgba(192, 57, 43, 0.08);
+}
+
+/* ── Botão X remover cartão mobile ──────────────────────── */
+.btn-remover-op-cartao {
+  position: static;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--vermelho);
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 4px 7px;
+  border-radius: 4px;
+  min-width: 28px;
+  min-height: 28px;
+  opacity: 0.55;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.btn-remover-op-cartao:hover {
+  opacity: 1;
+  background: rgba(192, 57, 43, 0.08);
+}
+
+/* O cartão precisa de position: relative para o X absoluto */
+.op-cartao {
+  position: relative;
+}
+
+/* ── Linha de nac mobile: padding horizontal ─────────────── */
+.op-cartao-nac-linha {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+/* Dar espaço ao nome para não sobrepor o X */
+.op-cartao-nome {
+  padding-right: 36px;
+}
+
+
+/* ============================================================
+   OBSERVAÇÕES
+============================================================ */
+.obs-area {
+  width:100%; border:1.5px solid var(--cinza-claro); border-radius:10px;
+  padding: clamp(10px,2vw,14px);
+  font-size:var(--text-base); min-height:80px; resize:vertical;
+  background:var(--branco); transition:border-color 0.2s;
+  line-height:1.5; -webkit-appearance:none;
+}
+.obs-area:focus { outline:none; border-color:var(--terra-light); box-shadow:0 0 0 3px rgba(139,74,43,0.08); }
+
+.funcionario-fixo {
+  background:rgba(46,91,138,0.06); border:1.5px solid rgba(46,91,138,0.2);
+  border-radius:var(--radius-sm); padding:10px 14px;
+  font-size:var(--text-base); font-weight:600; color:var(--azul);
+  display:flex; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap;
+}
+.funcionario-fixo .fn-label {
+  font-size:var(--text-xs); font-weight:700; text-transform:uppercase;
+  letter-spacing:1px; opacity:0.7; display:block; margin-bottom:1px;
+}
+
+/* ============================================================
+   TOAST
+============================================================ */
+.toast {
+  position:fixed;
+  bottom: clamp(14px,3vw,24px);
+  right:  clamp(10px,3vw,24px);
+  padding:12px 16px; border-radius:10px;
+  color:white; font-size:var(--text-sm); font-weight:500;
+  box-shadow:var(--sombra-forte); z-index:9999;
+  transform:translateY(16px); opacity:0; transition:all 0.3s ease;
+  pointer-events:none;
+  max-width:min(300px, calc(100vw - 20px));
+  word-break:break-word;
+}
+.toast.show    { transform:translateY(0); opacity:1; }
+.toast.sucesso { background:var(--verde); }
+.toast.erro    { background:#c0392b; }
+.toast.info    { background:var(--azul); }
+
+
+/* ============================================================
+   MODAL PDF
+============================================================ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: var(--z-modal);
+  background: rgba(0,0,0,0.55);
+  display: none; align-items: center; justify-content: center;
+  padding: clamp(16px,4vw,32px);
+  backdrop-filter: blur(3px);
+  animation: fadeIn var(--transition-base) ease;
+  overflow-y: auto;
+}
+.modal-overlay.show { display: flex; }
+.modal-pdf-caixa {
+  background: var(--branco); border-radius: var(--radius-lg);
+  padding: var(--spacing-xl); width: 100%; max-width: 480px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+  animation: loginEntrada var(--transition-slow) cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-pdf-titulo {
+  font-family: 'Playfair Display', serif;
+  font-size: var(--text-xl); font-weight: 700;
+  color: var(--terra); margin-bottom: 6px;
+}
+.modal-pdf-sub {
+  font-size: var(--text-sm); color: var(--cinza);
+  margin-bottom: var(--spacing-lg);
+}
+.modal-pdf-opcoes {
+  display: grid; gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 16px;
+}
+@media (max-width:420px) { .modal-pdf-opcoes { grid-template-columns:1fr; } }
+
+.btn-pdf-opcao {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: var(--spacing-md) var(--spacing-sm);
+  background: var(--terra-pale); border: 2px solid var(--cinza-claro);
+  border-radius: var(--radius); cursor: pointer; text-align: center;
+  transition: all var(--transition-base);
+}
+.btn-pdf-opcao:hover { border-color:var(--terra); background:white; transform:translateY(-2px); box-shadow:var(--sombra); }
+.btn-pdf-opcao:active { transform:translateY(0); }
+
+.pdf-opcao-icone  { font-size:2rem; line-height:1; }
+.pdf-opcao-titulo { font-weight:700; font-size:var(--text-base); color:var(--terra); }
+.pdf-opcao-desc   { font-size:var(--text-xs); color:var(--cinza); line-height:1.4; }
+
+.btn-pdf-fechar {
+  width:100%; padding:10px;
+  background:none; border:1.5px solid var(--cinza-claro);
+  border-radius:var(--radius-sm); color:var(--cinza);
+  font-size:var(--text-sm); cursor:pointer;
+  transition:border-color var(--transition-base); min-height:40px;
+}
+.btn-pdf-fechar:hover { border-color:var(--cinza); }
+
+
+/* ============================================================
+   BREAKPOINTS EXTRA — ecrãs grandes
+============================================================ */
+@media (min-width:1024px) {
+  :root { --gap:18px; }
+  .container { padding-left:clamp(20px,4vw,40px); padding-right:clamp(20px,4vw,40px); }
+  .paises-table th, .paises-table td { padding:10px 18px; }
+}
+
+/* ============================================================
+   Operadores — Cartões Mobile + Botão "Novo Registo"
+============================================================ */
+
+/* ── Wrapper interno gerado por ui.js ──────────────────────── */
+#secaoOperadoresConteudo {
+  padding: clamp(10px, 2vw, 16px);
+}
+
+/* ── Desktop: mostrar tabela, ocultar cartões ──────────────── */
+.op-desktop-wrap { display: block; }
+.op-mobile-wrap  { display: none; }
+.op-desktop-only { display: inline-flex !important; }
+.op-mobile-only  { display: none !important; }
+
+/* ── Mobile (≤640px): ocultar tabela, mostrar cartões ──────── */
+@media (max-width: 640px) {
+  .op-desktop-wrap { display: none; }
+  .op-mobile-wrap  { display: block; }
+  .op-desktop-only { display: none !important; }
+  .op-mobile-only  { display: inline-flex !important; }
+}
+
+/* ── Botão "Novo Registo de Operador ou Agência" ────────────── */
+.op-btn-novo-wrap {
+  padding: 10px 0 4px;
+}
+
+.btn-novo-operador {
+  width: 100%;
+  background: var(--branco);
+  border: 1.5px solid var(--cinza-claro);
+  border-radius: var(--radius-sm);
+  color: var(--terra);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: 11px 16px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color var(--transition-base),
+              color var(--transition-base),
+              background var(--transition-base);
+  min-height: 44px;
+  touch-action: manipulation;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  display: flex;
+}
+.btn-novo-operador:hover:not(:disabled) {
+  border-color: var(--terra-light);
+  color: var(--terra);
+  background: rgba(139, 74, 43, 0.04);
+}
+.btn-novo-operador:active:not(:disabled) {
+  background: rgba(139, 74, 43, 0.08);
+}
+
+/* ============================================================
+   CARTÃO MOBILE DE OPERADOR
+============================================================ */
+.op-cartao {
+  background: white;
+  border: 1.5px solid var(--cinza-claro);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(139,74,43,0.07);
+  animation: slideUp 0.22s ease;
+}
+
+/* Secção do nome (topo do cartão) */
+.op-cartao-secao {
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  background: linear-gradient(135deg, rgba(139,74,43,0.03) 0%, transparent 60%);
+}
+
+.op-cartao-nome {
+  width: 100%;
+  border: 1.5px solid var(--cinza-claro);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--cinza-escuro);
+  background: var(--branco);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  -webkit-appearance: none;
+  min-height: 44px;
+}
+.op-cartao-nome:focus {
+  outline: none;
+  border-color: var(--terra-light);
+  box-shadow: 0 0 0 3px rgba(139,74,43,0.10);
+}
+.op-cartao-nome::placeholder { color: var(--cinza); opacity: 0.55; }
+
+/* Área de linhas de nacionalidade */
+.op-cartao-nacs {
+  padding: 8px 14px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Linha: select país + número + botão remover */
+.op-cartao-nac-linha {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+}
+
+.op-cartao-nac-select {
+  flex: 1;
+  min-width: 0;
+  border: 1.5px solid var(--cinza-claro);
+  border-radius: var(--radius-sm);
+  padding: 8px 26px 8px 10px;
+  font-size: var(--text-sm);
+  background: var(--branco);
+  color: var(--cinza-escuro);
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238B4A2B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  min-height: 40px;
+  cursor: pointer;
+}
+.op-cartao-nac-select:focus {
+  outline: none;
+  border-color: var(--terra-light);
+  box-shadow: 0 0 0 2px rgba(139,74,43,0.08);
+}
+
+.op-cartao-nac-num {
+  width: 64px !important;
+  flex-shrink: 0;
+  border: 1.5px solid var(--cinza-claro) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 8px 4px !important;
+  text-align: center;
+  font-size: var(--text-sm) !important;
+  font-weight: 600;
+  background: var(--branco) !important;
+  color: var(--cinza-escuro) !important;
+  min-height: 40px;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+.op-cartao-nac-num::-webkit-inner-spin-button,
+.op-cartao-nac-num::-webkit-outer-spin-button { -webkit-appearance: none; }
+.op-cartao-nac-num:focus {
+  outline: none;
+  border-color: var(--terra-light);
+}
+
+.btn-rem-nac-cartao {
+  background: none;
+  border: none;
+  color: var(--cinza);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  line-height: 1;
+  min-width: 30px;
+  min-height: 30px;
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  transition: opacity var(--transition-fast),
+              color var(--transition-fast),
+              background var(--transition-fast);
+}
+.btn-rem-nac-cartao:hover {
+  opacity: 1;
+  color: var(--vermelho);
+  background: rgba(192,57,43,0.08);
+}
+
+/* Botão "+ Adicionar nacionalidade" dentro do cartão */
+.btn-add-nac-cartao {
+  width: calc(100% - 28px);
+  margin: 2px 14px 10px;
+  background: var(--branco);
+  border: 1.5px solid var(--cinza-claro);
+  color: var(--terra);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--transition-base), color var(--transition-base),
+              background var(--transition-base);
+  min-height: 34px;
+  touch-action: manipulation;
+}
+.btn-add-nac-cartao:hover {
+  border-color: var(--terra-light);
+  color: var(--terra);
+  background: rgba(139,74,43,0.03);
+}
+
+/* Linha de TOTAL (rodapé do cartão) */
+.op-cartao-total-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(245, 235, 224, 0.35);
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+.op-cartao-total-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--cinza);
+  flex: 1;
+  text-align: right;
+}
+
+.op-cartao-total {
+  width: 80px !important;
+  border: 1.5px solid var(--cinza-claro) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 8px 10px !important;
+  text-align: center;
+  font-size: var(--text-base) !important;
+  font-weight: 700;
+  color: var(--terra) !important;
+  background: white;
+  min-height: 40px;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+.op-cartao-total::-webkit-inner-spin-button,
+.op-cartao-total::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* ============================================================
+   OFFLINE
+============================================================ */
+
+/* ── Badge de registos pendentes (header) ───────────────── */
+.badge-pendentes-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.badge-pendentes {
+  background: var(--cor-aviso);
+  color: white;
+  border-radius: 20px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: 2px 8px;
+  min-width: 22px;
+  text-align: center;
+  white-space: nowrap;
+  animation: pulse 2s infinite;
+}
+
+/* ── Input com registo pendente de sincronização ────────── */
+.input-pendente {
+  border-color: var(--cor-aviso) !important;
+  background: rgba(243, 156, 18, 0.05) !important;
+  color: var(--cor-aviso) !important;
+}
+
+/* ── Toast de sugestão de PDF (offline) ─────────────────── */
+.toast-pdf-backup {
+  position: fixed;
+  bottom: clamp(70px, 12vw, 90px);
+  right: clamp(10px, 3vw, 24px);
+  background: var(--cinza-escuro);
+  color: white;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  max-width: min(320px, calc(100vw - 20px));
+  box-shadow: var(--sombra-forte);
+  z-index: var(--z-toast);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: auto;
+}
+.toast-pdf-backup.visivel {
+  opacity: 1;
+  transform: translateY(0);
+}
+.toast-pdf-texto {
+  font-size: var(--text-sm);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.toast-pdf-acoes {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.toast-pdf-btn {
+  background: var(--ouro);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 34px;
+}
+.toast-pdf-btn:hover { background: var(--ouro-light); color: var(--cinza-escuro); }
+
+.toast-pdf-fechar {
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: rgba(255,255,255,0.7);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  min-height: 34px;
+}
+.toast-pdf-fechar:hover { background: rgba(255,255,255,0.22); }
+
+/* ── Banner estado pendente ─────────────────────────────── */
+.estado-banner.pendente {
+  display: flex;
+  background: rgba(243, 156, 18, 0.10);
+  border: 1.5px solid rgba(243, 156, 18, 0.35);
+  color: #8a6510;
+}

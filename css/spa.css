@@ -1,0 +1,288 @@
+/* ============================================================
+   spa.css — Estilos do shell SPA
+   Registo Diário de Nacionalidades — Município de Reguengos de Monsaraz
+
+   Contém:
+     • Layout do outlet e transição entre views
+     • Overlay de transição (spinner)
+     • Ecrã de erro de acesso
+     • Adaptações ao header global persistente
+     • Animação de entrada das views
+============================================================ */
+
+/* ============================================================
+   OUTLET — container onde as views são injectadas
+============================================================ */
+
+.spa-outlet {
+  /* Permite que cada view gerencie o seu próprio scroll/padding */
+  display: block;
+  min-height: calc(100vh - 80px); /* 80px ≈ altura do header */
+  position: relative;
+}
+
+/* Animação de entrada da view — aplicada ao outlet pelo router */
+.spa-outlet.spa-entering {
+  animation: spaViewEntrar 0.22s ease both;
+}
+
+@keyframes spaViewEntrar {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   OVERLAY DE TRANSIÇÃO ENTRE VIEWS
+============================================================ */
+
+.spa-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  background: rgba(253, 250, 246, 0.72);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Começa invisível e sem eventos */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+.spa-transition.activo {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.spa-transition-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(139, 74, 43, 0.15);
+  border-top-color: var(--terra);
+  border-radius: 50%;
+  animation: spaSpin 0.75s linear infinite;
+}
+
+@keyframes spaSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   ECRÃ DE ERRO DE ACESSO
+============================================================ */
+
+.spa-erro-acesso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: clamp(60px, 12vw, 100px) clamp(20px, 5vw, 40px);
+  gap: 16px;
+  min-height: 60vh;
+}
+
+.spa-erro-icone {
+  font-size: 3.5rem;
+  opacity: 0.4;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.spa-erro-acesso h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: var(--text-xl);
+  color: var(--terra);
+  margin: 0;
+}
+
+.spa-erro-acesso p {
+  font-size: var(--text-sm);
+  color: var(--cinza);
+  max-width: 380px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ============================================================
+   HEADER — zona direita dinâmica
+   As views injectam HTML aqui via spaSetHeader({ direita })
+============================================================ */
+
+#headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+/* User info (injectado pelo app-shell ou view) */
+.spa-user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.spa-user-label {
+  font-size: var(--text-xs);
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.spa-user-name {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  max-width: min(260px, 45vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badge de visitantes (view Registo) */
+.spa-header-badge {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  text-align: center;
+  display: none;
+}
+@media (min-width: 520px) { .spa-header-badge { display: block; } }
+
+.spa-header-badge .badge-num {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 700;
+  color: var(--terra);
+  display: block;
+  line-height: 1;
+}
+
+.spa-header-badge .badge-label {
+  font-size: var(--text-xs);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--terra-dark);
+}
+
+/* Badge de pendentes offline */
+.spa-badge-pendentes {
+  background: var(--cor-aviso);
+  color: white;
+  border-radius: 20px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: 2px 8px;
+  min-width: 22px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   AJUSTE: o header original já tem position:sticky —
+   o outlet começa imediatamente a seguir, sem gap
+============================================================ */
+
+body {
+  /* Prevenir flash de fundo durante transições */
+  background: var(--branco);
+}
+
+/* Garantir que o footer fica sempre no fundo */
+#app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.spa-outlet {
+  flex: 1;
+}
+
+/* ============================================================
+   ESTADO DE CARREGAMENTO INICIAL
+   (antes do primeiro mount da view)
+============================================================ -->
+
+.spa-outlet:empty::after {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--terra-light) 40%,
+    var(--ouro) 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: spaLoading 1.4s ease infinite;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+}
+
+@keyframes spaLoading {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================================
+   STUBS — views ainda não migradas
+============================================================ */
+
+.spa-stub-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  gap: 12px;
+  padding: clamp(40px, 8vw, 80px) 20px;
+  color: var(--cinza);
+}
+
+.spa-stub-icone {
+  font-size: 3.5rem;
+  opacity: 0.3;
+  display: block;
+}
+
+.spa-stub-view h2 {
+  font-family: 'Playfair Display', serif;
+  color: var(--terra);
+  font-size: var(--text-xl);
+}
+
+.spa-stub-view p {
+  font-size: var(--text-sm);
+  max-width: 360px;
+  line-height: 1.6;
+}
+
+.spa-stub-nota {
+  font-size: var(--text-xs) !important;
+  opacity: 0.7;
+}
+
+.spa-stub-nota a {
+  color: var(--azul);
+  text-decoration: underline;
+}
+

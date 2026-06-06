@@ -1,0 +1,219 @@
+/* ============================================================
+   nav-menu.css — Menu de navegação contextual (header)
+   Partilhado por todas as páginas
+   Importar em cada stylesheet ou via <link> em cada HTML
+============================================================ */
+
+/* ── Botão hamburger ──────────────────────────────────────── */
+.nav-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  color: var(--terra-dark);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+  padding: 5px 10px;
+  margin-top: 3px;
+  gap: 6px;
+  white-space: nowrap;
+  min-height: 30px;
+  font-size: var(--text-xs, 0.72rem);
+  font-weight: 600;
+}
+
+.nav-menu-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.nav-menu-btn:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.04);
+  outline-offset: 2px;
+}
+
+.nav-menu-btn-label {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  line-height: 1;
+}
+
+/* Ícone de 3 linhas */
+.nav-menu-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 14px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nav-menu-icon span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--terra-dark);
+  border-radius: 2px;
+  transition: transform 0.22s ease, opacity 0.22s ease, width 0.22s ease;
+  transform-origin: center;
+}
+
+/* Estado aberto — X animado */
+.nav-menu-btn.aberto .nav-menu-icon span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.nav-menu-btn.aberto .nav-menu-icon span:nth-child(2) {
+  opacity: 0;
+  width: 0;
+}
+.nav-menu-btn.aberto .nav-menu-icon span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* ── Painel dropdown ─────────────────────────────────────── */
+.nav-menu-painel {
+  position: fixed;
+  z-index: 2000;
+  min-width: 230px;
+  max-width: min(280px, calc(100vw - 24px));
+  background: #fff;
+  border-radius: var(--radius-lg, 14px);
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.06),
+    0 12px 40px rgba(0, 0, 0, 0.14),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+  padding: 6px;
+  opacity: 0;
+  transform: scale(0.94) translateY(-6px);
+  transform-origin: top right;
+  pointer-events: none;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.nav-menu-painel.visivel {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+/* ── Cabeçalho do painel ──────────────────────────────────── */
+.nav-menu-cab {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px 8px;
+}
+
+.nav-menu-cab-nome {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--cinza-escuro, #2C2C2C);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.nav-menu-cab-role {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--terra, #8B4A2B);
+}
+
+/* ── Separador ───────────────────────────────────────────── */
+.nav-menu-sep {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.07);
+  margin: 4px 0;
+}
+
+/* ── Item de menu ────────────────────────────────────────── */
+.nav-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm, 8px);
+  border: none;
+  background: transparent;
+  color: var(--cinza-escuro, #2C2C2C);
+  font-size: 0.83rem;
+  font-family: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease, color 0.12s ease;
+  line-height: 1.35;
+  min-height: 38px;
+}
+
+.nav-menu-item:hover,
+.nav-menu-item:focus-visible {
+  background: rgba(139, 74, 43, 0.07);
+  color: var(--terra, #8B4A2B);
+  outline: none;
+}
+
+.nav-menu-item:active {
+  background: rgba(139, 74, 43, 0.13);
+}
+
+/* Item da página actual */
+.nav-menu-item.activo {
+  background: rgba(139, 74, 43, 0.09);
+  color: var(--terra, #8B4A2B);
+  font-weight: 700;
+  pointer-events: auto;
+  cursor: default;
+}
+
+.nav-menu-item.activo:hover {
+  background: rgba(139, 74, 43, 0.09);
+}
+
+/* Badge "Aqui" */
+.nav-menu-item-badge {
+  font-size: 0.63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  background: rgba(139, 74, 43, 0.12);
+  color: var(--terra, #8B4A2B);
+  border-radius: 20px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Botão sair */
+.nav-menu-sair {
+  color: var(--vermelho, #c0392b) !important;
+}
+
+.nav-menu-sair:hover,
+.nav-menu-sair:focus-visible {
+  background: rgba(192, 57, 43, 0.07) !important;
+  color: var(--vermelho, #c0392b) !important;
+}
+
+/* ── Responsividade mobile ───────────────────────────────── */
+@media (max-width: 480px) {
+  .nav-menu-painel {
+    /* Em mobile, o painel estica quase até à largura total */
+    min-width: calc(100vw - 24px);
+    right: 12px !important;
+  }
+}
