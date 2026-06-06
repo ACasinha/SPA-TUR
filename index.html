@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#8B4A2B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nacionalidades">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" href="img/logo-small.png">
+<title>Registo Diário de Nacionalidades</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style"
+  href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap">
+<link rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap">
+
+<!-- Estilos globais (partilhados por todas as views) -->
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/spa.css">
+
+<!-- Preload scripts críticos -->
+<link rel="preload" href="js/api.js"    as="script">
+<link rel="preload" href="js/auth.js"   as="script">
+<link rel="preload" href="js/users.js"  as="script">
+<link rel="preload" href="js/login.js"  as="script">
+<link rel="preload" href="js/router.js" as="script">
+
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+</head>
+<body>
+
+<!-- ============================================================
+     OVERLAY DE LOGIN
+     Partilhado pela SPA — auth.js controla visibilidade
+============================================================ -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="img/logo.png" alt="Logo Município de Reguengos de Monsaraz">
+    </div>
+    <div class="login-titulo">Bem-vindo(a)</div>
+    <div class="login-sub" id="loginSubtitulo">Registo Diário de Turistas e Visitantes</div>
+    <div class="login-erro" id="loginErro"></div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="loginUser" placeholder="nome@exemplo.pt"
+             autocomplete="username" inputmode="email"
+             onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Password"
+             autocomplete="current-password"
+             onkeydown="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <button class="btn-login" id="btnLogin" onclick="fazerLogin()">Entrar →</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     BANNER PWA (topo — primeira abertura)
+============================================================ -->
+<div class="install-banner" id="installBanner">
+  <span>📱 Instale esta app no seu dispositivo para acesso rápido</span>
+  <button class="btn-instalar" id="btnInstalar">Instalar</button>
+  <button class="btn-instalar-fechar" id="btnInstalarFechar">✕</button>
+</div>
+
+<!-- ============================================================
+     SHELL DA APP (visível após login)
+============================================================ -->
+<div id="app-shell" style="display:none">
+
+  <!-- HEADER GLOBAL — persistente entre views -->
+  <div class="header" id="appHeader">
+    <div class="header-left">
+      <div class="logo-circle">
+        <img src="img/logo-small.png" alt="Logo Município">
+      </div>
+      <div class="header-text">
+        <h1 id="headerTitulo">Registo Diário de Turistas e Visitantes</h1>
+      </div>
+    </div>
+    <div class="header-right" id="headerRight">
+      
+      <!-- Conteúdo dinâmico injectado pelas views via headerRight -->
+    </div>
+  </div>
+
+  <!-- OVERLAY DE TRANSIÇÃO ENTRE VIEWS -->
+  <div id="spa-transition" class="spa-transition">
+    <div class="spa-transition-spinner"></div>
+  </div>
+
+  <!-- OUTLET — onde o HTML de cada view é injectado -->
+  <main id="spa-outlet" class="spa-outlet" role="main">
+    <!-- View activa renderizada aqui pelo router.js -->
+  </main>
+
+  <!-- RODAPÉ GLOBAL — persistente entre views -->
+  <footer class="rodape" id="appFooter">
+    <div class="rodape-logo">
+      <img src="img/logo-turismo.png" alt="Serviços de Turismo">
+    </div>
+    <div class="rodape-texto">
+      <span class="rodape-dev">
+        Desenvolvido pelos Serviços de Turismo do Município de Reguengos de Monsaraz
+      </span>
+      <div class="rodape-pwa">
+        <span class="rodape-versao" id="rodapeVersao">v1</span>
+        <button class="btn-rodape" id="btnVerificarUpdate"
+                onclick="verificarAtualizacao()" title="Verificar atualização">
+          🔄 Verificar atualização
+        </button>
+        <button class="btn-rodape btn-rodape-instalar"
+                id="btnInstalarRodape" style="display:none"
+                onclick="instalarApp()" title="Instalar app">
+          📲 Instalar app
+        </button>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /app-shell -->
+
+<!-- TOAST GLOBAL — fora do shell para sobrepor qualquer view -->
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================
+     DEPENDÊNCIAS EXTERNAS
+============================================================ -->
+
+<!-- idb — IndexedDB (sync offline) -->
+<script src="https://cdn.jsdelivr.net/npm/idb@8/build/umd.js"></script>
+
+<!-- jsPDF — geração de PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<!-- ============================================================
+     NÚCLEO DA APP — carregado antes do router
+============================================================ -->
+<script defer src="js/api.js"></script>
+<script defer src="js/auth.js"></script>
+<script defer src="js/users.js"></script>
+<script defer src="js/sw-update.js"></script>
+
+<!-- Login — controla o overlay e delega no router após sucesso -->
+<script defer src="js/login.js"></script>
+
+<!-- Módulos partilhados entre views -->
+<script defer src="js/data.js"></script>
+<script defer src="js/ui.js"></script>
+<script defer src="js/sync.js"></script>
+<script defer src="js/offline.js"></script>
+<script defer src="js/nav-menu.js"></script>
+<script defer src="js/pwa.js"></script>
+
+<!-- Router — carrega após os módulos base -->
+<script defer src="js/router.js"></script>
+
+<!-- Arranque da SPA -->
+<script defer src="js/app-shell.js"></script>
+
+</body>
+</html>
