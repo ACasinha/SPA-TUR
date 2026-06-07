@@ -71,8 +71,9 @@
     if (painelAntigo) painelAntigo.parentNode.removeChild(painelAntigo);
     _menuAberto = false;
 
-    var headerRight = document.querySelector('.header-right');
-    if (!headerRight) return;
+    var headerNav = document.getElementById('headerNav');
+
+    if (!headerNav) return;
 
     // Botão hamburger
     var btn = document.createElement('button');
@@ -86,7 +87,8 @@
         '<span></span><span></span><span></span>' +
       '</span>' +
       '<span class="nav-menu-btn-label">Menu</span>';
-    headerRight.appendChild(btn);
+    headerNav.appendChild(btn);
+    console.log('btn criado', document.getElementById('navMenuBtn'));
 
     // Painel dropdown
     var painel = document.createElement('div');
@@ -171,6 +173,9 @@
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && _menuAberto) fecharMenu();
     });
+
+    console.log('construirMenuNav');
+console.log(document.getElementById('headerRight'));
   }
 
   function _separador() {

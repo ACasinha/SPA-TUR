@@ -1,0 +1,123 @@
+<!-- views/admin/view.html -->
+<div class="admin-container">
+
+  <div class="admin-header">
+    <div class="editor-header-info">
+      <h1>🛡️ Gestão de Utilizadores</h1>
+      <p>Administração do sistema de registo de nacionalidades</p>
+    </div>
+  </div>
+
+  <div class="admin-actions">
+    <button class="btn-novo-user" onclick="window.__admin&&window.__admin.abrirNovo()">
+      ➕ Novo Utilizador
+    </button>
+  </div>
+
+  <div class="roles-legenda" id="rolesLegenda">
+    <div class="role-item">
+      <span class="badge-role badge-admin">Admin</span>
+      <span>Acesso total — registo, dashboard, editor e gestão de utilizadores</span>
+    </div>
+    <div class="role-item">
+      <span class="badge-role badge-user">Utilizador</span>
+      <span>Acesso ao registo diário de nacionalidades</span>
+    </div>
+    <div class="role-item">
+      <span class="badge-role badge-user badge-user-extra">Utilizador 📊✏️</span>
+      <span>Registo diário com acessos opcionais ao dashboard e/ou editor</span>
+    </div>
+    <div class="role-item">
+      <span class="badge-role badge-visualizador">Visualizador</span>
+      <span>Acesso apenas ao dashboard de análise (só leitura)</span>
+    </div>
+  </div>
+
+  <div class="users-table-container">
+    <div class="loading-overlay" id="loadingUsers">
+      <div class="spinner"></div>
+    </div>
+    <table class="users-table" id="usersTable">
+      <thead>
+        <tr>
+          <th>Utilizador</th><th>Role</th><th>Estado</th>
+          <th>Último Login</th><th style="text-align:right">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="usersTableBody">
+        <tr><td colspan="5" class="empty-state">
+          <span class="empty-state-icon">👥</span>
+          <div>A carregar utilizadores...</div>
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Modal Novo / Editar Utilizador -->
+<div class="modal-overlay" id="modalNovoUser">
+  <div class="modal-box">
+    <div class="modal-header"><h2 id="modalTitulo">Novo Utilizador</h2></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Nome Completo *</label>
+        <input type="text" id="userNome" placeholder="Nome e Sobrenome"></div>
+      <div class="form-group"><label>Email *</label>
+        <input type="email" id="userEmail" placeholder="utilizador@exemplo.pt"></div>
+      <div class="form-group" id="passwordGroup"><label>Password *</label>
+        <input type="password" id="userPassword" placeholder="Mínimo 6 caracteres"></div>
+      <div class="form-group"><label>Role *</label>
+        <select id="userRole" onchange="window.__admin&&window.__admin.onRoleChange('userRole','roleInfoNovo','grupoAcessosNovo')">
+          <option value="utilizador">Utilizador — Registo diário</option>
+          <option value="visualizador">Visualizador — Apenas dashboard</option>
+          <option value="administrador">Administrador — Acesso total</option>
+        </select></div>
+      <div class="role-info" id="roleInfoNovo"></div>
+      <div id="grupoAcessosNovo">
+        <div class="form-group"><label class="checkbox-label">
+          <input type="checkbox" id="userAcessoDashboard">
+          <span>Permitir acesso ao Dashboard</span></label></div>
+        <div class="form-group"><label class="checkbox-label">
+          <input type="checkbox" id="userAcessoEditor">
+          <span>Permitir acesso ao Editor Mensal</span></label></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModal()">Cancelar</button>
+      <button class="btn-modal btn-guardar" id="btnGuardarUser"
+              onclick="window.__admin&&window.__admin.guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalEditarUser">
+  <div class="modal-box">
+    <div class="modal-header"><h2>Editar Utilizador</h2></div>
+    <div class="modal-body">
+      <input type="hidden" id="editUserUid">
+      <div class="form-group"><label>Nome Completo *</label>
+        <input type="text" id="editUserNome"></div>
+      <div class="form-group"><label>Email</label>
+        <input type="email" id="editUserEmail" disabled style="opacity:0.6"></div>
+      <div class="form-group"><label>Role *</label>
+        <select id="editUserRole" onchange="window.__admin&&window.__admin.onRoleChange('editUserRole','roleInfoEditar','grupoAcessosEditar')">
+          <option value="utilizador">Utilizador — Registo diário</option>
+          <option value="visualizador">Visualizador — Apenas dashboard</option>
+          <option value="administrador">Administrador — Acesso total</option>
+        </select></div>
+      <div class="role-info" id="roleInfoEditar"></div>
+      <div id="grupoAcessosEditar">
+        <div class="form-group"><label class="checkbox-label">
+          <input type="checkbox" id="editAcessoDashboard">
+          <span>Permitir acesso ao Dashboard</span></label></div>
+        <div class="form-group"><label class="checkbox-label">
+          <input type="checkbox" id="editAcessoEditor">
+          <span>Permitir acesso ao Editor Mensal</span></label></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModalEditar()">Cancelar</button>
+      <button class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.guardarEdicao()">Guardar</button>
+    </div>
+  </div>
+</div>

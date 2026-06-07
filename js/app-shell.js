@@ -55,6 +55,7 @@ function _activarShell(perfil) {
   var nomeEl = document.getElementById('headerNomeFuncionario');
   if (nomeEl) nomeEl.textContent = perfil.nome || perfil.email || '—';
 
+  console.log('construirMenuNav existe?', typeof construirMenuNav);
   // Menu de navegação contextual (nav-menu.js)
   if (typeof construirMenuNav === 'function') {
     construirMenuNav(perfil);
