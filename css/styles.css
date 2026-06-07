@@ -648,6 +648,26 @@ input[type="number"] {
 }
 
 /* ============================================================
+   TOAST
+============================================================ */
+.toast {
+  position:fixed;
+  bottom: clamp(14px,3vw,24px);
+  right:  clamp(10px,3vw,24px);
+  padding:12px 16px; border-radius:10px;
+  color:white; font-size:var(--text-sm); font-weight:500;
+  box-shadow:var(--sombra-forte); z-index:9999;
+  transform:translateY(16px); opacity:0; transition:all 0.3s ease;
+  pointer-events:none;
+  max-width:min(300px, calc(100vw - 20px));
+  word-break:break-word;
+}
+.toast.show    { transform:translateY(0); opacity:1; }
+.toast.sucesso { background:var(--verde); }
+.toast.erro    { background:#c0392b; }
+.toast.info    { background:var(--azul); }
+
+/* ============================================================
    BOTÕES — guardar / limpar / ações
 ============================================================ */
 .actions {
