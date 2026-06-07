@@ -1,21 +1,9 @@
 // ============================================================
 // router.js — SPA Router com lazy loading de views
 // Registo Diário de Nacionalidades — Município de Reguengos de Monsaraz
-//
-// Responsabilidades:
-//   • Gerir o histórico via History API (pushState / popstate)
-//   • Lazy loading de HTML + JS de cada view
-//   • Ciclo de vida: beforeLeave → load → mount → unmount
-//   • Protecção de rotas (auth + role)
-//   • Loading overlay entre transições
-//
-// NÃO contém: lógica de negócio, autenticação (auth.js),
-// perfis (users.js).
 // ============================================================
 
 'use strict';
-
-// ── Definição das rotas ──────────────────────────────────────
 
 var ROTAS = {
   '/': {
@@ -46,40 +34,32 @@ var ROTAS = {
   }
 };
 
-// ── Estado interno ───────────────────────────────────────────
-
-var _rotaActual     = null;   // objecto rota activa
-var _viewActual     = null;   // instância da view activa
-var _perfilUtiliz   = null;   // perfil do utilizador autenticado
-var _viewsCarregadas = {};    // cache: viewName → módulo JS carregado
-var _htmlCache       = {};    // cache: viewName → HTML string
+var _rotaActual      = null;
+var _viewActual      = null;
+var _perfilUtiliz    = null;
+var _viewsCarregadas = {};
+var _htmlCache       = {};
 var _navegando       = false;
+var _scriptsCarregados = {};
+var _cssEmCurso      = {};
 
-// ── Elemento shell onde as views são injectadas ──────────────
 var OUTLET_ID = 'spa-outlet';
 
 // ============================================================
-// INICIALIZAÇÃO — chamada após login bem-sucedido
+// INICIALIZAÇÃO
 // ============================================================
 
 function routerInit(perfil) {
   _perfilUtiliz = perfil;
-
-  // Interceptar links internos (delegação no document)
   document.addEventListener('click', _onLinkClick);
-
-  // Botão Back/Forward do browser
-  window.addEventListener('popstate', function(e) {
-    var caminho = window.location.pathname;
-    _navegar(caminho, false);
+  window.addEventListener('popstate', function() {
+    _navegar(window.location.pathname, false);
   });
-
-  // Navegar para a rota actual (refresh ou abertura directa)
   _navegar(window.location.pathname, false);
 }
 
 // ============================================================
-// NAVEGAR — ponto de entrada público
+// NAVEGAR
 // ============================================================
 
 function routerNavegar(caminho) {
@@ -89,41 +69,33 @@ function routerNavegar(caminho) {
 function _navegar(caminho, pushState) {
   if (_navegando) return;
 
-  // Normalizar: remover trailing slash excepto na raiz
   caminho = caminho.replace(/\/+$/, '') || '/';
 
-  // Rota conhecida?
   var rota = ROTAS[caminho];
-  if (!rota) {
-    // Rota desconhecida → raiz
-    caminho = '/';
-    rota    = ROTAS['/'];
-  }
+  if (!rota) { caminho = '/'; rota = ROTAS['/']; }
 
-  // Verificar acesso
   if (_perfilUtiliz && !rota.acesso(_perfilUtiliz)) {
     _mostrarErroAcesso(rota.semAcesso);
     return;
   }
 
-  // Já estamos aqui?
   if (_rotaActual && _rotaActual.caminho === caminho) return;
 
   _navegando = true;
   _mostrarTransicao(true);
 
-  // 1. beforeLeave na view actual
   var promessaLeave = Promise.resolve();
   if (_viewActual && typeof _viewActual.beforeLeave === 'function') {
     promessaLeave = Promise.resolve(_viewActual.beforeLeave());
   }
+
+  var viewAnterior = _rotaActual ? _rotaActual.rota.view : null;
 
   promessaLeave
     .then(function() {
       return _carregarView(rota.view);
     })
     .then(function(modulo) {
-      // Actualizar URL e título
       if (pushState) {
         history.pushState({ caminho: caminho }, rota.titulo, caminho);
       }
@@ -134,15 +106,18 @@ function _navegar(caminho, pushState) {
         _viewActual.unmount();
       }
 
-      // Injectar HTML no outlet
+      // Desactivar CSS da view anterior (o novo CSS já está no DOM neste ponto)
+      if (viewAnterior && viewAnterior !== rota.view) {
+        var linkAntigo = document.querySelector('link[data-view-css="' + viewAnterior + '"]');
+        if (linkAntigo) linkAntigo.disabled = true;
+      }
+
+      // Injectar HTML e montar nova view
       var outlet = document.getElementById(OUTLET_ID);
       outlet.innerHTML = _htmlCache[rota.view] || '';
 
-      // Montar nova view
-      _viewActual  = modulo;
-      _rotaActual  = { caminho: caminho, rota: rota };
-
-      // Actualizar menu de navegação activo
+      _viewActual = modulo;
+      _rotaActual = { caminho: caminho, rota: rota };
       _actualizarNavActivo(caminho);
 
       if (typeof modulo.mount === 'function') {
@@ -156,7 +131,6 @@ function _navegar(caminho, pushState) {
       console.error('[Router] Erro ao navegar para', caminho, err);
       _mostrarTransicao(false);
       _navegando = false;
-      _mostrarErroAcesso('Erro ao carregar a página: ' + err.message);
     });
 }
 
@@ -165,8 +139,10 @@ function _navegar(caminho, pushState) {
 // ============================================================
 
 function _carregarView(nomeView) {
-  // Já em cache?
   if (_viewsCarregadas[nomeView]) {
+    // View já carregada — reactivar o CSS se estiver desactivado
+    var linkExistente = document.querySelector('link[data-view-css="' + nomeView + '"]');
+    if (linkExistente) linkExistente.disabled = false;
     return Promise.resolve(_viewsCarregadas[nomeView]);
   }
 
@@ -174,15 +150,13 @@ function _carregarView(nomeView) {
   var jsUrl   = 'views/' + nomeView + '/view.js';
   var cssUrl  = 'views/' + nomeView + '/view.css';
 
-  // Carregar HTML, JS e CSS em paralelo.
-  // O CSS é opcional — se não existir, ignora silenciosamente.
   return Promise.all([
     fetch(htmlUrl).then(function(r) {
       if (!r.ok) throw new Error('HTML não encontrado: ' + htmlUrl);
       return r.text();
     }),
     _carregarScript(jsUrl),
-    _carregarCss(cssUrl, nomeView)   // silencioso se 404
+    _carregarCss(cssUrl, nomeView)
   ])
   .then(function(resultados) {
     _htmlCache[nomeView] = resultados[0];
@@ -192,62 +166,37 @@ function _carregarView(nomeView) {
   });
 }
 
-// ── Injectar <link> de CSS da view (idempotente, lazy) ────────
-//
-// Cada view pode ter um view.css opcional em views/<nome>/view.css.
-// O <link> é criado apenas uma vez e fica no <head> — o browser
-// não re-transfere o ficheiro nas navegações seguintes (304/cache).
-// O atributo data-view-css permite encontrá-lo para remover se
-// necessário (ver routerRemoverCssView).
-//
-// Resultado: Promise que resolve sempre (erro = silencioso).
-var _cssCarregados = {};
+// CSS lazy — cria o <link> uma única vez; nas visitas seguintes
+// a reactivação é feita em _carregarView (linha acima).
 function _carregarCss(url, nomeView) {
-  // Já injectado? Basta reactivá-lo se estava desactivado.
-  if (_cssCarregados[nomeView]) {
-    var linkExistente = document.querySelector('link[data-view-css="' + nomeView + '"]');
-    if (linkExistente) linkExistente.disabled = false;
-    return Promise.resolve();
-  }
+  if (_cssEmCurso[nomeView]) return _cssEmCurso[nomeView];
 
-  // Verificar se o ficheiro existe antes de criar o <link>.
-  // Fetch HEAD é suficiente e não transfere o corpo.
-  return fetch(url, { method: 'HEAD' })
+  var promessa = fetch(url, { method: 'HEAD' })
     .then(function(r) {
-      if (!r.ok) return;   // 404 → sem CSS para esta view, ok
-
-      // Criar <link> e esperar que carregue antes de continuar
-      // (evita FOUC — Flash Of Unstyled Content).
+      if (!r.ok) return;
       return new Promise(function(resolve) {
         var link = document.createElement('link');
-        link.rel             = 'stylesheet';
-        link.href            = url;
+        link.rel  = 'stylesheet';
+        link.href = url;
         link.setAttribute('data-view-css', nomeView);
-        link.onload = link.onerror = function() {
-          _cssCarregados[nomeView] = true;
-          resolve();
-        };
+        link.onload = link.onerror = resolve;
         document.head.appendChild(link);
       });
     })
-    .catch(function() {});  // falha de rede → ignorar
+    .catch(function() {})
+    .then(function() {
+      delete _cssEmCurso[nomeView];
+    });
+
+  _cssEmCurso[nomeView] = promessa;
+  return promessa;
 }
 
-// ── Desactivar CSS de uma view (chamado no unmount opcionalmente) ─
-// Não remove o <link> para evitar re-transferência na volta.
-// Desactivar/activar é instantâneo e não causa reflow desnecessário.
-function routerDesactivarCssView(nomeView) {
-  var link = document.querySelector('link[data-view-css="' + nomeView + '"]');
-  if (link) link.disabled = true;
-}
-
-// Injectar script dinamicamente (uma única vez por URL)
-var _scriptsCarregados = {};
 function _carregarScript(url) {
   if (_scriptsCarregados[url]) return Promise.resolve();
   return new Promise(function(resolve, reject) {
     var s = document.createElement('script');
-    s.src = url;
+    s.src     = url;
     s.onload  = function() { _scriptsCarregados[url] = true; resolve(); };
     s.onerror = function() { reject(new Error('Falha ao carregar script: ' + url)); };
     document.head.appendChild(s);
@@ -255,53 +204,33 @@ function _carregarScript(url) {
 }
 
 // ============================================================
-// ACTUALIZAR NAVEGAÇÃO ACTIVA
+// UTILITÁRIOS
 // ============================================================
 
 function _actualizarNavActivo(caminho) {
-  // nav-menu.js usa a classe 'activo' nos <a> do painel
   document.querySelectorAll('.nav-menu-item[data-rota]').forEach(function(el) {
-    var rota = el.getAttribute('data-rota');
-    el.classList.toggle('activo', rota === caminho);
-    if (rota === caminho) {
-      el.setAttribute('aria-current', 'page');
-    } else {
-      el.removeAttribute('aria-current');
-    }
+    var r = el.getAttribute('data-rota');
+    el.classList.toggle('activo', r === caminho);
+    if (r === caminho) { el.setAttribute('aria-current', 'page'); }
+    else               { el.removeAttribute('aria-current'); }
   });
 }
 
-// ============================================================
-// DELEGAÇÃO DE CLIQUES — interceptar <a href="..."> internos
-// ============================================================
-
 function _onLinkClick(e) {
-  // Ignorar cliques com modificadores
   if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   if (e.defaultPrevented) return;
-
   var el = e.target.closest('a[href]');
   if (!el) return;
-
   var href = el.getAttribute('href');
   if (!href) return;
-
-  // Ignorar links externos, âncoras, e mailto/tel
   if (href.startsWith('http') || href.startsWith('//') ||
       href.startsWith('#')    || href.startsWith('mailto:') ||
       href.startsWith('tel:')) return;
-
-  // Verificar se é uma rota conhecida
   var caminho = href.replace(/\/+$/, '') || '/';
   if (!ROTAS[caminho]) return;
-
   e.preventDefault();
   routerNavegar(caminho);
 }
-
-// ============================================================
-// OVERLAY DE TRANSIÇÃO
-// ============================================================
 
 function _mostrarTransicao(mostrar) {
   var el = document.getElementById('spa-transition');
@@ -309,14 +238,9 @@ function _mostrarTransicao(mostrar) {
   if (mostrar) {
     el.classList.add('activo');
   } else {
-    // Pequeno delay para evitar flash em carregamentos rápidos
     setTimeout(function() { el.classList.remove('activo'); }, 80);
   }
 }
-
-// ============================================================
-// ERRO DE ACESSO
-// ============================================================
 
 function _mostrarErroAcesso(mensagem) {
   var outlet = document.getElementById(OUTLET_ID);
@@ -325,30 +249,13 @@ function _mostrarErroAcesso(mensagem) {
     '<div class="spa-erro-acesso">' +
       '<span class="spa-erro-icone">🔒</span>' +
       '<h2>Acesso negado</h2>' +
-      '<p>' + _esc(mensagem) + '</p>' +
+      '<p>' + String(mensagem || '').replace(/</g, '&lt;') + '</p>' +
       '<button onclick="routerNavegar(\'/\')" class="btn btn-guardar">← Voltar ao início</button>' +
     '</div>';
 }
 
-// ============================================================
-// ACTUALIZAR PERFIL (após mudança de role, etc.)
-// ============================================================
+function routerDefinirPerfil(perfil) { _perfilUtiliz = perfil; }
 
-function routerDefinirPerfil(perfil) {
-  _perfilUtiliz = perfil;
-}
-
-// ============================================================
-// UTILITÁRIOS
-// ============================================================
-
-function _esc(str) {
-  return String(str || '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-// API pública
-window.routerInit    = routerInit;
-window.routerNavegar = routerNavegar;
+window.routerInit          = routerInit;
+window.routerNavegar       = routerNavegar;
 window.routerDefinirPerfil = routerDefinirPerfil;
-window.routerDesactivarCssView = routerDesactivarCssView;
