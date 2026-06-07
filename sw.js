@@ -5,7 +5,7 @@
 // VERSÃO: incrementar a cada deploy.
 // ============================================================
 
-const VERSAO       = '2.0.0';
+const VERSAO       = '2.0.0.a';
 const CACHE_SHELL  = 'rmz-shell-v'  + VERSAO;   // HTML/CSS/JS do shell
 const CACHE_VIEWS  = 'rmz-views-v'  + VERSAO;   // HTML/JS das views (lazy)
 const CACHE_ASSETS = 'rmz-assets-v' + VERSAO;   // Fontes, imagens, CDN
@@ -17,8 +17,10 @@ const SHELL_ASSETS = [
   './index.html',
   './manifest.json',
   './css/styles.css',
-  './css/style.css',
   './css/spa.css',
+  './views/registo/view.html',
+  './views/registo/view.js',
+  './views/registo/view.css',
   './js/api.js',
   './js/auth.js',
   './js/users.js',
@@ -252,6 +254,11 @@ self.addEventListener('message', function(e) {
   }
   // Informar os clientes da versão actual
   if (e.data && e.data.type === 'GET_VERSION') {
-    e.source && e.source.postMessage({ type: 'VERSION', versao: VERSAO });
+    if (e.ports && e.ports[0]) {
+
+    e.ports[0].postMessage({ type: 'VERSION', versao: VERSAO 
+
+    });
   }
+}
 });

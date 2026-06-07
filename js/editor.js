@@ -1317,3 +1317,5 @@ document.querySelectorAll('#modalExtrasOpLista .modal-extras-op-cartao').forEach
       mostrarToast('Erro: ' + err.message, 'erro');
     });
 }
+
+window.carregarMes = carregarMes();

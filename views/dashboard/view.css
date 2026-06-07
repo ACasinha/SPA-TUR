@@ -63,7 +63,6 @@
   position: sticky;
   top: clamp(60px,10vw,80px);
   z-index: 50;
-  background: var(--terra-pale);
   padding: 10px 0 0;
   margin-bottom: 0;
 }

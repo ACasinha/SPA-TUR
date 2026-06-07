@@ -9,12 +9,14 @@ var ROTAS = {
   '/': {
     view:      'registo',
     titulo:    'Registo Diário',
+    deps:      [],
     acesso:    function(p) { return p.role === 'administrador' || p.role === 'utilizador'; },
     semAcesso: 'Esta conta não tem acesso à aplicação de registo.'
   },
   '/dashboard': {
     view:      'dashboard',
     titulo:    'Dashboard',
+    deps:      [],
     acesso:    function(p) {
       return p.role === 'administrador' || p.role === 'visualizador' || p.acessoDashboard === true;
     },
@@ -23,12 +25,14 @@ var ROTAS = {
   '/editor': {
     view:      'editor',
     titulo:    'Editor Mensal',
+    deps:      ['js/editor.js', 'js/editor-sticky.js'],
     acesso:    function(p) { return p.role === 'administrador' || p.acessoEditor === true; },
     semAcesso: 'Não tem permissão para aceder ao editor mensal.'
   },
   '/admin': {
     view:      'admin',
     titulo:    'Gestão de Utilizadores',
+    deps:      [],
     acesso:    function(p) { return p.role === 'administrador'; },
     semAcesso: 'Apenas administradores podem aceder a esta área.'
   }
@@ -146,6 +150,8 @@ function _carregarView(nomeView) {
     return Promise.resolve(_viewsCarregadas[nomeView]);
   }
 
+  var rota    = _rotaPorView(nomeView);
+  var deps    = (rota && rota.deps) || [];
   var htmlUrl = 'views/' + nomeView + '/view.html';
   var jsUrl   = 'views/' + nomeView + '/view.js';
   var cssUrl  = 'views/' + nomeView + '/view.css';
@@ -155,15 +161,27 @@ function _carregarView(nomeView) {
       if (!r.ok) throw new Error('HTML não encontrado: ' + htmlUrl);
       return r.text();
     }),
-    _carregarScript(jsUrl),
-    _carregarCss(cssUrl, nomeView)
-  ])
+    deps.reduce(function(cadeia, url) {
+      return cadeia.then(function() { return _carregarScript(url); });
+    }, Promise.resolve()).then(function() {
+    return _carregarScript(jsUrl);
+  }),
+  _carregarCss(cssUrl, nomeView)
+])
   .then(function(resultados) {
     _htmlCache[nomeView] = resultados[0];
     var modulo = (window.__views && window.__views[nomeView]) || {};
     _viewsCarregadas[nomeView] = modulo;
     return modulo;
   });
+}
+
+function _rotaPorView(nomeView) {
+  var chaves = Object.keys(ROTAS);
+  for (var i = 0; i < chaves.length; i++) {
+    if (ROTAS[chaves[i]].view === nomeView) return ROTAS[chaves[i]];
+  }
+  return null;
 }
 
 // CSS lazy — cria o <link> uma única vez; nas visitas seguintes

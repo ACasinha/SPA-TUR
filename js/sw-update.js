@@ -21,10 +21,11 @@ function mostrarVersao() {
     fetch('sw.js', { cache: 'no-store' })
       .then(function(r) { return r.text(); })
       .then(function(txt) {
-        var match = txt.match(/VERSAO\s*=\s*['"]([^'"]+)['"]/);
+        var match = txt.match(/CACHE_VIEWS\s*=\s*['"]([^'"]+)['"]/);
         if (match) {
+          var versao = match[1].replace(/^.*-v/, 'v');
           var el = document.getElementById('rodapeVersao');
-          if (el) el.textContent = 'v' + match[1];
+          if (el) el.textContent = versao;
         }
       })
       .catch(function() {});
