@@ -2,7 +2,7 @@
   "name": "Registo Diário de Visitantes",
   "short_name": "Registo de Visitantes",
   "description": "Registo diário de turistas e visitantes — Município de Reguengos de Monsaraz",
-  "start_url": "/",
+  "start_url": "./index.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
