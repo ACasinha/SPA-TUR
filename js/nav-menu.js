@@ -18,7 +18,7 @@
     {
       id:    'nav-app',
       label: '📋 Registo Diário',
-      rota:  '/',
+      rota:  '#/',
       visible: function(p) {
         return p.role === 'administrador' || p.role === 'utilizador';
       }
@@ -26,7 +26,7 @@
     {
       id:    'nav-dashboard',
       label: '📊 Dashboard',
-      rota:  '/dashboard',
+      rota:  '#/dashboard',
       visible: function(p) {
         return p.role === 'administrador'
             || p.role === 'visualizador'
@@ -36,7 +36,7 @@
     {
       id:    'nav-editor',
       label: '✏️ Editor Mensal',
-      rota:  '/editor',
+      rota:  '#/editor',
       visible: function(p) {
         return p.role === 'administrador' || p.acessoEditor === true;
       }
@@ -44,7 +44,7 @@
     {
       id:    'nav-admin',
       label: '🛡️ Gestão de Utilizadores',
-      rota:  '/admin',
+      rota:  '#/admin',
       visible: function(p) {
         return p.role === 'administrador';
       }

@@ -56,10 +56,16 @@ var OUTLET_ID = 'spa-outlet';
 function routerInit(perfil) {
   _perfilUtiliz = perfil;
   document.addEventListener('click', _onLinkClick);
+  
   window.addEventListener('popstate', function() {
-    _navegar(window.location.pathname, false);
+    // Lê o que está após o '#' (ex: '#/dashboard' vira '/dashboard')
+    var caminhoHash = window.location.hash.replace(/^#/, '') || '/';
+    _navegar(caminhoHash, false);
   });
-  _navegar(window.location.pathname, false);
+  
+  // Carrega a rota inicial baseada no Hash da URL
+  var caminhoInicial = window.location.hash.replace(/^#/, '') || '/';
+  _navegar(caminhoInicial, false);
 }
 
 // ============================================================
@@ -101,7 +107,7 @@ function _navegar(caminho, pushState) {
     })
     .then(function(modulo) {
       if (pushState) {
-        history.pushState({ caminho: caminho }, rota.titulo, caminho);
+        history.pushState({ caminho: caminho }, rota.titulo, '#' + caminho);
       }
       document.title = rota.titulo + ' — Registo de Nacionalidades';
 
