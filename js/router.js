@@ -150,17 +150,27 @@ function _navegar(caminho, pushState) {
 
 function _carregarView(nomeView) {
   if (_viewsCarregadas[nomeView]) {
-    // View já carregada — reactivar o CSS se estiver desactivado
     var linkExistente = document.querySelector('link[data-view-css="' + nomeView + '"]');
     if (linkExistente) linkExistente.disabled = false;
     return Promise.resolve(_viewsCarregadas[nomeView]);
   }
 
+  // 1. Deteta dinamicamente se estamos no GitHub Pages e extrai o subdiretório
+  var baseRepo = '';
+  if (window.location.hostname.indexOf('github.io') !== -1) {
+    // Extrai o '/nome-do-repositorio/' a partir do pathname atual
+    baseRepo = '/' + window.location.pathname.split('/')[1] + '/';
+    // Remove barras duplas acidentais
+    baseRepo = baseRepo.replace(/\/+/g, '/');
+  }
+
   var rota    = _rotaPorView(nomeView);
   var deps    = (rota && rota.deps) || [];
-  var htmlUrl = 'views/' + nomeView + '/view.html';
-  var jsUrl   = 'views/' + nomeView + '/view.js';
-  var cssUrl  = 'views/' + nomeView + '/view.css';
+  
+  // 2. Aplica o prefixo correto do repositório para os caminhos dos ficheiros
+  var htmlUrl = baseRepo + 'views/' + nomeView + '/view.html';
+  var jsUrl   = baseRepo + 'views/' + nomeView + '/view.js';
+  var cssUrl  = baseRepo + 'views/' + nomeView + '/view.css';
 
   return Promise.all([
     fetch(htmlUrl).then(function(r) {
@@ -168,12 +178,14 @@ function _carregarView(nomeView) {
       return r.text();
     }),
     deps.reduce(function(cadeia, url) {
-      return cadeia.then(function() { return _carregarScript(url); });
+      // Garante o prefixo também nas dependências, se forem locais relativos
+      var urlDep = (url.startsWith('http') || url.startsWith('//')) ? url : baseRepo + url;
+      return chain.then(function() { return _carregarScript(urlDep); });
     }, Promise.resolve()).then(function() {
-    return _carregarScript(jsUrl);
-  }),
-  _carregarCss(cssUrl, nomeView)
-])
+      return _carregarScript(jsUrl);
+    }),
+    _carregarCss(cssUrl, nomeView)
+  ])
   .then(function(resultados) {
     _htmlCache[nomeView] = resultados[0];
     var modulo = (window.__views && window.__views[nomeView]) || {};
