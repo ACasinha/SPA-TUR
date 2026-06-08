@@ -16,34 +16,34 @@ var _swRegistration = null;
 // ============================================================
 
 function mostrarVersao() {
-  if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
-    // Fallback: ler directamente do sw.js (primeira carga)
-    fetch('sw.js', { cache: 'no-store' })
-      .then(function(r) { return r.text(); })
-      .then(function(txt) {
-        var match = txt.match(/CACHE_VIEWS\s*=\s*['"]([^'"]+)['"]/);
-        if (match) {
-          var versao = match[1].replace(/^.*-v/, 'v');
-          var el = document.getElementById('rodapeVersao');
-          if (el) el.textContent = versao;
-        }
-      })
-      .catch(function() {});
+  var el = document.getElementById('rodapeVersao');
+
+  // Caminho 1: SW já activo — pedir versão via postMessage
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    var canal = new MessageChannel();
+    canal.port1.onmessage = function(e) {
+      if (e.data && e.data.type === 'VERSION' && el) {
+        el.textContent = 'v' + e.data.versao;
+      }
+    };
+    navigator.serviceWorker.controller.postMessage(
+      { type: 'GET_VERSION' },
+      [canal.port2]
+    );
     return;
   }
 
-  // Pedir versão ao SW activo
-  var canal = new MessageChannel();
-  canal.port1.onmessage = function(e) {
-    if (e.data && e.data.type === 'VERSION') {
-      var el = document.getElementById('rodapeVersao');
-      if (el) el.textContent = 'v' + e.data.versao;
-    }
-  };
-  navigator.serviceWorker.controller.postMessage(
-    { type: 'GET_VERSION' },
-    [canal.port2]
-  );
+  // Caminho 2: SW ainda não activo (primeira carga) — ler sw.js directamente
+  // FIX: o regex procura a constante VERSAO, não CACHE_VIEWS
+  fetch('sw.js', { cache: 'no-store' })
+    .then(function(r) { return r.text(); })
+    .then(function(txt) {
+      var match = txt.match(/const\s+VERSAO\s*=\s*['"]([^'"]+)['"]/);
+      if (match && el) {
+        el.textContent = 'v' + match[1];
+      }
+    })
+    .catch(function() {});
 }
 
 // ============================================================
@@ -56,7 +56,18 @@ if ('serviceWorker' in navigator) {
       .then(function(reg) {
         _swRegistration = reg;
         console.log('[SW] Registado. Scope:', reg.scope);
-        mostrarVersao();
+
+        // Pedir versão assim que o controlador estiver disponível
+        if (navigator.serviceWorker.controller) {
+          mostrarVersao();
+        } else {
+          // Primeira instalação: aguardar que o SW tome controlo
+          navigator.serviceWorker.addEventListener('controllerchange', function() {
+            mostrarVersao();
+          }, { once: true });
+          // Fallback para a primeira carga sem controlador
+          mostrarVersao();
+        }
 
         reg.addEventListener('updatefound', function() {
           var newWorker = reg.installing;
@@ -70,8 +81,13 @@ if ('serviceWorker' in navigator) {
       })
       .catch(function(err) {
         console.warn('[SW] Falha no registo:', err);
+        // Sem SW (ex: HTTP puro em dev) — tentar ler versão do sw.js na mesma
+        mostrarVersao();
       });
   });
+} else {
+  // Browser sem suporte a SW — mostrar versão via fetch como fallback
+  document.addEventListener('DOMContentLoaded', mostrarVersao);
 }
 
 // ============================================================
@@ -100,6 +116,7 @@ function verificarAtualizacao() {
         btn.onclick     = function() { aplicarAtualizacao(); };
         mostrarToast('Nova versão disponível. Clique em "Atualizar agora".', 'info');
       } else {
+        mostrarVersao();
         mostrarToast('✓ A app está atualizada.', 'sucesso');
         btn.disabled    = false;
         btn.textContent = '🔄 Verificar atualização';
