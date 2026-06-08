@@ -124,10 +124,6 @@
 
       if (eActivo) {
         a.setAttribute('aria-current', 'page');
-        var badge = document.createElement('span');
-        badge.className   = 'nav-menu-item-badge';
-        badge.textContent = 'Aqui';
-        a.appendChild(badge);
       }
 
       // Navegação SPA — interceptar clique normal
