@@ -22,6 +22,14 @@ function esc(str) {
 var _paisesAdicionados = [];
 
 function construirTabelaPaises() {
+  // ── CORREÇÃO: Limpar os containers antes de reconstruir ──
+  var container = document.getElementById('paisesContainer');
+  if (container) container.innerHTML = '';
+
+  var listaPesquisa = document.getElementById('listaPesquisaPaises');
+  if (listaPesquisa) listaPesquisa.innerHTML = '';
+  // ─────────────────────────────────────────────────────────
+
   var local  = (document.getElementById('local') || {}).value || '';
   var simples = (typeof modoSimplificado === 'function') && modoSimplificado(local);
 
