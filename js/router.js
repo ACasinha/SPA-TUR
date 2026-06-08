@@ -25,7 +25,7 @@ var ROTAS = {
   '/editor': {
     view:      'editor',
     titulo:    'Editor Mensal',
-    deps:      ['js/editor.js', 'js/editor-sticky.js'],
+    deps:      [],
     acesso:    function(p) { return p.role === 'administrador' || p.acessoEditor === true; },
     semAcesso: 'Não tem permissão para aceder ao editor mensal.'
   },
