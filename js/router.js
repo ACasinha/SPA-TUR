@@ -142,6 +142,10 @@ function _navegar(caminho, pushState) {
       _mostrarTransicao(false);
       _navegando = false;
     });
+
+    if (typeof window.verificarVisibilidadeInstalacao === 'function') {
+    window.verificarVisibilidadeInstalacao();
+}
 }
 
 // ============================================================

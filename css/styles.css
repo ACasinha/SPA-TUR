@@ -551,6 +551,7 @@ input[type="number"] {
 
 .nav-menu-painel.visivel {
   opacity: 1;
+  visibility: visible;
   transform: scale(1) translateY(0);
   pointer-events: auto;
 }
@@ -669,7 +670,7 @@ input[type="number"] {
 @media (max-width: 480px) {
   .nav-menu-painel {
     /* Em mobile, o painel estica quase até à largura total */
-    min-width: calc(100vw - 24px);
+    min-width: calc(75vw - 24px);
     right: 12px !important;
   }
 }
