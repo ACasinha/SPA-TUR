@@ -45,6 +45,10 @@
         '</div>'
     });
 
+    // Mostrar botão PDF no rodapé global (só relevante nesta view)
+    var btnPdf = document.getElementById('btnRodapePdf');
+    if (btnPdf) btnPdf.style.display = '';
+
     // Inicializar formulário
     _inicializarFormulario();
 
@@ -86,20 +90,6 @@
       l.target.removeEventListener(l.tipo, l.fn);
     });
     _listeners = [];
-
-    // ── CORREÇÃO DE LIMPEZA ────────────────────────────────────
-    // 1. Resetar a variável global de países em memória do ui.js
-    if (typeof _paisesAdicionados !== 'undefined') {
-      _paisesAdicionados = [];
-    }
-
-    // 2. Limpar a lista de pesquisa que o ui.js injetou no document.body
-    var listaPesquisa = document.getElementById('listaPesquisaPaises');
-    if (listaPesquisa) {
-      listaPesquisa.innerHTML = '';
-      listaPesquisa.style.display = 'none';
-    }
-    // ───────────────────────────────────────────────────────────
 
     // Limpar estado
     _ultimoLocalVerif = '';
@@ -457,9 +447,6 @@
     document.querySelectorAll('.op-nac-select, .op-nac-num').forEach(function(i) { i.disabled = d; });
     document.querySelectorAll('.btn-add-nac, .btn-rem-nac').forEach(function(b) { b.disabled = d; });
     document.querySelectorAll('.sug-texto, .sug-nac').forEach(function(i) { i.disabled = d; });
-    document.querySelectorAll('.btn-novo-operador').forEach(function(b) { b.disabled = d; });
-    document.querySelectorAll('.op-cartao-nome, .op-cartao-nac-select, .op-cartao-nac-num').forEach(function(i) { i.disabled = d; });
-    document.querySelectorAll('.btn-remover-op-cartao, .btn-remover-op-linha, .btn-add-nac-cartao, .btn-rem-nac-cartao').forEach(function(b) { b.disabled = d; });
     var obsEl = document.getElementById('observacoes');
     if (obsEl) obsEl.disabled = d;
   };

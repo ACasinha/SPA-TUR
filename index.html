@@ -20,6 +20,8 @@
 <link rel="stylesheet"
   href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap">
 
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
 <!-- Estilos globais (partilhados por todas as views) -->
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/spa.css">
@@ -117,15 +119,21 @@
         <span class="rodape-versao" id="rodapeVersao">v1</span>
         <button class="btn-rodape" id="btnVerificarUpdate"
                 onclick="verificarAtualizacao()" title="Verificar atualização">
-          🔄 Verificar atualização
+          <span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">
+cached
+</span> Verificar atualização
         </button>
-        <button class="btn-rodape btn-rodape-pdf" onclick="mostrarModalPDF()" title="Gerar formulário PDF">
-        📄 Gerar PDF
+        <button class="btn-rodape btn-rodape-pdf" style="display:none" onclick="mostrarModalPDF()" title="Gerar formulário PDF">
+        <span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">
+file_save
+</span> Gerar PDF
       </button>
         <button class="btn-rodape btn-rodape-instalar"
                 id="btnInstalarRodape" style="display:none"
                 onclick="instalarApp()" title="Instalar app">
-          📲 Instalar app
+          <span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">
+install_desktop
+</span> Instalar app
         </button>
       </div>
     </div>

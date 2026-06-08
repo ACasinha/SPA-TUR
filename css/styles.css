@@ -758,6 +758,7 @@ input[type="number"] {
   font-size:var(--text-xs); cursor:pointer;
   transition:background 0.2s, color 0.2s;
   touch-action:manipulation; min-height:30px; white-space:nowrap;
+  align-items:center; display: inline-flex;
 }
 .btn-rodape:hover    { background:rgba(255,255,255,0.18); color:white; }
 .btn-rodape:disabled { opacity:0.4; cursor:not-allowed; }
@@ -765,3 +766,67 @@ input[type="number"] {
 .btn-rodape-instalar:hover { background:rgba(240,201,106,0.15); }
 .btn-rodape-pdf { border-color:rgba(240,201,106,0.35); color:rgba(240,201,106,0.85); }
 .btn-rodape-pdf:hover { background:rgba(240,201,106,0.12); color:var(--ouro-light); }
+
+/* Base Comum para Todos os Botões */
+.md-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 24px;
+  border-radius: 20px; /* Cantos arredondados estilo "pill" */
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  gap: 8px; /* Espaço entre ícone e texto */
+}
+
+/* Ajuste de padding quando o botão tem ícone à esquerda */
+.md-button.has-icon {
+  padding-left: 16px;
+}
+
+/* Forçar o ícone a alinhar corretamente dentro do botão */
+.md-button .material-symbols-rounded {
+  font-size: 10px; /* Tamanho padrão do ícone dentro de botões */
+}
+
+/* 1. Botão Preenchido (Ação Principal) */
+.md-button-filled {
+  background-color: #6750A4; /* Cor Primária Exemplo */
+  color: #FFFFFF;
+}
+.md-button-filled:hover {
+  background-color: #533C8A; /* Tom ligeiramente mais escuro no hover */
+}
+
+/* 2. Botão Tonal (Ação Secundária Importante) */
+.md-button-tonal {
+  background-color: #E8DEF8;
+  color: #1D192B;
+}
+.md-button-tonal:hover {
+  background-color: #D6C2F0;
+}
+
+/* 3. Botão de Linha (Ação Secundária Menor) */
+.md-button-rounded {
+  background-color: transparent;
+  border: 1px solid #79747E;
+  color: #6750A4;
+}
+.md-button-rounded:hover {
+  background-color: rgba(103, 80, 164, 0.08); /* Efeito de ripple discreto */
+}
+
+.material-symbols-rounded {
+  font-variation-settings:
+  'FILL' 1,
+  'wght' 300,
+  'GRAD' 0,
+  'opsz' 24
+}
