@@ -58,12 +58,12 @@ function routerInit(perfil) {
   document.addEventListener('click', _onLinkClick);
   
   window.addEventListener('popstate', function() {
-    // Lê o que está após o '#' (ex: '#/dashboard' vira '/dashboard')
+    // Captura o caminho após o '#' (ex: '#/dashboard' torna-se '/dashboard')
     var caminhoHash = window.location.hash.replace(/^#/, '') || '/';
     _navegar(caminhoHash, false);
   });
   
-  // Carrega a rota inicial baseada no Hash da URL
+  // Carrega a rota inicial baseada no Hash atual da URL
   var caminhoInicial = window.location.hash.replace(/^#/, '') || '/';
   _navegar(caminhoInicial, false);
 }
@@ -248,9 +248,11 @@ function _onLinkClick(e) {
   var href = el.getAttribute('href');
   if (!href) return;
   if (href.startsWith('http') || href.startsWith('//') ||
-      href.startsWith('#')    || href.startsWith('mailto:') ||
-      href.startsWith('tel:')) return;
-  var caminho = href.replace(/\/+$/, '') || '/';
+      href.startsWith('mailto:') || href.startsWith('tel:')) return;
+  
+  // Remove o cardinal se o link já o tiver, limpa barras repetidas e assume a rota limpa
+  var caminho = href.replace(/^#/, '').replace(/\/+$/, '') || '/';
+  
   if (!ROTAS[caminho]) return;
   e.preventDefault();
   routerNavegar(caminho);
