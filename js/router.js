@@ -9,7 +9,7 @@ var ROTAS = {
   '/': {
     view:      'registo',
     titulo:    'Registo Diário',
-    deps:      [],
+    deps:      ['sw.js'], ['pwa.js'], ['sync.js'], ['offline.js'], ['ui.js'],
     acesso:    function(p) { return p.role === 'administrador' || p.role === 'utilizador'; },
     semAcesso: 'Esta conta não tem acesso à aplicação de registo.'
   },
