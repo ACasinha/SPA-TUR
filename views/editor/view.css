@@ -78,7 +78,6 @@
   padding: clamp(14px,3vw,20px);
   margin-bottom: var(--gap);
   box-shadow: var(--sombra);
-  border-left: 4px solid var(--verde);
   display: flex;
   flex-wrap: wrap;
   gap: clamp(10px,2vw,16px);
