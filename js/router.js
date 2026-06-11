@@ -119,12 +119,16 @@ function _navegar(caminho, pushState) {
       // Desactivar CSS da view anterior (o novo CSS já está no DOM neste ponto)
       if (viewAnterior && viewAnterior !== rota.view) {
         var linkAntigo = document.querySelector('link[data-view-css="' + viewAnterior + '"]');
-        if (linkAntigo) linkAntigo.disabled = true;
+        if (linkAntigo) {
+    linkAntigo.parentNode.removeChild(linkAntigo);
       }
+    }
 
       // Injectar HTML e montar nova view
       var outlet = document.getElementById(OUTLET_ID);
       outlet.innerHTML = _htmlCache[rota.view] || '';
+
+      _carregarCss(baseRepo + 'views/' + rota.view + '/view.css', rota.view);
 
       _viewActual = modulo;
       _rotaActual = { caminho: caminho, rota: rota };
