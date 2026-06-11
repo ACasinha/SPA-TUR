@@ -1,13 +1,6 @@
 // ============================================================
 // views/registo/view.js
 // View: Registo Diário de Turistas e Visitantes
-//
-// Regista-se em window.__views.registo
-// Ciclo de vida: mount(perfil) → [uso] → beforeLeave() → unmount()
-//
-// Toda a lógica de negócio que estava em app.js está aqui,
-// mas isolada: sem poluição do escopo global, sem side-effects
-// fora do mount/unmount.
 // ============================================================
 
 'use strict';
@@ -22,7 +15,7 @@
   var _ultimaDataVerif      = '';
   var _edicaoPermitida      = null;
   var _dadosAlterados       = false;
-  var _listeners            = [];   // para cleanup no unmount
+  var _listeners            = [];
 
   // ============================================================
   // CICLO DE VIDA
@@ -32,7 +25,6 @@
     _perfil   = perfil;
     _isAdmin  = perfil.role === 'administrador';
 
-    // Header personalizado com badge de visitantes + badge offline
     spaSetHeader({
       titulo: 'Registo Diário de Turistas e Visitantes',
       direita:
@@ -45,30 +37,25 @@
         '</div>'
     });
 
-    // Mostrar botão PDF no rodapé global (só relevante nesta view)
+    // FIX: mostrar o botão PDF do rodapé (tem id agora)
     var btnPdf = document.getElementById('btnRodapePdf');
     if (btnPdf) btnPdf.style.display = '';
 
-    // Inicializar formulário
     _inicializarFormulario();
 
-    // Sincronização offline
     _actualizarBadgePendentes();
     if (navigator.onLine && typeof syncSincronizarFila === 'function') {
       syncSincronizarFila().then(_actualizarBadgePendentes);
     }
 
-    // Detector de ligação (offline.js)
     if (typeof verificarLigacao === 'function') verificarLigacao();
 
-    // Listeners globais desta view
     _addListener(window, 'online',  function() { verificarLigacao(); });
     _addListener(window, 'offline', function() { verificarLigacao(); });
     _addListener(window, 'beforeunload', _onBeforeUnload);
     _addListener(window, 'rmz-sync-update', _actualizarBadgePendentes);
     _addListener(window, 'rmz-sync-conflito', _onConflitoSync);
 
-    // Mensagens do Service Worker
     if (navigator.serviceWorker) {
       _addListener(navigator.serviceWorker, 'message', _onSwMensagem);
     }
@@ -82,22 +69,22 @@
   }
 
   function unmount() {
-    // Cancelar timer de verificação pendente
     clearTimeout(_verificacaoTimer);
 
-    // Remover todos os event listeners registados
+    // FIX: esconder o botão PDF ao sair desta view
+    var btnPdf = document.getElementById('btnRodapePdf');
+    if (btnPdf) btnPdf.style.display = 'none';
+
     _listeners.forEach(function(l) {
       l.target.removeEventListener(l.tipo, l.fn);
     });
     _listeners = [];
 
-    // Limpar estado
     _ultimoLocalVerif = '';
     _ultimaDataVerif  = '';
     _dadosAlterados   = false;
     _edicaoPermitida  = null;
 
-    // Resetar header
     spaResetHeader();
   }
 
@@ -192,7 +179,6 @@
   // VERIFICAÇÃO AUTOMÁTICA
   // ============================================================
 
-  // Exposta globalmente para os onchange do HTML da view
   window.agendarVerificacao = function() {
     _ultimoLocalVerif = '';
     _ultimaDataVerif  = '';
@@ -373,7 +359,6 @@
       observacoes: observacoes
     };
 
-    // Offline
     if (!navigator.onLine) {
       if (typeof syncGuardarNaFila !== 'function') {
         mostrarToast('Módulo de sincronização não disponível.', 'erro');
@@ -396,7 +381,6 @@
       return;
     }
 
-    // Online
     mostrarToast('A guardar...', 'info');
     apiGuardarRegisto(payload,
       function onSuccess(resp) {
