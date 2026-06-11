@@ -37,7 +37,6 @@
         '</div>'
     });
 
-    // FIX: mostrar o botão PDF do rodapé (tem id agora)
     var btnPdf = document.getElementById('btnRodapePdf');
     if (btnPdf) btnPdf.style.display = '';
 
@@ -71,22 +70,20 @@
   function unmount() {
     clearTimeout(_verificacaoTimer);
 
-    // FIX: esconder o botão PDF ao sair desta view
     var btnPdf = document.getElementById('btnRodapePdf');
     if (btnPdf) btnPdf.style.display = 'none';
 
+    // Limpa todos os listeners registados dinamicamente (incluindo o container)
     _listeners.forEach(function(l) {
       l.target.removeEventListener(l.tipo, l.fn);
     });
     _listeners = [];
 
-     // ── CORREÇÃO DE LIMPEZA ────────────────────────────────────
-    // 1. Resetar a variável global de países em memória do ui.js
+    // ── LIMPEZA DE MEMÓRIA DO UI ───────────────────────────────
     if (typeof _paisesAdicionados !== 'undefined') {
       _paisesAdicionados = [];
     }
 
-    // 2. Limpar a lista de pesquisa que o ui.js injetou no document.body
     var listaPesquisa = document.getElementById('listaPesquisaPaises');
     if (listaPesquisa) {
       listaPesquisa.innerHTML = '';
@@ -103,7 +100,7 @@
   }
 
   // ============================================================
-  // HELPERS DE LIFECYCLE
+  // HELPERS DE LIFECYCLE E EVENTOS
   // ============================================================
 
   function _addListener(target, tipo, fn) {
@@ -149,7 +146,7 @@
 
     var obsEl = document.getElementById('observacoes');
     if (obsEl) {
-      obsEl.addEventListener('input', function() {
+      _addListener(obsEl, 'input', function() {
         if (!verificarLocalEscolhido()) { this.value = ''; return; }
         _dadosAlterados = true;
       });
@@ -157,7 +154,7 @@
 
     var container = document.querySelector('.container');
     if (container) {
-      container.addEventListener('input', function(e) {
+      _addListener(container, 'input', function(e) {
         var alvo = e.target;
         if (alvo.classList.contains('op-nome') || alvo.classList.contains('sug-nac')) {
           if (!verificarLocalEscolhido()) {
@@ -193,15 +190,15 @@
   // VERIFICAÇÃO AUTOMÁTICA
   // ============================================================
 
-  window.agendarVerificacao = function() {
+  function agendarVerificacao() {
     _ultimoLocalVerif = '';
     _ultimaDataVerif  = '';
     if (typeof construirTabelaPaises === 'function') construirTabelaPaises();
     clearTimeout(_verificacaoTimer);
     _verificacaoTimer = setTimeout(_verificarDados, 600);
-  };
+  }
 
-  window.verificarLocalEscolhido = function() {
+  function verificarLocalEscolhido() {
     var local = (document.getElementById('local') || {}).value || '';
     if (!local) {
       mostrarToast('Por favor escolha primeiro o Local / Posto.', 'erro');
@@ -210,7 +207,7 @@
       return false;
     }
     return true;
-  };
+  }
 
   function _verificarDados() {
     var local = ((document.getElementById('local') || {}).value || '').trim();
@@ -236,40 +233,7 @@
     var dataFormatada = partes[2] + '/' + partes[1] + '/' + partes[0];
 
     apiVerificarDados(local, dataFormatada,
-      function onSuccess(resp) {
-        if (!resp.sucesso) {
-          if (typeof mostrarBanner === 'function') mostrarBanner('', '');
-          mostrarToast('Erro: ' + resp.mensagem, 'erro');
-          return;
-        }
-        if (resp.existe) {
-          if (typeof carregarDados === 'function') carregarDados(resp);
-          var hoje    = new Date();
-          var hojeStr = hoje.getFullYear() + '-' +
-                        String(hoje.getMonth() + 1).padStart(2, '0') + '-' +
-                        String(hoje.getDate()).padStart(2, '0');
-          _edicaoPermitida = (data === hojeStr);
-          if (_edicaoPermitida) {
-            if (typeof mostrarBanner === 'function')
-              mostrarBanner('carregado', '🔄 Dados de hoje carregados. Pode editar e guardar.');
-            mostrarToast('✓ Dados carregados. Edição permitida.', 'info');
-            if (btnG) btnG.disabled = false;
-          } else {
-            if (typeof mostrarBanner === 'function')
-              mostrarBanner('bloqueado', '🔒 Dados de ' + data + ' carregados. Não é possível editar registos de dias anteriores.');
-            mostrarToast('Edição bloqueada — registo de dia anterior.', 'erro');
-            if (btnG) btnG.disabled = true;
-            if (typeof bloquearFormulario === 'function') bloquearFormulario(true);
-          }
-        } else {
-          _edicaoPermitida = null;
-          if (typeof limparFormularioParcial === 'function') limparFormularioParcial();
-          if (typeof mostrarBanner === 'function') mostrarBanner('novo', '✨ Nenhum registo encontrado. Novo registo.');
-          mostrarToast('✨ Novo registo.', 'sucesso');
-          if (btnG) btnG.disabled = false;
-          if (typeof bloquearFormulario === 'function') bloquearFormulario(false);
-        }
-      },
+      webOnSuccess,
       function onFailure(err) {
         _ultimoLocalVerif = '';
         _ultimaDataVerif  = '';
@@ -277,6 +241,41 @@
         mostrarToast('Erro: ' + err.message, 'erro');
       }
     );
+
+    function webOnSuccess(resp) {
+      if (!resp.sucesso) {
+        if (typeof mostrarBanner === 'function') mostrarBanner('', '');
+        mostrarToast('Erro: ' + resp.mensagem, 'erro');
+        return;
+      }
+      if (resp.existe) {
+        if (typeof carregarDados === 'function') carregarDados(resp);
+        var hoje    = new Date();
+        var hojeStr = hoje.getFullYear() + '-' +
+                      String(hoje.getMonth() + 1).padStart(2, '0') + '-' +
+                      String(hoje.getDate()).padStart(2, '0');
+        _edicaoPermitida = (data === hojeStr);
+        if (_edicaoPermitida) {
+          if (typeof mostrarBanner === 'function')
+            mostrarBanner('carregado', '🔄 Dados de hoje carregados. Pode editar e guardar.');
+          mostrarToast('✓ Dados carregados. Edição permitida.', 'info');
+          if (btnG) btnG.disabled = false;
+        } else {
+          if (typeof mostrarBanner === 'function')
+            mostrarBanner('bloqueado', '🔒 Dados de ' + data + ' carregados. Não é possível editar registos de dias anteriores.');
+          mostrarToast('Edição bloqueada — registo de dia anterior.', 'erro');
+          if (btnG) btnG.disabled = true;
+          if (typeof bloquearFormulario === 'function') bloquearFormulario(true);
+        }
+      } else {
+        _edicaoPermitida = null;
+        if (typeof limparFormularioParcial === 'function') limparFormularioParcial();
+        if (typeof mostrarBanner === 'function') mostrarBanner('novo', '✨ Nenhum registo encontrado. Novo registo.');
+        mostrarToast('✨ Novo registo.', 'sucesso');
+        if (btnG) btnG.disabled = false;
+        if (typeof bloquearFormulario === 'function') bloquearFormulario(false);
+      }
+    }
   }
 
   function _verificarOffline(local, data) {
@@ -320,11 +319,11 @@
   // GUARDAR REGISTO
   // ============================================================
 
-  window.sinalizarAlteracao = function() {
+  function sinalizarAlteracao() {
     _dadosAlterados = true;
-  };
+  }
 
-  window.guardarDados = function() {
+  function guardarDados() {
     var local       = ((document.getElementById('local') || {}).value || '').trim();
     var data        =  (document.getElementById('data')  || {}).value || '';
     var observacoes =  (document.getElementById('observacoes') || {}).value || '';
@@ -431,13 +430,9 @@
         }
       }
     );
-  };
+  }
 
-  // ============================================================
-  // BLOQUEAR / DESBLOQUEAR FORMULÁRIO
-  // ============================================================
-
-  window.bloquearFormulario = function(bloquear) {
+  function bloquearFormulario(bloquear) {
     var d = bloquear;
     document.querySelectorAll('.pais-input').forEach(function(i)  { i.disabled = d; });
     document.querySelectorAll('.btn-stepper').forEach(function(b)  { b.disabled = d; });
@@ -450,25 +445,8 @@
     document.querySelectorAll('.btn-remover-op-cartao, .btn-remover-op-linha, .btn-add-nac-cartao, .btn-rem-nac-cartao').forEach(function(b) { b.disabled = d; });
     var obsEl = document.getElementById('observacoes');
     if (obsEl) obsEl.disabled = d;
-  };
+  }
 
-  // ============================================================
-  // LOGOUT
-  // ============================================================
-
-  window.fazerLogout = function() {
+  function fazerLogout() {
     if (typeof logout === 'function') logout(_dadosAlterados);
-  };
-
-  // ============================================================
-  // REGISTAR A VIEW
-  // ============================================================
-
-  window.__views = window.__views || {};
-  window.__views.registo = {
-    mount:       mount,
-    beforeLeave: beforeLeave,
-    unmount:     unmount
-  };
-
-})();
+  }
