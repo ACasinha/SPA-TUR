@@ -50,18 +50,6 @@ var _cssEmCurso      = {};
 var OUTLET_ID = 'spa-outlet';
 
 // ============================================================
-// AUXILIAR DE DETEÇÃO DE CAMINHO BASE (GitHub Pages vs Local)
-// ============================================================
-function _obterBaseRepo() {
-  var base = '';
-  if (window.location.hostname.indexOf('github.io') !== -1) {
-    base = '/' + window.location.pathname.split('/')[1] + '/';
-    base = base.replace(/\/+/g, '/');
-  }
-  return base;
-}
-
-// ============================================================
 // INICIALIZAÇÃO
 // ============================================================
 
@@ -70,10 +58,12 @@ function routerInit(perfil) {
   document.addEventListener('click', _onLinkClick);
   
   window.addEventListener('popstate', function() {
+    // Captura o caminho após o '#' (ex: '#/dashboard' torna-se '/dashboard')
     var caminhoHash = window.location.hash.replace(/^#/, '') || '/';
     _navegar(caminhoHash, false);
   });
   
+  // Carrega a rota inicial baseada no Hash atual da URL
   var caminhoInicial = window.location.hash.replace(/^#/, '') || '/';
   _navegar(caminhoInicial, false);
 }
@@ -126,23 +116,16 @@ function _navegar(caminho, pushState) {
         _viewActual.unmount();
       }
 
-      // Desactivar CSS da view anterior
+      // Desactivar CSS da view anterior (o novo CSS já está no DOM neste ponto)
       if (viewAnterior && viewAnterior !== rota.view) {
         var linkAntigo = document.querySelector('link[data-view-css="' + viewAnterior + '"]');
-        if (linkAntigo) {
-          linkAntigo.parentNode.removeChild(linkAntigo);
-        }
+        if (linkAntigo) linkAntigo.disabled = true;
       }
 
       // Injectar HTML e montar nova view
       var outlet = document.getElementById(OUTLET_ID);
-      if (outlet) outlet.innerHTML = _htmlCache[rota.view] || '';
+      outlet.innerHTML = _htmlCache[rota.view] || '';
 
-      // CORREÇÃO: Utiliza a função auxiliar para não disparar ReferenceError
-      var baseRepoAtual = _obterBaseRepo();
-      _carregarCss(baseRepoAtual + 'views/' + rota.view + '/view.css', rota.view);
-
-      // Atualizar estados locais
       _viewActual = modulo;
       _rotaActual = { caminho: caminho, rota: rota };
       _actualizarNavActivo(caminho);
@@ -160,9 +143,9 @@ function _navegar(caminho, pushState) {
       _navegando = false;
     });
 
-  if (typeof window.verificarVisibilidadeInstalacao === 'function') {
+    if (typeof window.verificarVisibilidadeInstalacao === 'function') {
     window.verificarVisibilidadeInstalacao();
-  }
+}
 }
 
 // ============================================================
@@ -176,10 +159,19 @@ function _carregarView(nomeView) {
     return Promise.resolve(_viewsCarregadas[nomeView]);
   }
 
-  var baseRepo = _obterBaseRepo();
+  // 1. Deteta dinamicamente se estamos no GitHub Pages e extrai o subdiretório
+  var baseRepo = '';
+  if (window.location.hostname.indexOf('github.io') !== -1) {
+    // Extrai o '/nome-do-repositorio/' a partir do pathname atual
+    baseRepo = '/' + window.location.pathname.split('/')[1] + '/';
+    // Remove barras duplas acidentais
+    baseRepo = baseRepo.replace(/\/+/g, '/');
+  }
+
   var rota    = _rotaPorView(nomeView);
   var deps    = (rota && rota.deps) || [];
   
+  // 2. Aplica o prefixo correto do repositório para os caminhos dos ficheiros
   var htmlUrl = baseRepo + 'views/' + nomeView + '/view.html';
   var jsUrl   = baseRepo + 'views/' + nomeView + '/view.js';
   var cssUrl  = baseRepo + 'views/' + nomeView + '/view.css';
@@ -190,9 +182,9 @@ function _carregarView(nomeView) {
       return r.text();
     }),
     deps.reduce(function(cadeia, url) {
+      // Garante o prefixo também nas dependências, se forem locais relativos
       var urlDep = (url.startsWith('http') || url.startsWith('//')) ? url : baseRepo + url;
-      // CORREÇÃO: Alterado de chain.then para cadeia.then para corresponder ao argumento
-      return cadeia.then(function() { return _carregarScript(urlDep); });
+      return chain.then(function() { return _carregarScript(urlDep); });
     }, Promise.resolve()).then(function() {
       return _carregarScript(jsUrl);
     }),
@@ -214,6 +206,8 @@ function _rotaPorView(nomeView) {
   return null;
 }
 
+// CSS lazy — cria o <link> uma única vez; nas visitas seguintes
+// a reactivação é feita em _carregarView (linha acima).
 function _carregarCss(url, nomeView) {
   if (_cssEmCurso[nomeView]) return _cssEmCurso[nomeView];
 
@@ -262,7 +256,6 @@ function _actualizarNavActivo(caminho) {
   });
 }
 
-// Captura cliques em links e converte em transições SPA
 function _onLinkClick(e) {
   if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   if (e.defaultPrevented) return;
@@ -273,6 +266,7 @@ function _onLinkClick(e) {
   if (href.startsWith('http') || href.startsWith('//') ||
       href.startsWith('mailto:') || href.startsWith('tel:')) return;
   
+  // Remove o cardinal se o link já o tiver, limpa barras repetidas e assume a rota limpa
   var caminho = href.replace(/^#/, '').replace(/\/+$/, '') || '/';
   
   if (!ROTAS[caminho]) return;
@@ -280,7 +274,7 @@ function _onLinkClick(e) {
   routerNavegar(caminho);
 }
 
-function _mostrarTransition(mostrar) {
+function _mostrarTransicao(mostrar) {
   var el = document.getElementById('spa-transition');
   if (!el) return;
   if (mostrar) {
@@ -304,7 +298,6 @@ function _mostrarErroAcesso(mensagem) {
 
 function routerDefinirPerfil(perfil) { _perfilUtiliz = perfil; }
 
-// Exposição das funções principais no escopo Global
 window.routerInit          = routerInit;
 window.routerNavegar       = routerNavegar;
 window.routerDefinirPerfil = routerDefinirPerfil;
