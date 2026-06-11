@@ -80,6 +80,20 @@
     });
     _listeners = [];
 
+     // ── CORREÇÃO DE LIMPEZA ────────────────────────────────────
+    // 1. Resetar a variável global de países em memória do ui.js
+    if (typeof _paisesAdicionados !== 'undefined') {
+      _paisesAdicionados = [];
+    }
+
+    // 2. Limpar a lista de pesquisa que o ui.js injetou no document.body
+    var listaPesquisa = document.getElementById('listaPesquisaPaises');
+    if (listaPesquisa) {
+      listaPesquisa.innerHTML = '';
+      listaPesquisa.style.display = 'none';
+    }
+    // ───────────────────────────────────────────────────────────
+    
     _ultimoLocalVerif = '';
     _ultimaDataVerif  = '';
     _dadosAlterados   = false;
