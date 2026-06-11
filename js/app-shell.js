@@ -137,7 +137,7 @@ window.spaResetHeader = function() {
 window.mostrarToast = function(msg, tipo) {
   var t = document.getElementById('toast');
   if (!t) return;
-  t.textContent = msg;
+  t.innerHTML = msg;
   t.className   = 'toast ' + (tipo || 'info') + ' show';
   clearTimeout(t._rmzTimer);
   t._rmzTimer = setTimeout(function() { t.classList.remove('show'); }, 3800);
