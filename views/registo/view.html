@@ -15,7 +15,7 @@
     <button class="btn-reconectar" id="btnReconectar"
             onclick="tentarReconectar()">🔄 Verificar ligação</button>
     <button class="btn-imprimir-pdf"
-            onclick="imprimirPDF()">🖨 Imprimir formulário</button>
+            onclick="mostrarModalPDF()">🖨 Imprimir formulário</button>
   </div>
 </div>
 
@@ -136,8 +136,25 @@
 
 </div><!-- /container -->
 
-<!-- Modal PDF (gerado inline para não depender do DOM global) -->
+<!-- Modal PDF — conteúdo declarado directamente aqui para não depender
+     de injecção dinâmica por offline.js (o modal já existe no DOM
+     quando mostrarModalPDF() é chamado) -->
 <div id="modalEscolhaPDF" class="modal-overlay" style="display:none">
-  <div class="modal-pdf-caixa"></div>
-  <!-- Preenchido por offline.js → mostrarModalPDF() -->
+  <div class="modal-pdf-caixa">
+    <div class="modal-pdf-titulo">🖨️ Gerar Formulário PDF</div>
+    <div class="modal-pdf-sub">Escolha o tipo de formulário a imprimir como backup físico.</div>
+    <div class="modal-pdf-opcoes">
+      <button class="btn-pdf-opcao" onclick="gerarPDF('paises');fecharModalPDF()">
+        <span class="pdf-opcao-icone">🌍</span>
+        <span class="pdf-opcao-titulo">Por Países</span>
+        <span class="pdf-opcao-desc">Lista completa de países com linhas de preenchimento manual</span>
+      </button>
+      <button class="btn-pdf-opcao" onclick="gerarPDF('simples');fecharModalPDF()">
+        <span class="pdf-opcao-icone">👥</span>
+        <span class="pdf-opcao-titulo">Nacionais / Estrangeiros</span>
+        <span class="pdf-opcao-desc">Formulário simplificado para locais com menos detalhe</span>
+      </button>
+    </div>
+    <button class="btn-pdf-fechar" onclick="fecharModalPDF()">Cancelar</button>
+  </div>
 </div>
