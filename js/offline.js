@@ -8,7 +8,8 @@
 //   • gerarPDF() lê elementos do outlet activo — não depende
 //     de IDs globais que já não existem fora da view
 //   • mostrarModalPDF() / fecharModalPDF() trabalham com o
-//     modal declarado no view.html do registo
+//     modal declarado no view.html do registo — o conteúdo
+//     está declarado no HTML e não é injectado dinamicamente
 // ============================================================
 
 'use strict';
@@ -101,18 +102,25 @@ function resetarBotaoReconectar() {
 
 // ============================================================
 // MODAL DE ESCOLHA DE PDF
+//
+// FIX: o modal está declarado com conteúdo completo no
+// views/registo/view.html — não é injectado dinamicamente.
+// Esta função limita-se a mostrá-lo e a registar o listener
+// de fecho ao clicar fora, uma única vez.
 // ============================================================
 
 function mostrarModalPDF() {
   var modal = document.getElementById('modalEscolhaPDF');
   if (!modal) return;
-  // Fechar ao clicar fora (ligar uma única vez)
+
+  // Registar listener de fecho apenas uma vez
   if (!modal._overlayListenerAdded) {
     modal.addEventListener('click', function(e) {
       if (e.target === modal) fecharModalPDF();
     });
     modal._overlayListenerAdded = true;
   }
+
   modal.style.display = 'flex';
 }
 
@@ -121,6 +129,7 @@ function fecharModalPDF() {
   if (modal) modal.style.display = 'none';
 }
 
+// Alias usado pelo banner offline e pelo botão do rodapé
 function imprimirPDF() { mostrarModalPDF(); }
 
 // ============================================================
