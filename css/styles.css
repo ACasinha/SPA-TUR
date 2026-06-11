@@ -610,7 +610,6 @@ input[type="number"] {
   transition: background 0.12s ease, color 0.12s ease;
   line-height: 1.35;
   min-height: 38px;
-  vertical-align: middle;
 }
 
 .nav-menu-item:hover,
