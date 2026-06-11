@@ -25,7 +25,7 @@
     },
     {
       id:    'nav-dashboard',
-      label: '📊 Dashboard',
+      label: '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">analytics</span> Dashboard',
       rota:  '/dashboard',
       visible: function(p) {
         return p.role === 'administrador'
@@ -35,7 +35,7 @@
     },
     {
       id:    'nav-editor',
-      label: '✏️ Editor Mensal',
+      label: '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">edit_document</span> Editor Mensal',
       rota:  '/editor',
       visible: function(p) {
         return p.role === 'administrador' || p.acessoEditor === true;
@@ -43,7 +43,7 @@
     },
     {
       id:    'nav-admin',
-      label: '🛡️ Gestão de Utilizadores',
+      label: '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">admin_panel_settings</span> Gestão de Utilizadores',
       rota:  '/admin',
       visible: function(p) {
         return p.role === 'administrador';
