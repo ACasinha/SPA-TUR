@@ -608,10 +608,32 @@ input[type="number"] {
   cursor: pointer;
   text-align: left;
   transition: background 0.12s ease, color 0.12s ease;
-  line-height: 1.35;
+  line-height: 1; /* Reduzimos para evitar que heranças de line-height empurrem o texto */
   min-height: 38px;
 }
-
+.nav-menu-item-label {
+  display: inline-flex;
+  align-items: center; /* Centra o ícone e o wrapper de texto verticalmente */
+  gap: 8px; /* Controla o espaçamento exato entre o ícone e o início do texto */
+  min-width: 0;
+  flex: 1;
+}
+.nav-menu-item .material-symbols-rounded {
+  font-size: 18px; /* Tamanho pretendido */
+  width: 18px;    /* Força uma caixa quadrada perfeita para o ícone */
+  height: 18px;   /* Força uma caixa quadrada perfeita para o ícone */
+  line-height: 1; /* Remove margens internas fantasmas da fonte de ícones */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Impede que o ícone esmague em ecrãs mais pequenos */
+}
+/* Wrapper para o texto do link, garantindo que herda o alinhamento correto */
+.nav-text-wrapper {
+  line-height: 1;
+  display: inline-block;
+  padding-top: 1px; /* Ajuste milimétrico ótico (compensação de subida da fonte Source Sans) */
+}
 .nav-menu-item:hover,
 .nav-menu-item:focus-visible {
   background: rgba(139, 74, 43, 0.07);
@@ -669,7 +691,6 @@ input[type="number"] {
 /* ── Responsividade mobile ───────────────────────────────── */
 @media (max-width: 480px) {
   .nav-menu-painel {
-    /* Em mobile, o painel estica quase até à largura total */
     min-width: calc(75vw - 24px);
     right: 12px !important;
   }
