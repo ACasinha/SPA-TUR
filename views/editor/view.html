@@ -190,50 +190,167 @@
   </div>
 </div>
 
-<!-- MODAL CONFLITO -->
+<!-- ============================================================
+     MODAL CONFLITO — Países + Extras (Operadores / Sugestões / Observações)
+============================================================ -->
 <div class="modal-overlay" id="modalConflito">
   <div class="modal-box modal-conflito-box">
+
     <div class="modal-header">
       <h2>⚠️ Conflito de Dados</h2>
       <div class="conflito-meta" id="conflitoMeta"></div>
     </div>
+
     <div class="modal-body">
-      <div class="conflito-comparacao">
-        <div class="conflito-lado">
-          <div class="conflito-lado-titulo servidor">
-            📊 Dados no servidor
-            <span class="conflito-lado-sub" id="conflitoServidorAutor"></span>
-          </div>
-          <table class="conflito-tabela" id="conflitoTabelaServidor"></table>
-          <div class="conflito-total" id="conflitoTotalServidor"></div>
-        </div>
-        <div class="conflito-vs">VS</div>
-        <div class="conflito-lado">
-          <div class="conflito-lado-titulo offline">
-            📦 Registo offline
-            <span class="conflito-lado-sub" id="conflitoOfflineAutor"></span>
-          </div>
-          <table class="conflito-tabela" id="conflitoTabelaOffline"></table>
-          <div class="conflito-total" id="conflitoTotalOffline"></div>
-        </div>
+
+      <!-- TABS de secção do conflito -->
+      <div class="conflito-tabs" id="conflitoTabs">
+        <button class="conflito-tab ativa" data-tab="paises"
+                onclick="window.__editor&&window.__editor.activarTabConflito('paises')">
+          🌍 Países
+          <span class="conflito-tab-badge" id="conflitoTabBadgePaises" style="display:none">!</span>
+        </button>
+        <button class="conflito-tab" data-tab="extras"
+                onclick="window.__editor&&window.__editor.activarTabConflito('extras')">
+          📋 Operadores &amp; Extras
+          <span class="conflito-tab-badge" id="conflitoTabBadgeExtras" style="display:none">!</span>
+        </button>
       </div>
-      <div class="conflito-diferencas" id="conflitoDiferencas"></div>
-    </div>
-    <div class="modal-actions">
+
+      <!-- PAINEL: Países -->
+      <div class="conflito-painel" id="conflitoPainelPaises">
+        <div class="conflito-comparacao">
+          <div class="conflito-lado">
+            <div class="conflito-lado-titulo servidor">
+              📊 Dados no servidor
+              <span class="conflito-lado-sub" id="conflitoServidorAutor"></span>
+            </div>
+            <table class="conflito-tabela" id="conflitoTabelaServidor"></table>
+            <div class="conflito-total" id="conflitoTotalServidor"></div>
+          </div>
+          <div class="conflito-vs">VS</div>
+          <div class="conflito-lado">
+            <div class="conflito-lado-titulo offline">
+              📦 Registo offline
+              <span class="conflito-lado-sub" id="conflitoOfflineAutor"></span>
+            </div>
+            <table class="conflito-tabela" id="conflitoTabelaOffline"></table>
+            <div class="conflito-total" id="conflitoTotalOffline"></div>
+          </div>
+        </div>
+        <div class="conflito-diferencas" id="conflitoDiferencas"></div>
+      </div>
+
+      <!-- PAINEL: Operadores & Extras -->
+      <div class="conflito-painel" id="conflitoPainelExtras" style="display:none">
+
+        <!-- Operadores -->
+        <div class="conflito-extras-bloco">
+          <div class="conflito-extras-titulo">🏨 Operadores e Agências</div>
+          <div class="conflito-comparacao conflito-comparacao-extras">
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo servidor">📊 Servidor</div>
+              <div class="conflito-extras-lista" id="conflitoOpServidor"></div>
+            </div>
+            <div class="conflito-vs">VS</div>
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo offline">📦 Offline</div>
+              <div class="conflito-extras-lista" id="conflitoOpOffline"></div>
+            </div>
+          </div>
+          <!-- Botões de resolução por secção -->
+          <div class="conflito-extras-acoes" id="conflitoOpAcoes" style="display:none">
+            <span class="conflito-extras-acoes-label">Manter para Operadores:</span>
+            <button class="btn-conflito btn-conflito-manter btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('operadores','servidor')">
+              ✓ Servidor
+            </button>
+            <button class="btn-conflito btn-conflito-offline btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('operadores','offline')">
+              ✓ Offline
+            </button>
+          </div>
+        </div>
+
+        <!-- Sugestões -->
+        <div class="conflito-extras-bloco">
+          <div class="conflito-extras-titulo">💬 Sugestões e Críticas</div>
+          <div class="conflito-comparacao conflito-comparacao-extras">
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo servidor">📊 Servidor</div>
+              <div class="conflito-extras-lista" id="conflitoSugServidor"></div>
+            </div>
+            <div class="conflito-vs">VS</div>
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo offline">📦 Offline</div>
+              <div class="conflito-extras-lista" id="conflitoSugOffline"></div>
+            </div>
+          </div>
+          <div class="conflito-extras-acoes" id="conflitoSugAcoes" style="display:none">
+            <span class="conflito-extras-acoes-label">Manter para Sugestões:</span>
+            <button class="btn-conflito btn-conflito-manter btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('sugestoes','servidor')">
+              ✓ Servidor
+            </button>
+            <button class="btn-conflito btn-conflito-offline btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('sugestoes','offline')">
+              ✓ Offline
+            </button>
+          </div>
+        </div>
+
+        <!-- Observações -->
+        <div class="conflito-extras-bloco">
+          <div class="conflito-extras-titulo">📝 Outras Observações</div>
+          <div class="conflito-comparacao conflito-comparacao-extras">
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo servidor">📊 Servidor</div>
+              <div class="conflito-extras-obs" id="conflitoObsServidor"></div>
+            </div>
+            <div class="conflito-vs">VS</div>
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo offline">📦 Offline</div>
+              <div class="conflito-extras-obs" id="conflitoObsOffline"></div>
+            </div>
+          </div>
+          <div class="conflito-extras-acoes" id="conflitoObsAcoes" style="display:none">
+            <span class="conflito-extras-acoes-label">Manter para Observações:</span>
+            <button class="btn-conflito btn-conflito-manter btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('observacoes','servidor')">
+              ✓ Servidor
+            </button>
+            <button class="btn-conflito btn-conflito-offline btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('observacoes','offline')">
+              ✓ Offline
+            </button>
+          </div>
+        </div>
+
+        <!-- Estado: sem diferenças nos extras -->
+        <div class="conflito-sem-dif" id="conflitoExtrasSemDif" style="display:none">
+          Os dados de operadores, sugestões e observações são idênticos — sem conflito nesta secção.
+        </div>
+
+      </div><!-- /conflitoPainelExtras -->
+
+    </div><!-- /modal-body -->
+
+    <div class="modal-actions" id="conflitoModalActions">
       <button class="btn-modal-cancelar"
               onclick="window.__editor&&window.__editor.fecharModalConflito()">Cancelar</button>
       <button class="btn-conflito btn-conflito-manter"
               onclick="window.__editor&&window.__editor.resolverConflito('manter_servidor')">
-        ✓ Manter servidor
+        ✓ Manter tudo do servidor
       </button>
       <button class="btn-conflito btn-conflito-offline"
               onclick="window.__editor&&window.__editor.resolverConflito('usar_offline')">
-        ✓ Usar registo offline
+        ✓ Usar tudo do offline
       </button>
       <button class="btn-conflito btn-conflito-fundir"
               onclick="window.__editor&&window.__editor.activarModoFusao()">
         ✏️ Editar e fundir
       </button>
     </div>
+
   </div>
 </div>

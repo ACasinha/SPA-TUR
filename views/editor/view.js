@@ -1,10 +1,6 @@
 // ============================================================
 // views/editor/view.js
 // View: Editor Mensal de Dados
-//
-// Migração de editor.js + editor-sticky.js para padrão SPA.
-// Toda a lógica encapsulada no IIFE — sem poluição global.
-// API pública exposta via window.__editor para os onclick do HTML.
 // ============================================================
 
 'use strict';
@@ -27,6 +23,11 @@
   var _modoModalExtras  = null;
   var _listeners        = [];
 
+  // Resoluções parciais de extras (por secção, antes de confirmar tudo)
+  // { operadores: 'servidor'|'offline'|null, sugestoes: ..., observacoes: ... }
+  var _resolucaoExtras  = null;
+  var _tabConflitoAtiva = 'paises';
+
   var DIAS_SEM = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
   // ── Sticky thead ────────────────────────────────────────────
@@ -44,7 +45,6 @@
 
     spaSetHeader({ titulo: 'Editor Mensal de Dados' });
 
-    // Mês actual por defeito
     var hoje   = new Date();
     var mesStr = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0');
     var inputMes = document.getElementById('inputMes');
@@ -55,7 +55,6 @@
       });
     }
 
-    // Fechar modais com Escape
     _al(document, 'keydown', function(e) {
       if (e.key === 'Escape') {
         fecharModalGuardar();
@@ -64,16 +63,12 @@
       }
     });
 
-    // Fechar modais ao clicar no overlay
     ['modalGuardar', 'modalExtras', 'modalConflito'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) _al(el, 'click', function(e) { if (e.target === el) _fecharModal(id); });
     });
 
-    // beforeunload
     _al(window, 'beforeunload', _onBeforeUnload);
-
-    // Sticky thead — listeners globais
     _al(window, 'scroll', _stickyAgendarActualizacao, { passive: true });
     _al(window, 'resize', _stickyAgendarActualizacao, { passive: true });
   }
@@ -93,12 +88,12 @@
     });
     _listeners = [];
 
-    // Resetar estado
     _localAtual = ''; _mesAtual = ''; _dadosMes = {};
     _alteracoes = {}; _totalAlteracoes = 0;
     _conflitosDoMes = {}; _conflitoActivo = null;
     _dadosExtras = {}; _alteracoesExtras = {};
     _diaModalActivo = null; _modoModalExtras = null;
+    _resolucaoExtras = null; _tabConflitoAtiva = 'paises';
 
     window.__editor = null;
     spaResetHeader();
@@ -209,7 +204,6 @@
     tabela.className = 'grelha-tabela';
     tabela.setAttribute('role', 'grid');
 
-    // ── THEAD ────────────────────────────────────────────────
     var thead  = document.createElement('thead');
     var trHead = document.createElement('tr');
 
@@ -255,7 +249,6 @@
     thead.appendChild(trHead);
     tabela.appendChild(thead);
 
-    // ── TBODY ────────────────────────────────────────────────
     var tbody          = document.createElement('tbody');
     var paisesDestaque = listaPais.filter(function(p) { return p.destaque; });
     var paisesResto    = listaPais.filter(function(p) { return !p.destaque; });
@@ -325,7 +318,6 @@
 
     paisesResto.forEach(function(p) { adicionarLinha(p, false); });
 
-    // Linha de totais por dia
     var trTotais = document.createElement('tr');
     trTotais.className = 'linha-totais';
     var tdTotLabel = document.createElement('td');
@@ -357,7 +349,6 @@
 
     if (Object.keys(_conflitosDoMes).length > 0) _assinalarConflitos();
 
-    // Actualizar UI envolvente
     document.getElementById('estadoVazioCard').style.display = 'none';
     document.getElementById('secaoGrelha').style.display     = '';
     document.getElementById('secaoGrelha').classList.remove('recolhido');
@@ -380,7 +371,6 @@
         ? totalCarregado.toLocaleString('pt-PT') + ' visitantes'
         : 'Sem dados';
 
-    // Iniciar sticky após o browser renderizar
     setTimeout(function() {
       _stickyIniciar();
       var w = document.getElementById('grelhaWrapper');
@@ -625,7 +615,7 @@
   }
 
   // ============================================================
-  // TABELA EXTRAS (Operadores / Sugestões / Observações)
+  // TABELA EXTRAS
   // ============================================================
 
   function _construirTabelaExtras(ano, mesNum, numDias) {
@@ -679,9 +669,21 @@
     if (ops.length)               chips += '<span class="extras-chip chip-op">Operadores (' + ops.length + ')</span>';
     if (sugs.length)              chips += '<span class="extras-chip chip-sug">Sugestões (' + sugs.length + ')</span>';
     if (obs)                      chips += '<span class="extras-chip chip-obs">Observações</span>';
-    if (_conflitosDoMes[dataFmt]) chips += '<span class="extras-chip chip-conflito">⚠️ Conflito</span>';
+    if (_conflitosDoMes[dataFmt] && _temConflitoExtras(dataFmt))
+                                  chips += '<span class="extras-chip chip-conflito">⚠️ Conflito extras</span>';
     if (_alteracoesExtras[dataFmt]) chips += '<span class="extras-chip chip-alt">✏️ Por guardar</span>';
     return chips || '<span class="extras-sem-dados">—</span>';
+  }
+
+  // Verifica se um conflito tem diferenças nos extras
+  function _temConflitoExtras(dataFmt) {
+    var c = _conflitosDoMes[dataFmt];
+    if (!c) return false;
+    var eS = c.payloadExistente || {};
+    var eN = c.payloadNovo      || {};
+    return JSON.stringify(eS.operadores  || []) !== JSON.stringify(eN.operadores  || [])
+        || JSON.stringify(eS.sugestoes   || []) !== JSON.stringify(eN.sugestoes   || [])
+        || (eS.observacoes || '') !== (eN.observacoes || '');
   }
 
   function _actualizarLinhaExtras(dataFmt) {
@@ -805,7 +807,6 @@
                ' min="0" placeholder="0" readonly value="' + _esc(String(op.total || '')) + '">' +
       '</div>';
 
-    // Ligar eventos
     div.querySelector('.modal-op-cartao-rem').addEventListener('click', function() { div.remove(); });
     div.querySelector('.btn-modal-add-nac').addEventListener('click', function() {
       var lista = div.querySelector('.modal-op-nac-lista');
@@ -904,7 +905,6 @@
     }
     if (!data) { mostrarToast('Escolha o dia do registo.', 'erro'); return; }
 
-    // Recolher operadores
     var ops = [];
     document.querySelectorAll('#modalExtrasOpLista .modal-extras-op-cartao').forEach(function(cartao) {
       var nome = ((cartao.querySelector('.modal-extras-op-nome') || {}).value || '').trim();
@@ -919,7 +919,6 @@
       ops.push({ operador: nome, nacionalidades: nacs.join(', '), total: tot });
     });
 
-    // Recolher sugestões
     var sugs = [];
     document.querySelectorAll('#modalExtrasSugLista .modal-extras-linha').forEach(function(l) {
       var txt = ((l.querySelector('.modal-extras-sug-texto') || {}).value || '').trim();
@@ -969,7 +968,7 @@
   }
 
   // ============================================================
-  // CONFLITOS
+  // CONFLITOS — ASSINALAR NA GRELHA
   // ============================================================
 
   function _assinalarConflitos() {
@@ -1000,11 +999,19 @@
     });
   }
 
+  // ============================================================
+  // CONFLITOS — MODAL PRINCIPAL
+  // ============================================================
+
   function abrirModalConflito(dataFmt) {
     var conflito = _conflitosDoMes[dataFmt];
     if (!conflito) return;
     _conflitoActivo = conflito;
 
+    // Inicializar resoluções parciais de extras a null
+    _resolucaoExtras = { operadores: null, sugestoes: null, observacoes: null };
+
+    // Meta
     document.getElementById('conflitoMeta').textContent = _localAtual + ' — ' + dataFmt;
     document.getElementById('conflitoServidorAutor').textContent =
       conflito.autorExistente ? 'por ' + conflito.autorExistente : '';
@@ -1014,6 +1021,7 @@
         ? ' (offline ' + new Date(conflito.criadoOfflineEm).toLocaleString('pt-PT') + ')'
         : '');
 
+    // Preencher painel de países
     _preencherTabelaConflito(
       'conflitoTabelaServidor',
       (conflito.payloadExistente || {}).paises || {},
@@ -1024,7 +1032,16 @@
       (conflito.payloadNovo || {}).paises || {},
       'conflitoTotalOffline'
     );
-    _mostrarDiferencas(conflito);
+    _mostrarDiferencasPaises(conflito);
+
+    // Preencher painel de extras
+    _preencherPainelExtras(conflito);
+
+    // Badges das tabs
+    _actualizarBadgesTabs(conflito);
+
+    // Activar tab de países por defeito
+    activarTabConflito('paises');
 
     var m = document.getElementById('modalConflito');
     if (m) m.classList.add('show');
@@ -1032,8 +1049,47 @@
 
   function fecharModalConflito() {
     _fecharModal('modalConflito');
-    _conflitoActivo = null;
+    _conflitoActivo  = null;
+    _resolucaoExtras = null;
+    _tabConflitoAtiva = 'paises';
   }
+
+  // ── Tabs do modal ─────────────────────────────────────────
+
+  function activarTabConflito(tab) {
+    _tabConflitoAtiva = tab;
+
+    document.querySelectorAll('.conflito-tab').forEach(function(btn) {
+      btn.classList.toggle('ativa', btn.getAttribute('data-tab') === tab);
+    });
+
+    var painelPaises = document.getElementById('conflitoPainelPaises');
+    var painelExtras = document.getElementById('conflitoPainelExtras');
+    if (painelPaises) painelPaises.style.display = tab === 'paises' ? '' : 'none';
+    if (painelExtras) painelExtras.style.display = tab === 'extras' ? '' : 'none';
+  }
+
+  function _actualizarBadgesTabs(conflito) {
+    var eS = conflito.payloadExistente || {};
+    var eN = conflito.payloadNovo      || {};
+
+    // Badge países
+    var pS = eS.paises || {};
+    var pN = eN.paises || {};
+    var temDifPaises = Object.keys(Object.assign({}, pS, pN))
+      .some(function(p) { return (pS[p] || 0) !== (pN[p] || 0); });
+    var bPaises = document.getElementById('conflitoTabBadgePaises');
+    if (bPaises) bPaises.style.display = temDifPaises ? '' : 'none';
+
+    // Badge extras
+    var temDifExtras = JSON.stringify(eS.operadores || []) !== JSON.stringify(eN.operadores || [])
+                    || JSON.stringify(eS.sugestoes  || []) !== JSON.stringify(eN.sugestoes  || [])
+                    || (eS.observacoes || '') !== (eN.observacoes || '');
+    var bExtras = document.getElementById('conflitoTabBadgeExtras');
+    if (bExtras) bExtras.style.display = temDifExtras ? '' : 'none';
+  }
+
+  // ── Painel de países ──────────────────────────────────────
 
   function _preencherTabelaConflito(tabelaId, paises, totalId) {
     var tabela = document.getElementById(tabelaId);
@@ -1049,7 +1105,7 @@
     if (totEl) totEl.textContent = 'Total: ' + total;
   }
 
-  function _mostrarDiferencas(conflito) {
+  function _mostrarDiferencasPaises(conflito) {
     var paisesS = (conflito.payloadExistente || {}).paises || {};
     var paisesO = (conflito.payloadNovo      || {}).paises || {};
     var todos   = Object.keys(Object.assign({}, paisesS, paisesO));
@@ -1062,7 +1118,7 @@
 
     var el = document.getElementById('conflitoDiferencas');
     if (!difs.length) {
-      el.innerHTML = '<div class="conflito-sem-dif">Os valores são idênticos — qualquer opção produz o mesmo resultado.</div>';
+      el.innerHTML = '<div class="conflito-sem-dif">Os valores de países são idênticos.</div>';
       return;
     }
     var html = '<div class="conflito-dif-titulo">Diferenças por país:</div>';
@@ -1079,11 +1135,171 @@
     el.innerHTML = html;
   }
 
+  // ── Painel de extras ─────────────────────────────────────
+
+  function _preencherPainelExtras(conflito) {
+    var eS = conflito.payloadExistente || {};
+    var eN = conflito.payloadNovo      || {};
+
+    var opsS = eS.operadores  || [];
+    var opsN = eN.operadores  || [];
+    var sugS = eS.sugestoes   || [];
+    var sugN = eN.sugestoes   || [];
+    var obsS = eS.observacoes || '';
+    var obsN = eN.observacoes || '';
+
+    var difOps = JSON.stringify(opsS) !== JSON.stringify(opsN);
+    var difSug = JSON.stringify(sugS) !== JSON.stringify(sugN);
+    var difObs = obsS !== obsN;
+    var temQualquerDif = difOps || difSug || difObs;
+
+    // Sem diferenças
+    var semDifEl = document.getElementById('conflitoExtrasSemDif');
+    if (semDifEl) semDifEl.style.display = temQualquerDif ? 'none' : '';
+
+    // Operadores
+    _renderizarExtrasBlocoLado('conflitoOpServidor', opsS, 'operadores');
+    _renderizarExtrasBlocoLado('conflitoOpOffline',  opsN, 'operadores');
+    var blocoOp = document.getElementById('conflitoOpAcoes');
+    if (blocoOp) blocoOp.style.display = difOps ? '' : 'none';
+    _marcarBlocoComDif('conflitoOpServidor', difOps);
+
+    // Sugestões
+    _renderizarExtrasBlocoLado('conflitoSugServidor', sugS, 'sugestoes');
+    _renderizarExtrasBlocoLado('conflitoSugOffline',  sugN, 'sugestoes');
+    var blocoSug = document.getElementById('conflitoSugAcoes');
+    if (blocoSug) blocoSug.style.display = difSug ? '' : 'none';
+    _marcarBlocoComDif('conflitoSugServidor', difSug);
+
+    // Observações
+    var obsElS = document.getElementById('conflitoObsServidor');
+    var obsElN = document.getElementById('conflitoObsOffline');
+    if (obsElS) obsElS.textContent = obsS || '';
+    if (obsElN) obsElN.textContent = obsN || '';
+    var blocoObs = document.getElementById('conflitoObsAcoes');
+    if (blocoObs) blocoObs.style.display = difObs ? '' : 'none';
+    _marcarBlocoComDif('conflitoObsServidor', difObs);
+  }
+
+  function _marcarBlocoComDif(idFilho, temDif) {
+    var el = document.getElementById(idFilho);
+    if (!el) return;
+    var bloco = el.closest('.conflito-extras-bloco');
+    if (bloco) bloco.classList.toggle('tem-diferenca', temDif);
+  }
+
+  function _renderizarExtrasBlocoLado(elId, dados, tipo) {
+    var el = document.getElementById(elId);
+    if (!el) return;
+
+    if (tipo === 'operadores') {
+      if (!dados || !dados.length) {
+        el.innerHTML = '<span class="conflito-extras-vazio">— Sem operadores —</span>';
+        return;
+      }
+      el.innerHTML = dados.map(function(op) {
+        return '<div class="conflito-extras-item">' +
+          '<div class="conflito-extras-item-nome">' + _esc(op.operador || '—') + '</div>' +
+          (op.nacionalidades
+            ? '<div class="conflito-extras-item-detalhe">' + _esc(op.nacionalidades) + '</div>'
+            : '') +
+          '<div class="conflito-extras-item-total">Total: ' + (op.total || 0) + '</div>' +
+        '</div>';
+      }).join('');
+
+    } else if (tipo === 'sugestoes') {
+      if (!dados || !dados.length) {
+        el.innerHTML = '<span class="conflito-extras-vazio">— Sem sugestões —</span>';
+        return;
+      }
+      el.innerHTML = dados.map(function(s) {
+        return '<div class="conflito-extras-item">' +
+          '<div class="conflito-extras-item-nome">' + _esc(s.sugestao || '—') + '</div>' +
+          (s.nacionalidade
+            ? '<div class="conflito-extras-item-detalhe">' + _esc(s.nacionalidade) + '</div>'
+            : '') +
+        '</div>';
+      }).join('');
+    }
+  }
+
+  // ============================================================
+  // CONFLITOS — RESOLUÇÃO
+  // ============================================================
+
+  // Resolução por secção individual (operadores / sugestões / observações)
+  function resolverExtrasSecao(secao, origem) {
+    if (!_conflitoActivo || !_resolucaoExtras) return;
+    _resolucaoExtras[secao] = origem;
+
+    // Feedback visual — substituir botões por badge "resolvido"
+    var mapaAcoes = {
+      operadores:  'conflitoOpAcoes',
+      sugestoes:   'conflitoSugAcoes',
+      observacoes: 'conflitoObsAcoes'
+    };
+    var labelOrigem = origem === 'servidor' ? '📊 Servidor' : '📦 Offline';
+    var acoesEl = document.getElementById(mapaAcoes[secao]);
+    if (acoesEl) {
+      acoesEl.innerHTML =
+        '<span class="conflito-extras-resolvido">✓ Mantido: ' + labelOrigem + '</span>';
+    }
+
+    // Verificar se todas as secções com diferença já foram resolvidas
+    _verificarExtrasCompletos();
+  }
+
+  function _verificarExtrasCompletos() {
+    if (!_conflitoActivo || !_resolucaoExtras) return;
+    var eS = _conflitoActivo.payloadExistente || {};
+    var eN = _conflitoActivo.payloadNovo      || {};
+
+    var difOps = JSON.stringify(eS.operadores || []) !== JSON.stringify(eN.operadores || []);
+    var difSug = JSON.stringify(eS.sugestoes  || []) !== JSON.stringify(eN.sugestoes  || []);
+    var difObs = (eS.observacoes || '') !== (eN.observacoes || '');
+
+    var tudo = (!difOps || _resolucaoExtras.operadores !== null)
+            && (!difSug || _resolucaoExtras.sugestoes  !== null)
+            && (!difObs || _resolucaoExtras.observacoes !== null);
+
+    if (tudo && (difOps || difSug || difObs)) {
+      mostrarToast('Todas as secções de extras resolvidas. Clique em "Confirmar" para guardar.', 'info');
+    }
+  }
+
+  // Resolução global — tudo do servidor ou tudo do offline
   function resolverConflito(decisao) {
     if (!_conflitoActivo) return;
-    var payloadFinal = decisao === 'usar_offline'
-      ? _conflitoActivo.payloadNovo
-      : _conflitoActivo.payloadExistente;
+
+    var eS = _conflitoActivo.payloadExistente || {};
+    var eN = _conflitoActivo.payloadNovo      || {};
+
+    // Construir payload final de países
+    var paisesFinais = decisao === 'usar_offline'
+      ? (eN.paises || {})
+      : (eS.paises || {});
+
+    // Construir payload final de extras:
+    // Para cada secção, usar a resolução individual se existir; senão aplicar a decisão global.
+    var resolucao = _resolucaoExtras || {};
+
+    function _escolher(secao, valorS, valorN) {
+      if (resolucao[secao] === 'servidor') return valorS;
+      if (resolucao[secao] === 'offline')  return valorN;
+      // Sem resolução individual: seguir a decisão global
+      return decisao === 'usar_offline' ? valorN : valorS;
+    }
+
+    var opsFinais = _escolher('operadores',  eS.operadores  || [], eN.operadores  || []);
+    var sugFinais = _escolher('sugestoes',   eS.sugestoes   || [], eN.sugestoes   || []);
+    var obsFinais = _escolher('observacoes', eS.observacoes || '', eN.observacoes || '');
+
+    var payloadFinal = {
+      paises:      paisesFinais,
+      operadores:  opsFinais,
+      sugestoes:   sugFinais,
+      observacoes: obsFinais
+    };
 
     chamarAPI('resolverConflito', {
       conflitoId:   _conflitoActivo.id,
@@ -1092,14 +1308,22 @@
     })
     .then(function(resp) {
       if (!resp.sucesso) { mostrarToast('Erro: ' + resp.mensagem, 'erro'); return; }
+
       var dataFmt = _conflitoActivo.data;
-      delete _conflitosDoMes[dataFmt];
-      var paisesFinais = decisao === 'manter_servidor'
-        ? (_conflitoActivo.payloadExistente || {}).paises || {}
-        : (_conflitoActivo.payloadNovo      || {}).paises || {};
+
+      // Actualizar dados em memória
       _actualizarColunaAposResolucao(dataFmt, paisesFinais);
+
+      // Actualizar extras em memória
+      if (!_dadosExtras[dataFmt]) _dadosExtras[dataFmt] = {};
+      _dadosExtras[dataFmt].operadores  = opsFinais;
+      _dadosExtras[dataFmt].sugestoes   = sugFinais;
+      _dadosExtras[dataFmt].observacoes = obsFinais;
+
+      delete _conflitosDoMes[dataFmt];
       fecharModalConflito();
       _atualizarBadgeConflitos();
+      _actualizarLinhaExtras(dataFmt);
       mostrarToast('✓ Conflito resolvido.', 'sucesso');
     })
     .catch(function(err) { mostrarToast('Erro: ' + err.message, 'erro'); });
@@ -1121,7 +1345,7 @@
     });
     var primeiro = document.querySelector('.cel-input[data-data="' + dataFmt + '"]');
     if (primeiro) primeiro.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    mostrarToast('✏️ Valores offline pré-preenchidos. Edite e guarde normalmente.', 'info');
+    mostrarToast('✏️ Valores offline pré-preenchidos. Edite países e guarde. Para os extras, use o botão ✏️ Editar na tabela abaixo.', 'info');
   }
 
   function _actualizarColunaAposResolucao(dataFmt, paises) {
@@ -1160,7 +1384,7 @@
   }
 
   // ============================================================
-  // STICKY THEAD (editor-sticky.js integrado)
+  // STICKY THEAD
   // ============================================================
 
   function _stickyIniciar() {
@@ -1286,7 +1510,9 @@
     modalAdicionarSugestao: modalAdicionarSugestao,
     abrirModalConflito:     abrirModalConflito,
     fecharModalConflito:    fecharModalConflito,
+    activarTabConflito:     activarTabConflito,
     resolverConflito:       resolverConflito,
+    resolverExtrasSecao:    resolverExtrasSecao,
     activarModoFusao:       activarModoFusao
   };
 

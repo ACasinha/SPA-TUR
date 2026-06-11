@@ -41,11 +41,15 @@ var ROTAS = {
 var _rotaActual      = null;
 var _viewActual      = null;
 var _perfilUtiliz    = null;
-var _viewsCarregadas = {};
-var _htmlCache       = {};
 var _navegando       = false;
-var _scriptsCarregados = {};
-var _cssEmCurso      = {};
+
+// Por view: guarda os URLs dos scripts e o elemento <link> do CSS
+// para poder removê-los ao sair.
+// Estrutura: { scriptEls: [<script>, ...], cssEl: <link>|null }
+var _recursosView    = {};
+
+// Cache de HTML das views (não muda entre navegações)
+var _htmlCache       = {};
 
 var OUTLET_ID = 'spa-outlet';
 
@@ -56,14 +60,12 @@ var OUTLET_ID = 'spa-outlet';
 function routerInit(perfil) {
   _perfilUtiliz = perfil;
   document.addEventListener('click', _onLinkClick);
-  
+
   window.addEventListener('popstate', function() {
-    // Captura o caminho após o '#' (ex: '#/dashboard' torna-se '/dashboard')
     var caminhoHash = window.location.hash.replace(/^#/, '') || '/';
     _navegar(caminhoHash, false);
   });
-  
-  // Carrega a rota inicial baseada no Hash atual da URL
+
   var caminhoInicial = window.location.hash.replace(/^#/, '') || '/';
   _navegar(caminhoInicial, false);
 }
@@ -111,18 +113,17 @@ function _navegar(caminho, pushState) {
       }
       document.title = rota.titulo + ' — Registo de Nacionalidades';
 
-      // Desmontar view anterior
+      // 1. Desmontar view anterior
       if (_viewActual && typeof _viewActual.unmount === 'function') {
         _viewActual.unmount();
       }
 
-      // Desactivar CSS da view anterior (o novo CSS já está no DOM neste ponto)
+      // 2. Remover scripts e CSS da view anterior
       if (viewAnterior && viewAnterior !== rota.view) {
-        var linkAntigo = document.querySelector('link[data-view-css="' + viewAnterior + '"]');
-        if (linkAntigo) linkAntigo.disabled = true;
+        _removerRecursosView(viewAnterior);
       }
 
-      // Injectar HTML e montar nova view
+      // 3. Injectar HTML e montar nova view
       var outlet = document.getElementById(OUTLET_ID);
       outlet.innerHTML = _htmlCache[rota.view] || '';
 
@@ -143,57 +144,63 @@ function _navegar(caminho, pushState) {
       _navegando = false;
     });
 
-    if (typeof window.verificarVisibilidadeInstalacao === 'function') {
+  if (typeof window.verificarVisibilidadeInstalacao === 'function') {
     window.verificarVisibilidadeInstalacao();
-}
+  }
 }
 
 // ============================================================
 // LAZY LOADING — HTML + JS + CSS por view
+// Carrega os recursos, guarda referências para remoção posterior.
 // ============================================================
 
 function _carregarView(nomeView) {
-  if (_viewsCarregadas[nomeView]) {
-    var linkExistente = document.querySelector('link[data-view-css="' + nomeView + '"]');
-    if (linkExistente) linkExistente.disabled = false;
-    return Promise.resolve(_viewsCarregadas[nomeView]);
+  // Se a view já está em memória E os seus recursos ainda estão no DOM,
+  // podemos reutilizar o módulo directamente.
+  if (_htmlCache[nomeView] && window.__views && window.__views[nomeView]) {
+    // Reactivar CSS se tiver sido desactivado (compatibilidade)
+    var rec = _recursosView[nomeView];
+    if (rec && rec.cssEl) rec.cssEl.disabled = false;
+    return Promise.resolve(window.__views[nomeView]);
   }
 
-  // 1. Deteta dinamicamente se estamos no GitHub Pages e extrai o subdiretório
   var baseRepo = '';
   if (window.location.hostname.indexOf('github.io') !== -1) {
-    // Extrai o '/nome-do-repositorio/' a partir do pathname atual
     baseRepo = '/' + window.location.pathname.split('/')[1] + '/';
-    // Remove barras duplas acidentais
     baseRepo = baseRepo.replace(/\/+/g, '/');
   }
 
   var rota    = _rotaPorView(nomeView);
   var deps    = (rota && rota.deps) || [];
-  
-  // 2. Aplica o prefixo correto do repositório para os caminhos dos ficheiros
+
   var htmlUrl = baseRepo + 'views/' + nomeView + '/view.html';
   var jsUrl   = baseRepo + 'views/' + nomeView + '/view.js';
   var cssUrl  = baseRepo + 'views/' + nomeView + '/view.css';
 
+  // Inicializar registo de recursos para esta view
+  if (!_recursosView[nomeView]) {
+    _recursosView[nomeView] = { scriptEls: [], cssEl: null };
+  }
+
   return Promise.all([
+    // HTML
     fetch(htmlUrl).then(function(r) {
       if (!r.ok) throw new Error('HTML não encontrado: ' + htmlUrl);
       return r.text();
     }),
+    // Deps + view.js  (CORRIGIDO: 'chain' → 'cadeia')
     deps.reduce(function(cadeia, url) {
-      // Garante o prefixo também nas dependências, se forem locais relativos
       var urlDep = (url.startsWith('http') || url.startsWith('//')) ? url : baseRepo + url;
-      return chain.then(function() { return _carregarScript(urlDep); });
+      return cadeia.then(function() { return _carregarScript(urlDep, nomeView); });
     }, Promise.resolve()).then(function() {
-      return _carregarScript(jsUrl);
+      return _carregarScript(jsUrl, nomeView);
     }),
+    // CSS
     _carregarCss(cssUrl, nomeView)
   ])
   .then(function(resultados) {
     _htmlCache[nomeView] = resultados[0];
     var modulo = (window.__views && window.__views[nomeView]) || {};
-    _viewsCarregadas[nomeView] = modulo;
     return modulo;
   });
 }
@@ -206,12 +213,49 @@ function _rotaPorView(nomeView) {
   return null;
 }
 
-// CSS lazy — cria o <link> uma única vez; nas visitas seguintes
-// a reactivação é feita em _carregarView (linha acima).
-function _carregarCss(url, nomeView) {
-  if (_cssEmCurso[nomeView]) return _cssEmCurso[nomeView];
+// ============================================================
+// GESTÃO DE SCRIPTS — cria elemento <script> rastreável
+// ============================================================
 
-  var promessa = fetch(url, { method: 'HEAD' })
+function _carregarScript(url, nomeView) {
+  // Verificar se já existe um <script> com este src no DOM
+  var existente = document.querySelector('script[data-view-script="' + url + '"]');
+  if (existente) return Promise.resolve();
+
+  return new Promise(function(resolve, reject) {
+    var s = document.createElement('script');
+    s.src = url;
+    s.setAttribute('data-view-script', url);
+    if (nomeView) s.setAttribute('data-view', nomeView);
+    s.onload  = function() { resolve(); };
+    s.onerror = function() {
+      // Script opcional (ex: view.js que pode não existir) — não bloquear
+      console.warn('[Router] Script não encontrado (ignorado):', url);
+      resolve();
+    };
+    document.head.appendChild(s);
+
+    // Registar no mapa de recursos da view
+    if (nomeView && _recursosView[nomeView]) {
+      _recursosView[nomeView].scriptEls.push(s);
+    }
+  });
+}
+
+// ============================================================
+// GESTÃO DE CSS — cria <link> rastreável
+// ============================================================
+
+function _carregarCss(url, nomeView) {
+  // Verificar se já existe
+  var existente = document.querySelector('link[data-view-css="' + nomeView + '"]');
+  if (existente) {
+    existente.disabled = false;
+    if (_recursosView[nomeView]) _recursosView[nomeView].cssEl = existente;
+    return Promise.resolve();
+  }
+
+  return fetch(url, { method: 'HEAD' })
     .then(function(r) {
       if (!r.ok) return;
       return new Promise(function(resolve) {
@@ -221,26 +265,44 @@ function _carregarCss(url, nomeView) {
         link.setAttribute('data-view-css', nomeView);
         link.onload = link.onerror = resolve;
         document.head.appendChild(link);
+
+        if (_recursosView[nomeView]) {
+          _recursosView[nomeView].cssEl = link;
+        }
       });
     })
-    .catch(function() {})
-    .then(function() {
-      delete _cssEmCurso[nomeView];
-    });
-
-  _cssEmCurso[nomeView] = promessa;
-  return promessa;
+    .catch(function() {});
 }
 
-function _carregarScript(url) {
-  if (_scriptsCarregados[url]) return Promise.resolve();
-  return new Promise(function(resolve, reject) {
-    var s = document.createElement('script');
-    s.src     = url;
-    s.onload  = function() { _scriptsCarregados[url] = true; resolve(); };
-    s.onerror = function() { reject(new Error('Falha ao carregar script: ' + url)); };
-    document.head.appendChild(s);
+// ============================================================
+// REMOVER RECURSOS DA VIEW ANTERIOR
+// Remove scripts e CSS do DOM para evitar colisão de globals.
+// ============================================================
+
+function _removerRecursosView(nomeView) {
+  var rec = _recursosView[nomeView];
+  if (!rec) return;
+
+  // Remover scripts
+  rec.scriptEls.forEach(function(el) {
+    if (el && el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
   });
+  rec.scriptEls = [];
+
+  // Remover CSS
+  if (rec.cssEl && rec.cssEl.parentNode) {
+    rec.cssEl.parentNode.removeChild(rec.cssEl);
+    rec.cssEl = null;
+  }
+
+  // Limpar cache do módulo para forçar recarregamento limpo na próxima visita
+  if (window.__views) {
+    delete window.__views[nomeView];
+  }
+  delete _htmlCache[nomeView];
+  delete _recursosView[nomeView];
 }
 
 // ============================================================
@@ -265,10 +327,8 @@ function _onLinkClick(e) {
   if (!href) return;
   if (href.startsWith('http') || href.startsWith('//') ||
       href.startsWith('mailto:') || href.startsWith('tel:')) return;
-  
-  // Remove o cardinal se o link já o tiver, limpa barras repetidas e assume a rota limpa
+
   var caminho = href.replace(/^#/, '').replace(/\/+$/, '') || '/';
-  
   if (!ROTAS[caminho]) return;
   e.preventDefault();
   routerNavegar(caminho);
