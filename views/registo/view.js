@@ -445,6 +445,9 @@
     document.querySelectorAll('.op-nac-select, .op-nac-num').forEach(function(i) { i.disabled = d; });
     document.querySelectorAll('.btn-add-nac, .btn-rem-nac').forEach(function(b) { b.disabled = d; });
     document.querySelectorAll('.sug-texto, .sug-nac').forEach(function(i) { i.disabled = d; });
+    document.querySelectorAll('.btn-novo-operador').forEach(function(b) { b.disabled = d; });
+    document.querySelectorAll('.op-cartao-nome, .op-cartao-nac-select, .op-cartao-nac-num').forEach(function(i) { i.disabled = d; });
+    document.querySelectorAll('.btn-remover-op-cartao, .btn-remover-op-linha, .btn-add-nac-cartao, .btn-rem-nac-cartao').forEach(function(b) { b.disabled = d; });
     var obsEl = document.getElementById('observacoes');
     if (obsEl) obsEl.disabled = d;
   };
