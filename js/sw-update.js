@@ -74,7 +74,7 @@ if ('serviceWorker' in navigator) {
           if (!newWorker) return;
           newWorker.addEventListener('statechange', function() {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              mostrarToast('🔄 Nova versão disponível! Clique em "Verificar atualização".', 'info');
+              mostrarToast('<span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">Cached</span> Nova versão disponível! Clique em "Verificar atualização".', 'info');
             }
           });
         });
@@ -97,13 +97,14 @@ if ('serviceWorker' in navigator) {
 function verificarAtualizacao() {
   var btn = document.getElementById('btnVerificarUpdate');
   if (!btn) return;
-  btn.disabled    = true;
-  btn.textContent = '⏳ A verificar...';
+  btn.disabled  = true;
+  // Alterado para innerHTML para renderizar a tag <span>
+  btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">Hourglass_empty</span> A verificar...';
 
   if (!_swRegistration) {
-    mostrarToast('Service Worker não disponível.', 'info');
-    btn.disabled    = false;
-    btn.textContent = '🔄 Verificar atualização';
+    mostrarToast('<span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">Error</span> Service Worker não disponível.', 'info');
+    btn.disabled  = false;
+    btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">Cached</span> Verificar atualização';
     return;
   }
 
@@ -111,21 +112,21 @@ function verificarAtualizacao() {
     .then(function() {
       var temNovo = _swRegistration.waiting || _swRegistration.installing;
       if (temNovo) {
-        btn.textContent = '✅ Atualizar agora';
+        btn.innerHTML   = '<span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">Check_circle</span> Atualizar agora';
         btn.disabled    = false;
         btn.onclick     = function() { aplicarAtualizacao(); };
-        mostrarToast('Nova versão disponível. Clique em "Atualizar agora".', 'info');
+        mostrarToast('<span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">Check_circle</span> Nova versão disponível. Clique em "Atualizar agora".', 'info');
       } else {
         mostrarVersao();
-        mostrarToast('✓ A app está atualizada.', 'sucesso');
+        mostrarToast('<span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">Check_circle</span> A app está atualizada.', 'sucesso');
         btn.disabled    = false;
-        btn.textContent = '🔄 Verificar atualização';
+        btn.innerHTML   = '<span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">Cached</span> Verificar atualização';
       }
     })
     .catch(function(err) {
-      mostrarToast('Erro ao verificar: ' + err.message, 'erro');
+      mostrarToast('<span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">Error</span> Erro ao verificar: ' + err.message, 'erro');
       btn.disabled    = false;
-      btn.textContent = '🔄 Verificar atualização';
+      btn.innerHTML   = '<span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">Cached</span> Verificar atualização';
     });
 }
 
