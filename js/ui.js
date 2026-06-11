@@ -787,7 +787,7 @@ function mostrarBanner(tipo, texto) {
 
 function mostrarToast(msg, tipo) {
   var t = document.getElementById('toast');
-  t.textContent = msg;
+  t.innerHTML = msg;
   t.className   = 'toast ' + tipo + ' show';
   setTimeout(function() { t.classList.remove('show'); }, 3800);
 }
