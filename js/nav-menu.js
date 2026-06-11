@@ -25,7 +25,7 @@
     },
     {
       id:    'nav-dashboard',
-      label: '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px;">analytics</span> Dashboard',
+      label: '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">analytics</span> Dashboard',
       rota:  '/dashboard',
       visible: function(p) {
         return p.role === 'administrador'
@@ -35,7 +35,7 @@
     },
     {
       id:    'nav-editor',
-      label: '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px;">edit_document</span> Editor Mensal',
+      label: '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">edit_document</span> Editor Mensal',
       rota:  '/editor',
       visible: function(p) {
         return p.role === 'administrador' || p.acessoEditor === true;
@@ -43,7 +43,7 @@
     },
     {
       id:    'nav-admin',
-      label: '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px;">admin_panel_settings</span> Gestão de Utilizadores',
+      label: '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">admin_panel_settings</span> Gestão de Utilizadores',
       rota:  '/admin',
       visible: function(p) {
         return p.role === 'administrador';
@@ -145,7 +145,7 @@
     // Botão sair
     var btnSair = document.createElement('button');
     btnSair.className = 'nav-menu-item nav-menu-sair';
-    btnSair.innerHTML = '<span class="nav-menu-item-label"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px;">logout</span> Terminar sessão</span>';
+    btnSair.innerHTML = '<span class="nav-menu-item-label"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">logout</span> Terminar sessão</span>';
     btnSair.addEventListener('click', function() {
       fecharMenu();
       if (typeof logout === 'function') logout();
