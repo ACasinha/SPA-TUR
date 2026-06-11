@@ -254,4 +254,57 @@ function _carregarScript(url) {
 // ============================================================
 
 function _actualizarNavActivo(caminho) {
-  document.querySelectorAll('.nav-menu-item[data-rota]').forEach(function(el
+  document.querySelectorAll('.nav-menu-item[data-rota]').forEach(function(el) {
+    var r = el.getAttribute('data-rota');
+    el.classList.toggle('activo', r === caminho);
+    if (r === caminho) { el.setAttribute('aria-current', 'page'); }
+    else               { el.removeAttribute('aria-current'); }
+  });
+}
+
+// Captura cliques em links e converte em transições SPA
+function _onLinkClick(e) {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  if (e.defaultPrevented) return;
+  var el = e.target.closest('a[href]');
+  if (!el) return;
+  var href = el.getAttribute('href');
+  if (!href) return;
+  if (href.startsWith('http') || href.startsWith('//') ||
+      href.startsWith('mailto:') || href.startsWith('tel:')) return;
+  
+  var caminho = href.replace(/^#/, '').replace(/\/+$/, '') || '/';
+  
+  if (!ROTAS[caminho]) return;
+  e.preventDefault();
+  routerNavegar(caminho);
+}
+
+function _mostrarTransition(mostrar) {
+  var el = document.getElementById('spa-transition');
+  if (!el) return;
+  if (mostrar) {
+    el.classList.add('activo');
+  } else {
+    setTimeout(function() { el.classList.remove('activo'); }, 80);
+  }
+}
+
+function _mostrarErroAcesso(mensagem) {
+  var outlet = document.getElementById(OUTLET_ID);
+  if (!outlet) return;
+  outlet.innerHTML =
+    '<div class="spa-erro-acesso">' +
+      '<span class="spa-erro-icone">🔒</span>' +
+      '<h2>Acesso negado</h2>' +
+      '<p>' + String(mensagem || '').replace(/</g, '&lt;') + '</p>' +
+      '<button onclick="routerNavegar(\'/\')" class="btn btn-guardar">← Voltar ao início</button>' +
+    '</div>';
+}
+
+function routerDefinirPerfil(perfil) { _perfilUtiliz = perfil; }
+
+// Exposição das funções principais no escopo Global
+window.routerInit          = routerInit;
+window.routerNavegar       = routerNavegar;
+window.routerDefinirPerfil = routerDefinirPerfil;
