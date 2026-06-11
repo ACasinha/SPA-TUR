@@ -17,7 +17,7 @@
   var MENU_ITEMS = [
     {
       id:    'nav-app',
-      label: '📋 Registo Diário',
+      label: '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">list_alt</span> Registo Diário',
       rota:  '/',
       visible: function(p) {
         return p.role === 'administrador' || p.role === 'utilizador';
