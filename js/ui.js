@@ -787,8 +787,19 @@ function mostrarBanner(tipo, texto) {
 
 function mostrarToast(msg, tipo) {
   var t = document.getElementById('toast');
-  t.innerHTML = msg;
-  t.className   = 'toast ' + tipo + ' show';
+  if (!t) return;
+
+  // Isto força o navegador a converter qualquer texto "escapado" de volta para HTML real
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(msg, 'text/html');
+  
+  // Limpa o conteúdo antigo e coloca o HTML interpretado corretamente
+  t.innerHTML = '';
+  while (doc.body.firstChild) {
+    t.appendChild(doc.body.firstChild);
+  }
+  
+  t.className = 'toast ' + tipo + ' show';
   setTimeout(function() { t.classList.remove('show'); }, 3800);
 }
 
