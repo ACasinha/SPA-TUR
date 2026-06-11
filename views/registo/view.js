@@ -450,3 +450,23 @@
   function fazerLogout() {
     if (typeof logout === 'function') logout(_dadosAlterados);
   }
+
+  // ============================================================
+  // EXPOSIÇÃO DO MÓDULO (Sem poluir o Window)
+  // ============================================================
+
+  window.__views = window.__views || {};
+  window.__views.registo = {
+    mount:              mount,
+    beforeLeave:        beforeLeave,
+    unmount:            unmount,
+    
+    // Métodos necessários para as chamadas via HTML (Inline Onclick)
+    guardarDados:       guardarDados,
+    agendarVerificacao: agendarVerificacao,
+    verificarLocalEscolhido: verificarLocalEscolhido,
+    sinalizarAlteracao: sinalizarAlteracao,
+    fazerLogout:        fazerLogout
+  };
+
+})();
