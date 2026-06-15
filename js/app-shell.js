@@ -51,14 +51,18 @@ function _activarShell(perfil) {
   var shell = document.getElementById('app-shell');
   if (shell) shell.style.display = '';
 
-  // Nome no header
+  // Nome no header (mobile — desktop usa a sidebar)
   var nomeEl = document.getElementById('headerNomeFuncionario');
   if (nomeEl) nomeEl.textContent = perfil.nome || perfil.email || '—';
 
-  console.log('construirMenuNav existe?', typeof construirMenuNav);
-  // Menu de navegação contextual (nav-menu.js)
+  // Menu hamburger para mobile (nav-menu.js)
   if (typeof construirMenuNav === 'function') {
     construirMenuNav(perfil);
+  }
+
+  // Sidebar para desktop (sidebar.js)
+  if (typeof construirSidebar === 'function') {
+    construirSidebar(perfil);
   }
 
   // Sincronização offline
@@ -76,7 +80,6 @@ function _activarShell(perfil) {
   // Inicializar o router com o perfil do utilizador
   routerDefinirPerfil(perfil);
   routerInit(perfil);
-
 }
 
 function _desactivarShell() {
@@ -87,9 +90,13 @@ function _desactivarShell() {
   var outlet = document.getElementById('spa-outlet');
   if (outlet) outlet.innerHTML = '';
 
-  // Limpar zona direita do header
+  // Limpar zona direita do header (mobile)
   var hr = document.getElementById('headerRight');
   if (hr) hr.innerHTML = '';
+
+  // Limpar zona extra da sidebar (desktop)
+  var extra = document.getElementById('sidebarHeaderExtra');
+  if (extra) extra.innerHTML = '';
 }
 
 // ============================================================
@@ -99,6 +106,8 @@ function _desactivarShell() {
 /**
  * spaSetHeader({ titulo, direita })
  * As views chamam isto no mount() para personalizar o header.
+ * Em desktop, o conteúdo "direita" é redirecionado para a
+ * sidebar pelo sidebar.js (que intercepta esta função).
  *
  * @param {object} opcoes
  *   titulo  {string}  — título mostrado no header (opcional)
@@ -125,14 +134,19 @@ window.spaSetHeader = function(opcoes) {
 window.spaResetHeader = function() {
   var tEl = document.getElementById('headerTitulo');
   if (tEl) tEl.textContent = 'Registo Diário de Turistas e Visitantes';
+
+  // Mobile
   var dr = document.getElementById('headerRight');
   if (dr) dr.innerHTML = '';
+
+  // Desktop
+  var extra = document.getElementById('sidebarHeaderExtra');
+  if (extra) extra.innerHTML = '';
 };
 
 /**
  * mostrarToast(msg, tipo)
  * Toast global — pode ser chamado de qualquer view.
- * Compatível com o toast das páginas anteriores.
  */
 window.mostrarToast = function(msg, tipo) {
   var t = document.getElementById('toast');
@@ -144,7 +158,7 @@ window.mostrarToast = function(msg, tipo) {
 };
 
 /**
- * fazerLogout — chamado pelo menu de navegação (nav-menu.js)
+ * fazerLogout — chamado pelo menu de navegação
  */
 window.logout = function(temAlteracoes) {
   if (temAlteracoes) {
