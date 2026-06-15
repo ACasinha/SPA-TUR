@@ -168,6 +168,7 @@ window.logout = function(temAlteracoes) {
   }
   if (typeof limparCacheUtilizador === 'function') limparCacheUtilizador();
   apiLogout().then(function() {
+    history.replaceState(null, '', window.location.pathname);
     _desactivarShell();
   });
 };
