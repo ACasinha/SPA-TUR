@@ -25,6 +25,7 @@
 <!-- Estilos globais (partilhados por todas as views) -->
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/spa.css">
+<link rel="stylesheet" href="css/sidebar.css">
 
 <!-- Preload scripts críticos -->
 <link rel="preload" href="js/api.js"    as="script">
@@ -76,10 +77,12 @@
 
 <!-- ============================================================
      SHELL DA APP (visível após login)
+     Em desktop (≥1024px): sidebar.js insere a .sidebar aqui
+     e envolve o conteúdo num .shell-main automaticamente.
 ============================================================ -->
 <div id="app-shell" style="display:none">
 
-  <!-- HEADER GLOBAL — persistente entre views -->
+  <!-- HEADER GLOBAL — visível apenas em mobile (<1024px) -->
   <div class="header" id="appHeader">
     <div class="header-left">
       <div class="logo-circle">
@@ -90,9 +93,8 @@
       </div>
     </div>
     <div class="header-right">
-  <div id="headerRight"></div>
-      <!-- Conteúdo dinâmico injectado pelas views via headerRight -->
-       <div id="headerNav"></div>
+      <div id="headerRight"></div>
+      <div id="headerNav"></div>
     </div>
   </div>
 
@@ -119,21 +121,15 @@
         <span class="rodape-versao" id="rodapeVersao">v1</span>
         <button class="btn-rodape" id="btnVerificarUpdate"
                 onclick="verificarAtualizacao()" title="Verificar atualização">
-          <span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">
-cached
-</span> Verificar atualização
+          <span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">cached</span> Verificar atualização
         </button>
         <button class="btn-rodape btn-rodape-pdf" id="btnRodapePdf" style="display:none" onclick="mostrarModalPDF()" title="Gerar formulário PDF">
-        <span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">
-file_save
-</span> Gerar PDF
-      </button>
+          <span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">file_save</span> Gerar PDF
+        </button>
         <button class="btn-rodape btn-rodape-instalar"
                 id="btnInstalarRodape" style="display:none"
                 onclick="instalarApp()" title="Instalar app">
-          <span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">
-install_desktop
-</span> Instalar app
+          <span class="material-symbols-rounded" style="font-size: 16px; padding-right: 2px;">install_desktop</span> Instalar app
         </button>
       </div>
     </div>
@@ -178,6 +174,7 @@ install_desktop
 <script defer src="js/offline.js"></script>
 <script defer src="js/nav-menu.js"></script>
 <script defer src="js/pwa.js"></script>
+<script defer src="js/sidebar.js"></script>
 
 <!-- Router — carrega após os módulos base -->
 <script defer src="js/router.js"></script>
