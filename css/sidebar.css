@@ -1,0 +1,612 @@
+/* ============================================================
+   sidebar.css — Navegação lateral (desktop ≥1024px)
+   Registo Diário de Nacionalidades — Município de Reguengos de Monsaraz
+
+   Em mobile (<1024px) a sidebar não existe — o hamburger
+   e o dropdown do nav-menu.js tomam conta.
+============================================================ */
+
+/* ============================================================
+   VARIÁVEIS DA SIDEBAR
+============================================================ */
+:root {
+  --sidebar-w:          220px;
+  --sidebar-w-colapsada: 64px;
+  --sidebar-transition: 0.25s ease;
+  --sidebar-bg:         #1a0f08;          /* terra muito escuro — complementa a paleta */
+  --sidebar-bg-hover:   rgba(255,255,255,0.06);
+  --sidebar-bg-activo:  rgba(201,149,42,0.18);
+  --sidebar-border:     rgba(255,255,255,0.07);
+  --sidebar-text:       rgba(255,255,255,0.75);
+  --sidebar-text-dim:   rgba(255,255,255,0.38);
+  --sidebar-accent:     #C9952A;          /* --ouro */
+  --sidebar-accent-rgb: 201,149,42;
+}
+
+/* ============================================================
+   AJUSTES AO SHELL — apenas em desktop
+============================================================ */
+@media (min-width: 1024px) {
+
+  /* Shell passa a linha em vez de coluna */
+  #app-shell {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  /* Header global oculto em desktop */
+  #appHeader {
+    display: none !important;
+  }
+
+  /* Outlet ocupa o espaço restante */
+  .spa-outlet {
+    flex: 1;
+    min-width: 0;           /* evita overflow em conteúdo largo */
+    overflow-x: hidden;
+    /* Altura total menos o footer */
+    min-height: 100vh;
+  }
+
+  /* Footer mantém-se mas fica restrito ao outlet */
+  #appFooter {
+    /* O footer já está dentro do #app-shell;
+       com flex-row ele ficaria ao lado da sidebar.
+       Resolvemos com a estrutura: sidebar + div.shell-main */
+  }
+}
+
+/* ============================================================
+   WRAPPER PRINCIPAL (sidebar + conteúdo)
+   Criado dinamicamente pelo sidebar.js dentro do #app-shell
+============================================================ */
+.shell-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+.sidebar {
+  display: none;  /* oculta em mobile */
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    width: var(--sidebar-w);
+    min-height: 100vh;
+    background: var(--sidebar-bg);
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    transition: width var(--sidebar-transition);
+    z-index: 200;
+    border-right: 1px solid var(--sidebar-border);
+
+    /* Scrollbar discreta para o caso de muitos itens */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.1) transparent;
+  }
+  .sidebar::-webkit-scrollbar       { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+  .sidebar.colapsada {
+    width: var(--sidebar-w-colapsada);
+  }
+}
+
+/* ============================================================
+   LOGO / CABEÇALHO DA SIDEBAR
+============================================================ */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+  overflow: hidden;
+  min-height: 72px;
+}
+
+.sidebar-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: brightness(1.1);
+}
+
+.sidebar-logo-texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  opacity: 1;
+  transition: opacity var(--sidebar-transition),
+              width var(--sidebar-transition);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-logo-nome {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-logo-sub {
+  font-size: 0.58rem;
+  color: var(--sidebar-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Colapsada — ocultar texto do logo */
+.sidebar.colapsada .sidebar-logo-texto {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+/* ============================================================
+   NAVEGAÇÃO
+============================================================ */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 8px;
+  flex-shrink: 0;
+}
+
+/* Item de navegação */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--sidebar-text);
+  font-size: 0.83rem;
+  font-family: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  transition: background var(--transition-fast),
+              color var(--transition-fast);
+  min-height: 42px;
+}
+
+.sidebar-item:hover {
+  background: var(--sidebar-bg-hover);
+  color: white;
+}
+
+.sidebar-item.activo {
+  background: var(--sidebar-bg-activo);
+  color: var(--sidebar-accent);
+  font-weight: 700;
+}
+
+.sidebar-item.activo::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background: var(--sidebar-accent);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Ícone */
+.sidebar-item-icon {
+  font-size: 18px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+  font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 100, 'opsz' 24;
+}
+
+.sidebar-item.activo .sidebar-item-icon {
+  font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 100, 'opsz' 24;
+}
+
+/* Label — oculta quando colapsada */
+.sidebar-item-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transition: opacity var(--sidebar-transition);
+  line-height: 1;
+}
+
+.sidebar.colapsada .sidebar-item-label {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+/* ── Tooltip quando colapsada ──────────────────────────── */
+.sidebar-item[data-tooltip] {
+  /* Tooltips via CSS para não depender de JS */
+}
+
+.sidebar.colapsada .sidebar-item::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(var(--sidebar-w-colapsada) + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(26,15,8,0.96);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  z-index: 300;
+}
+
+.sidebar.colapsada .sidebar-item:hover::after {
+  opacity: 1;
+}
+
+/* ============================================================
+   SEPARADOR
+============================================================ */
+.sidebar-sep {
+  height: 1px;
+  background: var(--sidebar-border);
+  margin: 6px 8px;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   SPACER — empurra o fundo para baixo
+============================================================ */
+.sidebar-spacer {
+  flex: 1;
+}
+
+/* ============================================================
+   ZONA INFERIOR
+============================================================ */
+.sidebar-bottom {
+  flex-shrink: 0;
+  border-top: 1px solid var(--sidebar-border);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+/* Área extra das views (equivalente ao #headerRight) */
+.sidebar-header-extra {
+  overflow: hidden;
+  transition: opacity var(--sidebar-transition);
+}
+
+.sidebar.colapsada .sidebar-header-extra {
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  padding: 0;
+  margin: 0;
+}
+
+/* Badge de visitantes (injectado pela view registo) */
+.sidebar-header-extra .spa-header-badge {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  background: rgba(201,149,42,0.10);
+  border: 1px solid rgba(201,149,42,0.20);
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.sidebar-header-extra .spa-header-badge .badge-num {
+  font-size: 1.4rem;
+  color: var(--sidebar-accent);
+}
+
+.sidebar-header-extra .spa-header-badge .badge-label {
+  color: var(--sidebar-text-dim);
+  font-size: 0.65rem;
+}
+
+/* Badge de pendentes */
+.sidebar-header-extra .badge-pendentes-wrap {
+  display: flex;
+  align-items: center;
+  padding: 0 2px 6px;
+}
+
+/* Utilizador */
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 44px;
+}
+
+.sidebar-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(var(--sidebar-accent-rgb), 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--sidebar-accent);
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  opacity: 1;
+  transition: opacity var(--sidebar-transition);
+  overflow: hidden;
+}
+
+.sidebar.colapsada .sidebar-user-info {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.sidebar-user-nome {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.sidebar-user-role {
+  font-size: 0.62rem;
+  color: var(--sidebar-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-top: 1px;
+}
+
+/* Botão sair */
+.sidebar-sair {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(192,57,43,0.7);
+  font-size: 0.83rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  min-height: 38px;
+}
+
+.sidebar-sair:hover {
+  background: rgba(192,57,43,0.12);
+  color: #e74c3c;
+}
+
+.sidebar-sair .sidebar-item-icon {
+  color: inherit;
+}
+
+.sidebar-sair .sidebar-item-label {
+  opacity: 1;
+  transition: opacity var(--sidebar-transition);
+}
+
+.sidebar.colapsada .sidebar-sair .sidebar-item-label {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+/* Tooltip "Sair" quando colapsada */
+.sidebar.colapsada .sidebar-sair::after {
+  content: 'Terminar sessão';
+  position: absolute;
+  left: calc(var(--sidebar-w-colapsada) + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(26,15,8,0.96);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  z-index: 300;
+}
+
+.sidebar.colapsada .sidebar-sair {
+  position: relative;
+}
+
+.sidebar.colapsada .sidebar-sair:hover::after {
+  opacity: 1;
+}
+
+/* ============================================================
+   BOTÃO DE COLAPSO
+============================================================ */
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: var(--sidebar-text-dim);
+  font-size: 0.75rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  gap: 8px;
+  min-height: 36px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-toggle:hover {
+  background: var(--sidebar-bg-hover);
+  color: white;
+}
+
+.sidebar-toggle-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: transform var(--sidebar-transition);
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+.sidebar.colapsada .sidebar-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.sidebar-toggle-label {
+  opacity: 1;
+  transition: opacity var(--sidebar-transition);
+  font-size: 0.72rem;
+}
+
+.sidebar.colapsada .sidebar-toggle-label {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+/* Tooltip do toggle quando colapsada */
+.sidebar.colapsada .sidebar-toggle::after {
+  content: 'Expandir';
+  position: absolute;
+  left: calc(var(--sidebar-w-colapsada) + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(26,15,8,0.96);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  z-index: 300;
+}
+
+.sidebar.colapsada .sidebar-toggle {
+  position: relative;
+}
+
+.sidebar.colapsada .sidebar-toggle:hover::after {
+  opacity: 1;
+}
+
+/* ============================================================
+   AJUSTE: footer dentro do shell-main (não ao lado da sidebar)
+============================================================ */
+@media (min-width: 1024px) {
+  /* O footer fica dentro do .shell-main, não do flex-row do #app-shell */
+  #appFooter {
+    flex-shrink: 0;
+  }
+
+  /* Garantir que o spa-outlet cresce */
+  .spa-outlet {
+    flex: 1;
+  }
+}
+
+/* ============================================================
+   TRANSIÇÃO SUAVE DO OUTLET quando sidebar muda de largura
+============================================================ */
+@media (min-width: 1024px) {
+  .shell-main {
+    transition: none; /* O flexbox trata do reflow automaticamente */
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION
+============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .sidebar-item,
+  .sidebar-item-label,
+  .sidebar-logo-texto,
+  .sidebar-user-info,
+  .sidebar-toggle-label,
+  .sidebar-toggle-icon {
+    transition: none !important;
+  }
+}
