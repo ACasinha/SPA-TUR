@@ -357,3 +357,13 @@ function routerDefinirPerfil(perfil) { _perfilUtiliz = perfil; }
 window.routerInit          = routerInit;
 window.routerNavegar       = routerNavegar;
 window.routerDefinirPerfil = routerDefinirPerfil;
+
+window.routerUnmountActual = function() {
+  if (_viewActual && typeof _viewActual.unmount === 'function') {
+    _viewActual.unmount();
+    _viewActual = null;
+  }
+  var outlet = document.getElementById(OUTLET_ID);
+  if (outlet) outlet.innerHTML = '';
+  _rotaActual = null;
+};
