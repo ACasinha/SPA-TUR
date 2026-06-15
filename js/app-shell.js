@@ -167,6 +167,7 @@ window.logout = function(temAlteracoes) {
     if (!confirm('Deseja terminar a sessão?')) return;
   }
   if (typeof limparCacheUtilizador === 'function') limparCacheUtilizador();
+  if (typeof routerUnmountActual === 'function') routerUnmountActual();
   apiLogout().then(function() {
     history.replaceState(null, '', window.location.pathname);
     _desactivarShell();
