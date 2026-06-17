@@ -5,7 +5,7 @@
   var ROLE_INFO={
     utilizador:'Pode fazer login na app e registar visitantes diariamente.',
     visualizador:'Pode consultar os gráficos do dashboard. Não pode registar dados.',
-    administrador:'Acesso completo: registo, dashboard, editor e gestão de utilizadores.'
+    administrador:'Acesso completo: registo, dashboard, editor, inventário e gestão de utilizadores.'
   };
   function _e(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   function _al(t,ev,fn){t.addEventListener(ev,fn);_listeners.push({target:t,tipo:ev,fn:fn});}
@@ -36,10 +36,10 @@
     return d.toLocaleDateString('pt-PT')+' '+d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
   }
 
-  function _badgeRole(role,aD,aE){
+  function _badgeRole(role,aD,aE,aI){
     if(role==='administrador')return '<span class="badge-role badge-admin">Admin</span>';
     if(role==='visualizador') return '<span class="badge-role badge-visualizador">Visualizador</span>';
-    var ex='';if(aD)ex+=' 📊';if(aE)ex+=' ✏️';
+    var ex='';if(aD)ex+=' 📊';if(aE)ex+=' ✏️';if(aI)ex+=' 📦';
     return '<span class="badge-role badge-user'+(ex?' badge-user-extra':'')+'">Utilizador'+ex+'</span>';
   }
 
@@ -58,7 +58,7 @@
         users.forEach(function(u){
           var tr=document.createElement('tr');
           var nome=_e(u.nome||'—'),email=_e(u.email||'—'),uid=u.uid;
-          var bRole=_badgeRole(u.role,u.acessoDashboard,u.acessoEditor);
+          var bRole=_badgeRole(u.role,u.acessoDashboard,u.acessoEditor,u.acessoInventario);
           var bEst='<span class="estado-pill"><span class="badge-status '+(u.ativo?'ativo':'inativo')+'"></span>'+(u.ativo?'Ativo':'Inativo')+'</span>';
           var ul=_fmt(u.ultimoLoginEm);
           var bEd='<button class="btn-action btn-editar" onclick="window.__admin&&window.__admin.abrirEditar(\''+uid+'\')">✏️ Editar</button>';
@@ -95,7 +95,7 @@
   function abrirNovo(){
     ['userNome','userEmail','userPassword'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
     var r=document.getElementById('userRole');if(r)r.value='utilizador';
-    ['userAcessoDashboard','userAcessoEditor'].forEach(function(id){var e=document.getElementById(id);if(e)e.checked=false;});
+    ['userAcessoDashboard','userAcessoEditor','userAcessoInventario'].forEach(function(id){var e=document.getElementById(id);if(e)e.checked=false;});
     var pg=document.getElementById('passwordGroup');if(pg)pg.style.display='block';
     var mt=document.getElementById('modalTitulo');if(mt)mt.textContent='Novo Utilizador';
     onRoleChange('userRole','roleInfoNovo','grupoAcessosNovo');
@@ -111,11 +111,12 @@
     var role=(document.getElementById('userRole')||{}).value||'utilizador';
     var aD=role==='utilizador'&&((document.getElementById('userAcessoDashboard')||{}).checked||false);
     var aE=role==='utilizador'&&((document.getElementById('userAcessoEditor')||{}).checked||false);
+    var aI=role==='utilizador'&&((document.getElementById('userAcessoInventario')||{}).checked||false);
     if(!nome.trim()||!email.trim()||!pass){mostrarToast('Por favor preencha todos os campos.','erro');return;}
     if(pass.length<6){mostrarToast('A password deve ter no mínimo 6 caracteres.','erro');return;}
     var btn=document.getElementById('btnGuardarUser');
     if(btn){btn.disabled=true;btn.textContent='⏳ A guardar...';}
-    criarUtilizador({email:email.trim(),password:pass,nome:nome.trim(),role:role,acessoDashboard:aD,acessoEditor:aE})
+    criarUtilizador({email:email.trim(),password:pass,nome:nome.trim(),role:role,acessoDashboard:aD,acessoEditor:aE,acessoInventario:aI})
       .then(function(resp){
         if(btn){btn.disabled=false;btn.textContent='Guardar';}
         if(resp.sucesso){mostrarToast('✓ '+resp.mensagem,'sucesso');_fecharModal();_carregar();}
@@ -137,6 +138,7 @@
       document.getElementById('editUserRole').value=u.role||'utilizador';
       document.getElementById('editAcessoDashboard').checked=!!u.acessoDashboard;
       document.getElementById('editAcessoEditor').checked=!!u.acessoEditor;
+      document.getElementById('editAcessoInventario').checked=!!u.acessoInventario;
       onRoleChange('editUserRole','roleInfoEditar','grupoAcessosEditar');
       var m=document.getElementById('modalEditarUser');if(m)m.classList.add('show');
     }).catch(function(err){mostrarToast('Erro: '+err.message,'erro');});
@@ -150,8 +152,9 @@
     var role=(document.getElementById('editUserRole')||{}).value||'utilizador';
     var aD=role==='utilizador'&&((document.getElementById('editAcessoDashboard')||{}).checked||false);
     var aE=role==='utilizador'&&((document.getElementById('editAcessoEditor')||{}).checked||false);
+    var aI=role==='utilizador'&&((document.getElementById('editAcessoInventario')||{}).checked||false);
     if(!nome.trim()){mostrarToast('O nome não pode estar vazio.','erro');return;}
-    atualizarUtilizador(uid,{nome:nome.trim(),role:role,acessoDashboard:aD,acessoEditor:aE})
+    atualizarUtilizador(uid,{nome:nome.trim(),role:role,acessoDashboard:aD,acessoEditor:aE,acessoInventario:aI})
       .then(function(resp){mostrarToast('✓ '+resp.mensagem,'sucesso');_fecharModalEditar();_carregar();})
       .catch(function(err){mostrarToast('Erro: '+err.message,'erro');});
   }

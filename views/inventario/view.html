@@ -1,0 +1,273 @@
+<!-- ============================================================
+     views/inventario/view.html
+     Inventário de Material Promocional Turístico
+     Injectado pelo router.js no #spa-outlet
+============================================================ -->
+
+<div class="inventario-container">
+
+  <!-- ALERTA DE STOCK BAIXO / ESGOTADO -->
+  <div class="inv-alerta-stock" id="invAlertaStock" style="display:none">
+    <span class="inv-alerta-icone">⚠️</span>
+    <span class="inv-alerta-texto" id="invAlertaTexto"></span>
+    <button type="button" class="inv-alerta-btn"
+            onclick="window.__inventario&&window.__inventario.verAlertas()">Ver materiais</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="inv-tabs-wrapper">
+    <div class="inv-tabs-scroll">
+      <div class="inv-tabs-bar" id="invTabsBar" role="tablist">
+        <button type="button" class="inv-tab-btn ativa" data-tab="painel" role="tab">📊 Painel</button>
+        <button type="button" class="inv-tab-btn" data-tab="materiais" role="tab">📦 Materiais</button>
+        <button type="button" class="inv-tab-btn" data-tab="movimentos" role="tab">🔄 Movimentos</button>
+        <button type="button" class="inv-tab-btn" data-tab="config" id="invTabConfigBtn" role="tab" style="display:none">⚙️ Configurações</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PAINEL — vista visual e rápida do stock
+  ============================================================ -->
+  <div class="inv-tab-panel ativo" id="invPainelPainel" role="tabpanel">
+
+    <div class="inv-filtros">
+      <select id="filtroLocal"></select>
+      <select id="filtroCategoria"></select>
+      <select id="filtroTematica"></select>
+      <select id="filtroIdioma"></select>
+      <input type="text" id="filtroTexto" placeholder="🔍 Pesquisar por nome...">
+    </div>
+
+    <div class="inv-stats-resumo" id="invStatsResumo"></div>
+
+    <div class="inv-grelha-cartoes" id="invGrelhaCartoes"></div>
+
+  </div>
+
+  <!-- ============================================================
+       MATERIAIS — catálogo
+  ============================================================ -->
+  <div class="inv-tab-panel" id="invPainelMateriais" role="tabpanel" style="display:none">
+
+    <div class="inv-acoes-topo">
+      <button type="button" class="btn-inv-novo"
+              onclick="window.__inventario&&window.__inventario.abrirNovoMaterial()">
+        ➕ Novo Material
+      </button>
+    </div>
+
+    <div class="table-scroll">
+      <table class="inv-tabela-materiais">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Categoria</th>
+            <th>Temática</th>
+            <th>Idioma</th>
+            <th>Stock Mín.</th>
+            <th>Stock Total</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="invTabelaMateriaisBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       MOVIMENTOS — entradas / saídas
+  ============================================================ -->
+  <div class="inv-tab-panel" id="invPainelMovimentos" role="tabpanel" style="display:none">
+
+    <div class="inv-form-movimento">
+      <h3 class="inv-subtitulo">Registar Movimento</h3>
+      <div class="inv-form-grid">
+        <div class="field-group">
+          <label>Material</label>
+          <select id="movMaterial"></select>
+        </div>
+        <div class="field-group">
+          <label>Local</label>
+          <select id="movLocal"></select>
+        </div>
+        <div class="field-group">
+          <label>Tipo</label>
+          <select id="movTipo">
+            <option value="entrada">⬆️ Entrada</option>
+            <option value="saida">⬇️ Saída</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Quantidade</label>
+          <input type="number" id="movQuantidade" min="1" placeholder="0">
+        </div>
+        <div class="field-group">
+          <label>Data</label>
+          <input type="date" id="movData">
+        </div>
+        <div class="field-group inv-field-wide">
+          <label>Observações</label>
+          <textarea id="movObservacoes" placeholder="Observações sobre este movimento (opcional)..."></textarea>
+        </div>
+      </div>
+      <button type="button" class="btn-inv-registar"
+              onclick="window.__inventario&&window.__inventario.registarMovimento()">
+        💾 Registar Movimento
+      </button>
+    </div>
+
+    <h3 class="inv-subtitulo inv-subtitulo-historico">Histórico Recente</h3>
+    <div class="inv-filtros">
+      <select id="filtroMovMaterial"></select>
+      <select id="filtroMovLocal"></select>
+      <select id="filtroMovTipo">
+        <option value="">Todos os tipos</option>
+        <option value="entrada">⬆️ Entradas</option>
+        <option value="saida">⬇️ Saídas</option>
+      </select>
+    </div>
+
+    <div class="table-scroll">
+      <table class="inv-tabela-movimentos">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Material</th>
+            <th>Local</th>
+            <th>Tipo</th>
+            <th>Qtd.</th>
+            <th>Observações</th>
+            <th>Utilizador</th>
+          </tr>
+        </thead>
+        <tbody id="invTabelaMovimentosBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       CONFIGURAÇÕES — listas editáveis (apenas administradores)
+  ============================================================ -->
+  <div class="inv-tab-panel" id="invPainelConfig" role="tabpanel" style="display:none">
+
+    <div class="inv-config-grelha">
+
+      <div class="inv-config-bloco">
+        <h3>📍 Locais de Armazenamento</h3>
+        <div class="inv-config-lista" id="invConfigLocais"></div>
+        <div class="inv-config-add">
+          <input type="text" id="novoLocal" placeholder="Novo local..."
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('locais','novoLocal');}">
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('locais','novoLocal')">➕</button>
+        </div>
+      </div>
+
+      <div class="inv-config-bloco">
+        <h3>📂 Categorias</h3>
+        <div class="inv-config-lista" id="invConfigCategorias"></div>
+        <div class="inv-config-add">
+          <input type="text" id="novaCategoria" placeholder="Nova categoria..."
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('categorias','novaCategoria');}">
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('categorias','novaCategoria')">➕</button>
+        </div>
+      </div>
+
+      <div class="inv-config-bloco">
+        <h3>🎭 Temáticas</h3>
+        <div class="inv-config-lista" id="invConfigTematicas"></div>
+        <div class="inv-config-add">
+          <input type="text" id="novaTematica" placeholder="Nova temática..."
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('tematicas','novaTematica');}">
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('tematicas','novaTematica')">➕</button>
+        </div>
+      </div>
+
+      <div class="inv-config-bloco">
+        <h3>🌐 Idiomas</h3>
+        <div class="inv-config-lista" id="invConfigIdiomas"></div>
+        <div class="inv-config-add">
+          <input type="text" id="novoIdioma" placeholder="Novo idioma..."
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('idiomas','novoIdioma');}">
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('idiomas','novoIdioma')">➕</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div><!-- /inventario-container -->
+
+<!-- MODAL — Novo / Editar Material -->
+<div class="modal-overlay" id="modalMaterial">
+  <div class="modal-box">
+    <div class="modal-header"><h2 id="modalMaterialTitulo">Novo Material</h2></div>
+    <div class="modal-body">
+      <input type="hidden" id="materialId">
+      <div class="field-group">
+        <label>Nome do Material</label>
+        <input type="text" id="materialNome" placeholder="Ex: Mapa de Percursos Pedestres">
+      </div>
+      <div class="field-group">
+        <label>Categoria</label>
+        <select id="materialCategoria"></select>
+      </div>
+      <div class="field-group">
+        <label>Temática</label>
+        <select id="materialTematica"></select>
+      </div>
+      <div class="field-group">
+        <label>Idioma</label>
+        <select id="materialIdioma"></select>
+      </div>
+      <div class="field-group">
+        <label>Stock Mínimo (alerta)</label>
+        <input type="number" id="materialStockMinimo" min="0" placeholder="0">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancelar"
+              onclick="window.__inventario&&window.__inventario.fecharModalMaterial()">Cancelar</button>
+      <button class="btn-modal-confirmar"
+              onclick="window.__inventario&&window.__inventario.guardarMaterial()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL — Movimento Rápido (a partir de um cartão/linha) -->
+<div class="modal-overlay" id="modalMovimentoRapido">
+  <div class="modal-box">
+    <div class="modal-header"><h2>Registar Movimento</h2></div>
+    <div class="modal-body">
+      <div class="inv-mov-rapido-meta" id="movRapidoMeta"></div>
+      <div class="field-group">
+        <label>Local</label>
+        <select id="movRapidoLocal"></select>
+      </div>
+      <div class="field-group">
+        <label>Quantidade</label>
+        <input type="number" id="movRapidoQuantidade" min="1" placeholder="0">
+      </div>
+      <div class="field-group">
+        <label>Data</label>
+        <input type="date" id="movRapidoData">
+      </div>
+      <div class="field-group">
+        <label>Observações</label>
+        <textarea id="movRapidoObservacoes" placeholder="Observações (opcional)..."></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancelar"
+              onclick="window.__inventario&&window.__inventario.fecharModalMovimentoRapido()">Cancelar</button>
+      <button class="btn-conflito-offline"
+              onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('saida')">⬇️ Saída</button>
+      <button class="btn-conflito-manter"
+              onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('entrada')">⬆️ Entrada</button>
+    </div>
+  </div>
+</div>

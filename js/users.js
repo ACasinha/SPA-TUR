@@ -101,6 +101,11 @@ function _temAcessoEditor(perfil) {
       || perfil.acessoEditor === true;
 }
 
+function _temAcessoInventario(perfil) {
+  return perfil.role === 'administrador'
+      || perfil.acessoInventario === true;
+}
+
 function _eAdmin(perfil) {
   return perfil.role === 'administrador';
 }
@@ -116,6 +121,10 @@ function verificarAcessoDashboard() {
 
 function verificarAcessoEditor() {
   return obterPerfilUtilizador().then(_temAcessoEditor).catch(function () { return false; });
+}
+
+function verificarAcessoInventario() {
+  return obterPerfilUtilizador().then(_temAcessoInventario).catch(function () { return false; });
 }
 
 // ============================================================
@@ -224,14 +233,15 @@ function _exigirAdmin() {
 // autenticaram mas ainda não têm documento (primeiro login).
 function _criarPerfilBase(user) {
   var perfil = {
-    email:           user.email,
-    nome:            user.displayName || user.email.split('@')[0],
-    role:            'utilizador',
-    acessoDashboard: false,
-    acessoEditor:    false,
-    criadoEm:        firebase.firestore.FieldValue.serverTimestamp(),
-    atualizadoEm:    firebase.firestore.FieldValue.serverTimestamp(),
-    ativo:           true
+    email:            user.email,
+    nome:             user.displayName || user.email.split('@')[0],
+    role:             'utilizador',
+    acessoDashboard:  false,
+    acessoEditor:     false,
+    acessoInventario: false,
+    criadoEm:         firebase.firestore.FieldValue.serverTimestamp(),
+    atualizadoEm:     firebase.firestore.FieldValue.serverTimestamp(),
+    ativo:            true
   };
   return db.collection('users').doc(user.uid).set(perfil)
     .then(function () {
@@ -243,8 +253,9 @@ function _criarPerfilBase(user) {
 // Garante retrocompatibilidade: campos booleanos opcionais
 // podem estar ausentes em documentos criados antes da sua adição.
 function _normalizarPerfil(perfil) {
-  if (perfil.acessoDashboard === undefined) perfil.acessoDashboard = false;
-  if (perfil.acessoEditor    === undefined) perfil.acessoEditor    = false;
-  if (perfil.ativo           === undefined) perfil.ativo           = true;
+  if (perfil.acessoDashboard  === undefined) perfil.acessoDashboard  = false;
+  if (perfil.acessoEditor     === undefined) perfil.acessoEditor     = false;
+  if (perfil.acessoInventario === undefined) perfil.acessoInventario = false;
+  if (perfil.ativo            === undefined) perfil.ativo            = true;
   return perfil;
 }

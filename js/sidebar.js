@@ -61,6 +61,15 @@
       }
     },
     {
+      id:      'sb-inventario',
+      label:   'Inventário de Material',
+      icone:   'inventory_2',
+      rota:    '/inventario',
+      visible: function(p) {
+        return p.role === 'administrador' || p.acessoInventario === true;
+      }
+    },
+    {
       id:      'sb-admin',
       label:   'Gestão de Utilizadores',
       icone:   'admin_panel_settings',
@@ -459,8 +468,9 @@
     if (perfil.role === 'administrador') return 'Administrador';
     if (perfil.role === 'visualizador')  return 'Visualizador';
     var extras = [];
-    if (perfil.acessoDashboard) extras.push('Dashboard');
-    if (perfil.acessoEditor)    extras.push('Editor');
+    if (perfil.acessoDashboard)  extras.push('Dashboard');
+    if (perfil.acessoEditor)     extras.push('Editor');
+    if (perfil.acessoInventario) extras.push('Inventário');
     if (extras.length) return 'Utilizador · ' + extras.join(', ');
     return 'Utilizador';
   }

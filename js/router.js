@@ -29,6 +29,13 @@ var ROTAS = {
     acesso:    function(p) { return p.role === 'administrador' || p.acessoEditor === true; },
     semAcesso: 'Não tem permissão para aceder ao editor mensal.'
   },
+  '/inventario': {
+    view:      'inventario',
+    titulo:    'Inventário de Material',
+    deps:      [],
+    acesso:    function(p) { return p.role === 'administrador' || p.acessoInventario === true; },
+    semAcesso: 'Não tem permissão para aceder ao inventário de material.'
+  },
   '/admin': {
     view:      'admin',
     titulo:    'Gestão de Utilizadores',
@@ -357,13 +364,3 @@ function routerDefinirPerfil(perfil) { _perfilUtiliz = perfil; }
 window.routerInit          = routerInit;
 window.routerNavegar       = routerNavegar;
 window.routerDefinirPerfil = routerDefinirPerfil;
-
-window.routerUnmountActual = function() {
-  if (_viewActual && typeof _viewActual.unmount === 'function') {
-    _viewActual.unmount();
-    _viewActual = null;
-  }
-  var outlet = document.getElementById(OUTLET_ID);
-  if (outlet) outlet.innerHTML = '';
-  _rotaActual = null;
-};
