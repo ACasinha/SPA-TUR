@@ -163,9 +163,9 @@
     var logo = document.createElement('div');
     logo.className = 'sidebar-logo';
     logo.innerHTML =
-      '<img class="sidebar-logo-img" src="img/logo-small.png" alt="Logo Município">' +
+      '<img class="sidebar-logo-img" src="img/logo-small-white.png" alt="Logo Município">' +
       '<div class="sidebar-logo-texto">' +
-        '<span class="sidebar-logo-nome">Reguengos de Monsaraz</span>' +
+        '<span class="sidebar-logo-nome">Município de Reguengos de Monsaraz</span>' +
         '<span class="sidebar-logo-sub">Serviços de Turismo</span>' +
       '</div>';
     sidebar.appendChild(logo);
