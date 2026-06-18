@@ -127,6 +127,7 @@
         <option value="">Todos os tipos</option>
         <option value="entrada">⬆️ Entradas</option>
         <option value="saida">⬇️ Saídas</option>
+        <option value="ajuste">🛠 Ajustes</option>
       </select>
     </div>
 
@@ -268,6 +269,36 @@
               onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('saida')">⬇️ Saída</button>
       <button class="btn-modal-entrada"
               onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('entrada')">⬆️ Entrada</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL — Correção de Stock (após contagem física / reset) -->
+<div class="modal-overlay" id="modalCorrecaoStock">
+  <div class="modal-box modal-correcao-box">
+    <div class="modal-header">
+      <h2>Correção de Stock</h2>
+      <div class="inv-mov-rapido-meta" id="correcaoMeta"></div>
+    </div>
+    <div class="modal-body">
+      <div class="inv-correcao-acoes-topo">
+        <button type="button" class="inv-correcao-zerar-tudo"
+                onclick="window.__inventario&&window.__inventario.zerarTodosCorrecao()">
+          🔄 Repor todos os locais a zero
+        </button>
+      </div>
+      <div class="inv-correcao-lista" id="correcaoLista"></div>
+      <div class="field-group" style="margin-top:14px">
+        <label>Observações da correção</label>
+        <textarea id="correcaoObservacoes"
+                  placeholder="Ex: contagem física de inventário, material danificado/extraviado, etc. (opcional)"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancelar"
+              onclick="window.__inventario&&window.__inventario.fecharModalCorrecao()">Cancelar</button>
+      <button class="btn-modal-confirmar"
+              onclick="window.__inventario&&window.__inventario.guardarCorrecaoStock()">💾 Guardar Correções</button>
     </div>
   </div>
 </div>
