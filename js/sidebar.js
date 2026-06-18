@@ -88,14 +88,21 @@
     _perfil    = perfil;
     _colapsada = localStorage.getItem(CHAVE_ESTADO) === '1';
 
-     if (_construida) return;
+    // Só em desktop
+    if (!_eDesktop()) {
+      _construida = false;
+      return;
+    }
 
-  _reorganizarShell();
-  _construirDOM();
-  _construida = true;
+    _reorganizarShell();
+    _construirDOM();
+    _construida = true;
 
-  _interceptarSpaSetHeader();
-  window.addEventListener('resize', _onResize);
+    // Interceptar spaSetHeader para redirecionar o conteúdo direito
+    _interceptarSpaSetHeader();
+
+    // Listener de resize para activar/desactivar
+    window.addEventListener('resize', _onResize);
   }
 
   // ============================================================
