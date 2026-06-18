@@ -27,6 +27,7 @@
   var _apenasAlerta        = false;
   var _editandoMaterialId  = null;
   var _movRapidoMaterialId = null;
+  var _correcaoMaterialId  = null;
   var _listeners           = [];
 
   var DEFAULTS = {
@@ -89,7 +90,7 @@
     var movData = document.getElementById('movData');
     if (movData) movData.value = _hojeISO();
 
-    ['modalMaterial', 'modalMovimentoRapido'].forEach(function(id) {
+    ['modalMaterial', 'modalMovimentoRapido', 'modalCorrecaoStock'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) _al(el, 'click', function(e) { if (e.target === el) el.classList.remove('show'); });
     });
@@ -98,6 +99,7 @@
       if (e.key === 'Escape') {
         fecharModalMaterial();
         fecharModalMovimentoRapido();
+        fecharModalCorrecao();
       }
     });
 
@@ -111,7 +113,7 @@
     _perfil = null; _isAdmin = false;
     _materiais = []; _movimentos = [];
     _config = { locais: [], categorias: [], tematicas: [], idiomas: [] };
-    _editandoMaterialId = null; _movRapidoMaterialId = null;
+    _editandoMaterialId = null; _movRapidoMaterialId = null; _correcaoMaterialId = null;
     _apenasAlerta = false; _tabAtiva = 'painel';
 
     window.__inventario = null;
@@ -454,11 +456,17 @@
         : '<div class="inv-cartao-locais inv-vazio">Sem stock registado em nenhum local.</div>') +
       '<div class="inv-cartao-rodape">' +
         '<span class="inv-cartao-minimo">Mín.: ' + (m.stockMinimo || 0) + '</span>' +
-        '<button type="button" class="inv-cartao-btn">🔄 Movimento</button>' +
+        '<div class="inv-cartao-rodape-btns">' +
+          '<button type="button" class="inv-cartao-btn-corrigir" title="Corrigir stock">🛠</button>' +
+          '<button type="button" class="inv-cartao-btn">🔄 Movimento</button>' +
+        '</div>' +
       '</div>';
 
     card.querySelector('.inv-cartao-btn').addEventListener('click', function() {
       abrirMovimentoRapido(m.id);
+    });
+    card.querySelector('.inv-cartao-btn-corrigir').addEventListener('click', function() {
+      abrirCorrecaoStock(m.id);
     });
 
     return card;
@@ -511,6 +519,14 @@
     btnMov.title = 'Registar movimento';
     btnMov.addEventListener('click', function() { abrirMovimentoRapido(m.id); });
     tdAcoes.appendChild(btnMov);
+
+    var btnCorrecao = document.createElement('button');
+    btnCorrecao.type = 'button';
+    btnCorrecao.className = 'btn-inv-acao';
+    btnCorrecao.textContent = '🛠';
+    btnCorrecao.title = 'Corrigir stock';
+    btnCorrecao.addEventListener('click', function() { abrirCorrecaoStock(m.id); });
+    tdAcoes.appendChild(btnCorrecao);
 
     var btnEdit = document.createElement('button');
     btnEdit.type = 'button';
@@ -804,17 +820,169 @@
     }
 
     lista.forEach(function(mv) {
-      var tr        = document.createElement('tr');
-      var tipoLabel = mv.tipo === 'entrada' ? '⬆️ Entrada' : '⬇️ Saída';
+      var tr = document.createElement('tr');
+      var tipoLabel = mv.tipo === 'entrada' ? '⬆️ Entrada' : (mv.tipo === 'saida' ? '⬇️ Saída' : '🛠 Ajuste');
+      var qtdDisplay;
+      if (mv.tipo === 'ajuste') {
+        var sinal = (mv.delta || 0) > 0 ? '+' : '';
+        qtdDisplay = sinal + (mv.delta || 0) + ' (' + (mv.quantidadeAnterior || 0) + ' → ' + (mv.quantidadeNova || 0) + ')';
+      } else {
+        qtdDisplay = String(mv.quantidade || 0);
+      }
       tr.innerHTML =
         '<td>' + _esc(mv.data || '') + '</td>' +
         '<td>' + _esc(mv.materialNome || '') + '</td>' +
         '<td>' + _esc(mv.local || '') + '</td>' +
         '<td><span class="inv-tag-tipo ' + mv.tipo + '">' + tipoLabel + '</span></td>' +
-        '<td class="inv-td-num">' + (mv.quantidade || 0) + '</td>' +
+        '<td class="inv-td-num">' + qtdDisplay + '</td>' +
         '<td>' + _esc(mv.observacoes || '—') + '</td>' +
         '<td>' + _esc(mv.utilizadorNome || mv.utilizadorEmail || '—') + '</td>';
       tbody.appendChild(tr);
+    });
+  }
+
+  // ============================================================
+  // CORREÇÃO DE STOCK — após contagem física de inventário
+  //
+  // Diferente de entrada/saída (que somam/subtraem uma quantidade),
+  // a correção define directamente o valor de cada local. Cada
+  // local alterado gera um movimento de auditoria tipo 'ajuste'
+  // com o valor anterior, o novo valor e o delta.
+  // ============================================================
+
+  function abrirCorrecaoStock(id) {
+    var m = _materiais.find(function(x) { return x.id === id; });
+    if (!m) return;
+    _correcaoMaterialId = id;
+
+    document.getElementById('correcaoMeta').textContent =
+      m.nome + ' — ' + m.categoria + ' · ' + m.idioma;
+    document.getElementById('correcaoObservacoes').value = '';
+
+    // Mostrar todos os locais configurados, mais quaisquer locais
+    // legados (já removidos da configuração) que ainda tenham stock.
+    var locais = _config.locais.slice();
+    Object.keys(m.stockPorLocal || {}).forEach(function(l) {
+      if (locais.indexOf(l) === -1) locais.push(l);
+    });
+    locais.sort();
+
+    var lista = document.getElementById('correcaoLista');
+    lista.innerHTML = '';
+
+    locais.forEach(function(local) {
+      var valorAtual = (m.stockPorLocal && m.stockPorLocal[local]) || 0;
+      var linha = document.createElement('div');
+      linha.className = 'inv-correcao-linha';
+      linha.innerHTML =
+        '<span class="inv-correcao-linha-local">' + _esc(local) + '</span>' +
+        '<input type="number" min="0" class="inv-correcao-input" value="' + valorAtual + '">' +
+        '<button type="button" class="inv-correcao-linha-reset" title="Repor a zero">🔄</button>';
+      linha.dataset.local = local;
+      linha.querySelector('.inv-correcao-linha-reset').addEventListener('click', function() {
+        linha.querySelector('.inv-correcao-input').value = 0;
+      });
+      lista.appendChild(linha);
+    });
+
+    if (!locais.length) {
+      lista.innerHTML = '<div class="inv-config-vazio">Sem locais configurados. Adicione locais em Configurações.</div>';
+    }
+
+    document.getElementById('modalCorrecaoStock').classList.add('show');
+  }
+
+  function fecharModalCorrecao() {
+    document.getElementById('modalCorrecaoStock').classList.remove('show');
+    _correcaoMaterialId = null;
+  }
+
+  function zerarTodosCorrecao() {
+    document.querySelectorAll('#correcaoLista .inv-correcao-input').forEach(function(inp) {
+      inp.value = 0;
+    });
+  }
+
+  function guardarCorrecaoStock() {
+    if (!_correcaoMaterialId) return;
+
+    var novosValores = {};
+    document.querySelectorAll('#correcaoLista .inv-correcao-linha').forEach(function(linha) {
+      var local = linha.dataset.local;
+      var inp   = linha.querySelector('.inv-correcao-input');
+      novosValores[local] = Math.max(0, parseInt(inp.value, 10) || 0);
+    });
+
+    var observacoes = ((document.getElementById('correcaoObservacoes') || {}).value || '').trim();
+    var dataFmt      = _isoParaDMY(_hojeISO());
+    var materialId   = _correcaoMaterialId;
+    var materialRef  = db.collection('materiais').doc(materialId);
+
+    var btn = document.querySelector('#modalCorrecaoStock .btn-modal-confirmar');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ A guardar...'; }
+
+    db.runTransaction(function(tx) {
+      return tx.get(materialRef).then(function(doc) {
+        if (!doc.exists) throw new Error('Material não encontrado.');
+        var dados         = doc.data();
+        var stockPorLocal = Object.assign({}, dados.stockPorLocal || {});
+        var ajustes       = [];
+
+        Object.keys(novosValores).forEach(function(local) {
+          var anterior = stockPorLocal[local] || 0;
+          var novo     = novosValores[local];
+          if (novo !== anterior) {
+            ajustes.push({ local: local, anterior: anterior, novo: novo, delta: novo - anterior });
+            stockPorLocal[local] = novo;
+          }
+        });
+
+        if (!ajustes.length) return 0;
+
+        tx.update(materialRef, {
+          stockPorLocal: stockPorLocal,
+          atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        ajustes.forEach(function(aj) {
+          var movRef = db.collection('materiais_movimentos').doc();
+          tx.set(movRef, {
+            materialId:         materialId,
+            materialNome:       dados.nome      || '',
+            categoria:          dados.categoria || '',
+            tematica:           dados.tematica  || '',
+            idioma:             dados.idioma    || '',
+            local:              aj.local,
+            tipo:               'ajuste',
+            quantidade:         Math.abs(aj.delta),
+            quantidadeAnterior: aj.anterior,
+            quantidadeNova:     aj.novo,
+            delta:              aj.delta,
+            data:               dataFmt,
+            observacoes:        observacoes || '',
+            utilizadorEmail:    (_perfil && _perfil.email) || '',
+            utilizadorNome:     (_perfil && (_perfil.nome || _perfil.email)) || '',
+            criadoEm:           firebase.firestore.FieldValue.serverTimestamp()
+          });
+        });
+
+        return ajustes.length;
+      });
+    })
+    .then(function(nAjustes) {
+      if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar Correções'; }
+      fecharModalCorrecao();
+      if (!nAjustes) {
+        mostrarToast('Sem alterações a guardar.', 'info');
+        return;
+      }
+      mostrarToast('✓ ' + nAjustes + (nAjustes === 1 ? ' correção registada.' : ' correções registadas.'), 'sucesso');
+      _carregarMateriais().then(function() { _renderPainel(); _renderTabelaMateriais(); });
+      _carregarMovimentos().then(_renderTabelaMovimentos);
+    })
+    .catch(function(err) {
+      if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar Correções'; }
+      mostrarToast('Erro: ' + err.message, 'erro');
     });
   }
 
@@ -926,6 +1094,10 @@
     fecharModalMovimentoRapido: fecharModalMovimentoRapido,
     confirmarMovimentoRapido: confirmarMovimentoRapido,
     registarMovimento:        registarMovimento,
+    abrirCorrecaoStock:       abrirCorrecaoStock,
+    fecharModalCorrecao:      fecharModalCorrecao,
+    zerarTodosCorrecao:       zerarTodosCorrecao,
+    guardarCorrecaoStock:     guardarCorrecaoStock,
     verAlertas:               verAlertas,
     adicionarConfig:          adicionarConfig,
     removerConfigItem:        removerConfigItem
