@@ -88,21 +88,14 @@
     _perfil    = perfil;
     _colapsada = localStorage.getItem(CHAVE_ESTADO) === '1';
 
-    // Só em desktop
-    if (!_eDesktop()) {
-      _construida = false;
-      return;
-    }
+    if (_construida) return;
 
-    _reorganizarShell();
-    _construirDOM();
-    _construida = true;
+  _reorganizarShell();
+  _construirDOM();
+  _construida = true;
 
-    // Interceptar spaSetHeader para redirecionar o conteúdo direito
-    _interceptarSpaSetHeader();
-
-    // Listener de resize para activar/desactivar
-    window.addEventListener('resize', _onResize);
+  _interceptarSpaSetHeader();
+  window.addEventListener('resize', _onResize);
   }
 
   // ============================================================
@@ -424,36 +417,6 @@
     window._spaSetHeaderOriginal = _spaSetHeaderOriginal;
   }
 
-  // ============================================================
-  // RESIZE — activar/desactivar sidebar conforme breakpoint
-  // ============================================================
-
-  var _resizeTimer = null;
-
-  function _onResize() {
-    clearTimeout(_resizeTimer);
-    _resizeTimer = setTimeout(function() {
-      if (_eDesktop() && !_construida) {
-        // Passou para desktop — construir
-        construirSidebar(_perfil);
-      } else if (!_eDesktop() && _construida) {
-        // Passou para mobile — destruir sidebar
-        _destruirSidebar();
-      }
-    }, 150);
-  }
-
-  function _destruirSidebar() {
-    var sidebar = document.getElementById('appSidebar');
-    if (sidebar) sidebar.parentNode.removeChild(sidebar);
-    _sidebarEl  = null;
-    _construida = false;
-
-    // Restaurar spaSetHeader original
-    if (window._spaSetHeaderOriginal) {
-      window.spaSetHeader = window._spaSetHeaderOriginal;
-    }
-  }
 
   // ============================================================
   // UTILITÁRIOS
