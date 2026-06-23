@@ -662,12 +662,12 @@ input[type="number"] {
   cursor: default;
 }
 
-.nav-menu-item.activo .material-symbols-rounded {
+.nav-menu-item.activo .material-symbols-rounded::after {
 font-variation-settings:
   'FILL' 1,
   'wght' 300,
   'GRAD' 100,
-  'opsz' 24;
+  'opsz' 24 !important;
 }
 
 .nav-menu-item.activo:hover {
