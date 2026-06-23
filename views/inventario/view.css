@@ -494,12 +494,36 @@
   overflow-y: auto;
 }
 .inv-config-item {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  display: flex; align-items: center; 
+  gap: 5px;
   background: rgba(0,0,0,0.02);
+  border: 1.5px solid transparent;
   border-radius: 6px;
-  padding: 7px 10px;
+  padding: 4px 6px 4px 4px;
   font-size: var(--text-sm);
   color: var(--cinza-escuro);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.inv-config-item:focus-within {
+  border-color: var(--cinza-claro);
+  background: white;
+}
+.inv-config-item-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-size: var(--text-sm);
+  color: var(--cinza-escuro);
+  padding: 5px 6px;
+  border-radius: 4px;
+  outline: none;
+  cursor: text;
+  font-family: inherit;
+  /* sem min-height: não queremos inflar a linha */
+}
+.inv-config-item-input:focus {
+  background: rgba(139,74,43,0.04);
 }
 .inv-config-vazio {
   font-size: var(--text-xs);
@@ -507,6 +531,20 @@
   opacity: 0.55;
   font-style: italic;
 }
+.inv-config-guardar {
+  background: rgba(61,90,62,0.12);
+  border: none;
+  color: var(--verde-dark);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 3px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  min-width: 26px; min-height: 26px;
+  transition: background var(--transition-fast);
+}
+.inv-config-guardar:hover { background: rgba(61,90,62,0.22); }
 .inv-config-remover {
   background: none; border: none;
   color: var(--vermelho);
