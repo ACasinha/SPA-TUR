@@ -654,6 +654,14 @@ input[type="number"] {
   cursor: default;
 }
 
+.nav-menu-item.activo .material-symbols-rounded {
+    font-variation-settings:
+  'FILL' 1,
+  'wght' 300,
+  'GRAD' 100,
+  'opsz' 24
+}
+
 .nav-menu-item.activo:hover {
   background: rgba(139, 74, 43, 0.09);
 }
