@@ -13,7 +13,7 @@
     {
       "src": "icons/icon.svg",
       "type": "image/svg+xml",
-      "sizes": "any"
+      "sizes": "any",
       "purpose": "maskable"
     },
     {
