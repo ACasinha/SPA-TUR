@@ -126,17 +126,6 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-.material-symbols-rounded {
---icon-fill: 0;
---icon-wght: 200;
-   
-  font-variation-settings:
-  'FILL' var(--icon-fill),
-  'wght' var(--icon-wght),
-  'GRAD' 100,
-  'opsz' 24;
-}
-
 /* ============================================================
    Overlay de carregamento entre páginas
    Partilhado por todas as páginas
@@ -633,6 +622,7 @@ input[type="number"] {
   font-size: 18px; /* Tamanho pretendido */
   width: 18px;    /* Força uma caixa quadrada perfeita para o ícone */
   height: 18px;   /* Força uma caixa quadrada perfeita para o ícone */
+  line-height: 1; /* Remove margens internas fantasmas da fonte de ícones */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -662,10 +652,7 @@ input[type="number"] {
   font-weight: 700;
   pointer-events: auto;
   cursor: default;
-  --icon-fill: 1;
-  --icon-wght: 300;
 }
-
 
 .nav-menu-item.activo:hover {
   background: rgba(139, 74, 43, 0.09);
@@ -855,4 +842,12 @@ input[type="number"] {
 }
 .md-button-rounded:hover {
   background-color: rgba(103, 80, 164, 0.08); /* Efeito de ripple discreto */
+}
+
+.material-symbols-rounded {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 200,
+  'GRAD' 100,
+  'opsz' 24
 }
