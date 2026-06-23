@@ -602,12 +602,12 @@
     var btn = document.querySelector('#modalMaterial .btn-modal-confirmar');
     if (btn) { btn.disabled = true; btn.textContent = '⏳ A guardar...'; }
 
-    // Função local para atualizar a UI a partir da memória
-    function _atualizarInterfaceLocal() {
-      _materiais.sort(function(a, b) { return (a.nome || '').localeCompare(b.nome || ''); });
-      _popularSelects();
-      _renderPainel();
-      _renderTabelaMateriais();
+    function _recarregarTudo() {
+      return _carregarMateriais().then(function() {
+        _popularSelects();
+        _renderPainel();
+        _renderTabelaMateriais();
+      });
     }
 
     if (id) {
@@ -619,23 +619,15 @@
       .then(function() {
         if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar'; }
         fecharModalMaterial();
-        
-        // Atualiza a memória
-        var m = _materiais.find(function(x) { return x.id === id; });
-        if (m) {
-          m.nome = nome; m.categoria = categoria; m.tematica = tematica;
-          m.idioma = idioma; m.stockMinimo = stockMinimo;
-        }
-        
         mostrarToast('✓ Material atualizado.', 'sucesso');
-        _atualizarInterfaceLocal();
+        return _recarregarTudo();
       })
       .catch(function(err) {
         if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar'; }
         mostrarToast('Erro: ' + err.message, 'erro');
       });
     } else {
-      var novoDado = {
+      db.collection('materiais').add({
         nome: nome, categoria: categoria, tematica: tematica, idioma: idioma,
         stockMinimo: stockMinimo,
         stockPorLocal: {},
@@ -643,19 +635,12 @@
         criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
         atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(),
         criadoPor: (_perfil && _perfil.email) || ''
-      };
-
-      db.collection('materiais').add(novoDado)
-      .then(function(docRef) {
+      })
+      .then(function() {
         if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar'; }
         fecharModalMaterial();
-        
-        // Atualiza a memória
-        novoDado.id = docRef.id;
-        _materiais.push(novoDado);
-        
         mostrarToast('✓ Material criado.', 'sucesso');
-        _atualizarInterfaceLocal();
+        return _recarregarTudo();
       })
       .catch(function(err) {
         if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar'; }
@@ -676,9 +661,9 @@
     })
     .then(function() {
       mostrarToast('✓ Material arquivado.', 'sucesso');
-      
-      // Remove da memória e re-renderiza
-      _materiais = _materiais.filter(function(m) { return m.id !== id; });
+      return _carregarMateriais();
+    })
+    .then(function() {
       _popularSelects();
       _renderPainel();
       _renderTabelaMateriais();
@@ -696,17 +681,13 @@
     if (!quantidade || quantidade <= 0) { onError(new Error('Indique uma quantidade válida.')); return; }
 
     var materialRef = db.collection('materiais').doc(materialId);
-    
-    // Variáveis para guardar o estado calculado e aplicar localmente
-    var novoStockPorLocal = null;
-    var novoMovimentoMemoria = null;
 
     db.runTransaction(function(tx) {
       return tx.get(materialRef).then(function(doc) {
         if (!doc.exists) throw new Error('Material não encontrado.');
         var dados         = doc.data();
         var stockPorLocal = Object.assign({}, dados.stockPorLocal || {});
-        var atual         = stockPorLocal[local] || 0;
+        var atual          = stockPorLocal[local] || 0;
         var novo;
 
         if (tipo === 'entrada') {
@@ -718,7 +699,6 @@
           }
         }
         stockPorLocal[local] = novo;
-        novoStockPorLocal = stockPorLocal;
 
         tx.update(materialRef, {
           stockPorLocal: stockPorLocal,
@@ -726,7 +706,7 @@
         });
 
         var movRef = db.collection('materiais_movimentos').doc();
-        var movDado = {
+        tx.set(movRef, {
           materialId:     materialId,
           materialNome:   dados.nome      || '',
           categoria:      dados.categoria || '',
@@ -740,23 +720,10 @@
           utilizadorEmail: (_perfil && _perfil.email) || '',
           utilizadorNome:  (_perfil && (_perfil.nome || _perfil.email)) || '',
           criadoEm:       firebase.firestore.FieldValue.serverTimestamp()
-        };
-        tx.set(movRef, movDado);
-        
-        // Copiar para injetar na memória (sem o objeto Timestamp nativo que quebra o cliente offline)
-        novoMovimentoMemoria = Object.assign({}, movDado, { id: movRef.id });
+        });
       });
     })
-    .then(function() { 
-      // Atualizar estado na memória
-      var m = _materiais.find(function(x) { return x.id === materialId; });
-      if (m && novoStockPorLocal) m.stockPorLocal = novoStockPorLocal;
-      if (novoMovimentoMemoria) {
-        _movimentos.unshift(novoMovimentoMemoria);
-        if (_movimentos.length > 150) _movimentos.pop(); // Limita a array local
-      }
-      onSuccess(); 
-    })
+    .then(function() { onSuccess(); })
     .catch(function(err) { onError(err); });
   }
 
@@ -780,11 +747,8 @@
         var oEl = document.getElementById('movObservacoes');
         if (qEl) qEl.value = '';
         if (oEl) oEl.value = '';
-        
-        // Atualiza as tabelas com os dados já presentes na memória
-        _renderPainel(); 
-        _renderTabelaMateriais();
-        _renderTabelaMovimentos();
+        _carregarMateriais().then(function() { _renderPainel(); _renderTabelaMateriais(); });
+        _carregarMovimentos().then(_renderTabelaMovimentos);
       },
       function onError(err) {
         if (btn) { btn.disabled = false; btn.textContent = '💾 Registar Movimento'; }
@@ -825,11 +789,8 @@
       function onSuccess() {
         mostrarToast('✓ ' + (tipo === 'entrada' ? 'Entrada' : 'Saída') + ' registada.', 'sucesso');
         fecharModalMovimentoRapido();
-        
-        // Atualiza com base na memória
-        _renderPainel(); 
-        _renderTabelaMateriais();
-        _renderTabelaMovimentos();
+        _carregarMateriais().then(function() { _renderPainel(); _renderTabelaMateriais(); });
+        _carregarMovimentos().then(_renderTabelaMovimentos);
       },
       function onError(err) {
         mostrarToast('Erro: ' + err.message, 'erro');
@@ -960,9 +921,6 @@
     var btn = document.querySelector('#modalCorrecaoStock .btn-modal-confirmar');
     if (btn) { btn.disabled = true; btn.textContent = '⏳ A guardar...'; }
 
-    var novoStockPorLocal = null;
-    var novosMovimentosMemoria = [];
-
     db.runTransaction(function(tx) {
       return tx.get(materialRef).then(function(doc) {
         if (!doc.exists) throw new Error('Material não encontrado.');
@@ -980,7 +938,6 @@
         });
 
         if (!ajustes.length) return 0;
-        novoStockPorLocal = stockPorLocal;
 
         tx.update(materialRef, {
           stockPorLocal: stockPorLocal,
@@ -989,7 +946,7 @@
 
         ajustes.forEach(function(aj) {
           var movRef = db.collection('materiais_movimentos').doc();
-          var movDado = {
+          tx.set(movRef, {
             materialId:         materialId,
             materialNome:       dados.nome      || '',
             categoria:          dados.categoria || '',
@@ -1006,10 +963,7 @@
             utilizadorEmail:    (_perfil && _perfil.email) || '',
             utilizadorNome:     (_perfil && (_perfil.nome || _perfil.email)) || '',
             criadoEm:           firebase.firestore.FieldValue.serverTimestamp()
-          };
-          tx.set(movRef, movDado);
-          
-          novosMovimentosMemoria.push(Object.assign({}, movDado, { id: movRef.id }));
+          });
         });
 
         return ajustes.length;
@@ -1018,25 +972,13 @@
     .then(function(nAjustes) {
       if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar Correções'; }
       fecharModalCorrecao();
-      
       if (!nAjustes) {
         mostrarToast('Sem alterações a guardar.', 'info');
         return;
       }
-      
-      // Atualizar Estado Local
-      var m = _materiais.find(function(x) { return x.id === materialId; });
-      if (m && novoStockPorLocal) m.stockPorLocal = novoStockPorLocal;
-      
-      novosMovimentosMemoria.reverse().forEach(function(mv) { _movimentos.unshift(mv); });
-      if (_movimentos.length > 150) _movimentos.splice(150); // Mantém o limite de 150
-
       mostrarToast('✓ ' + nAjustes + (nAjustes === 1 ? ' correção registada.' : ' correções registadas.'), 'sucesso');
-      
-      // Renderizar imediatamente
-      _renderPainel(); 
-      _renderTabelaMateriais();
-      _renderTabelaMovimentos();
+      _carregarMateriais().then(function() { _renderPainel(); _renderTabelaMateriais(); });
+      _carregarMovimentos().then(_renderTabelaMovimentos);
     })
     .catch(function(err) {
       if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar Correções'; }
@@ -1059,20 +1001,65 @@
     var el = document.getElementById(elId);
     if (!el) return;
     el.innerHTML = '';
-    _config[lista].slice().sort().forEach(function(valor) {
-      var item = document.createElement('div');
-      item.className = 'inv-config-item';
-      item.innerHTML =
-        '<span>' + _esc(valor) + '</span>' +
-        '<button type="button" class="inv-config-remover" aria-label="Remover">✕</button>';
-      item.querySelector('.inv-config-remover').addEventListener('click', function() {
-        removerConfigItem(lista, valor);
-      });
-      el.appendChild(item);
-    });
+
     if (!_config[lista].length) {
       el.innerHTML = '<div class="inv-config-vazio">Sem valores definidos.</div>';
+      return;
     }
+
+    // Ordenar mantendo o índice original para guardar na posição correcta
+    var ordenados = _config[lista].map(function(v, i) { return { valor: v, idx: i }; });
+    ordenados.sort(function(a, b) { return a.valor.localeCompare(b.valor); });
+
+    ordenados.forEach(function(entry) {
+      var item = document.createElement('div');
+      item.className = 'inv-config-item';
+      item.dataset.idx = entry.idx;
+
+      var inp = document.createElement('input');
+      inp.type        = 'text';
+      inp.className   = 'inv-config-item-input';
+      inp.value       = entry.valor;
+      inp.setAttribute('aria-label', 'Editar valor');
+
+      var btnGuardar = document.createElement('button');
+      btnGuardar.type      = 'button';
+      btnGuardar.className = 'inv-config-guardar';
+      btnGuardar.title     = 'Guardar edição';
+      btnGuardar.innerHTML = '✓';
+      btnGuardar.style.display = 'none';
+
+      var btnRemover = document.createElement('button');
+      btnRemover.type      = 'button';
+      btnRemover.className = 'inv-config-remover';
+      btnRemover.title     = 'Remover';
+      btnRemover.innerHTML = '✕';
+
+      // Mostrar botão de guardar quando o valor muda
+      inp.addEventListener('input', function() {
+        var mudou = inp.value.trim() !== entry.valor;
+        btnGuardar.style.display = mudou ? '' : 'none';
+      });
+
+      // Guardar ao pressionar Enter
+      inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); btnGuardar.click(); }
+        if (e.key === 'Escape') { inp.value = entry.valor; btnGuardar.style.display = 'none'; }
+      });
+
+      btnGuardar.addEventListener('click', function() {
+        renomearConfigItem(lista, entry.idx, inp.value.trim());
+      });
+
+      btnRemover.addEventListener('click', function() {
+        removerConfigItem(lista, entry.valor);
+      });
+
+      item.appendChild(inp);
+      item.appendChild(btnGuardar);
+      item.appendChild(btnRemover);
+      el.appendChild(item);
+    });
   }
 
   function adicionarConfig(lista, inputId) {
@@ -1097,6 +1084,43 @@
     }).catch(function(err) {
       mostrarToast('Erro: ' + err.message, 'erro');
     });
+  }
+
+  function renomearConfigItem(lista, idx, novoValor) {
+    if (!_isAdmin) return;
+
+    if (!novoValor) {
+      mostrarToast('O nome não pode estar vazio.', 'erro');
+      return;
+    }
+
+    var valorAntigo = _config[lista][idx];
+
+    if (novoValor === valorAntigo) return;
+
+    // Verificar duplicado (ignorar o próprio item)
+    var duplicado = _config[lista].some(function(v, i) {
+      return i !== idx && v === novoValor;
+    });
+    if (duplicado) {
+      mostrarToast('"' + novoValor + '" já existe nessa lista.', 'erro');
+      return;
+    }
+
+    _config[lista][idx] = novoValor;
+
+    _guardarConfig()
+      .then(function() {
+        _renderConfig();
+        _popularSelects();
+        mostrarToast('✓ "' + valorAntigo + '" renomeado para "' + novoValor + '".', 'sucesso');
+      })
+      .catch(function(err) {
+        // Reverter em caso de erro
+        _config[lista][idx] = valorAntigo;
+        _renderConfig();
+        mostrarToast('Erro ao guardar: ' + err.message, 'erro');
+      });
   }
 
   function removerConfigItem(lista, valor) {
@@ -1158,6 +1182,7 @@
     guardarCorrecaoStock:     guardarCorrecaoStock,
     verAlertas:               verAlertas,
     adicionarConfig:          adicionarConfig,
+    renomearConfigItem:       renomearConfigItem,
     removerConfigItem:        removerConfigItem
   };
 
