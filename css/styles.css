@@ -633,7 +633,6 @@ input[type="number"] {
   font-size: 18px; /* Tamanho pretendido */
   width: 18px;    /* Força uma caixa quadrada perfeita para o ícone */
   height: 18px;   /* Força uma caixa quadrada perfeita para o ícone */
-  line-height: 1; /* Remove margens internas fantasmas da fonte de ícones */
   display: flex;
   align-items: center;
   justify-content: center;
