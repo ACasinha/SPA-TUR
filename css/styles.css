@@ -126,6 +126,14 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+.material-symbols-rounded {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 200,
+  'GRAD' 100,
+  'opsz' 24;
+}
+
 /* ============================================================
    Overlay de carregamento entre páginas
    Partilhado por todas as páginas
@@ -857,12 +865,4 @@ font-variation-settings:
 }
 .md-button-rounded:hover {
   background-color: rgba(103, 80, 164, 0.08); /* Efeito de ripple discreto */
-}
-
-.material-symbols-rounded {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 200,
-  'GRAD' 100,
-  'opsz' 24;
 }
