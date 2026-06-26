@@ -18,10 +18,10 @@
   <div class="inv-tabs-wrapper">
     <div class="inv-tabs-scroll">
       <div class="inv-tabs-bar" id="invTabsBar" role="tablist">
-        <button type="button" class="inv-tab-btn ativa" data-tab="painel" role="tab"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">table</span> Painel</button>
-        <button type="button" class="inv-tab-btn" data-tab="materiais" role="tab"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">newsstand</span> Materiais</button>
-        <button type="button" class="inv-tab-btn" data-tab="movimentos" role="tab"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">swap_vert</span> Movimentos</button>
-        <button type="button" class="inv-tab-btn" data-tab="config" id="invTabConfigBtn" role="tab" style="display:none"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">settings</span> Configurações</button>
+        <button type="button" class="inv-tab-btn ativa" data-tab="painel" role="tab"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">table</span>Painel</button>
+        <button type="button" class="inv-tab-btn" data-tab="materiais" role="tab"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">newsstand</span>Materiais</button>
+        <button type="button" class="inv-tab-btn" data-tab="movimentos" role="tab"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">swap_vert</span>Movimentos</button>
+        <button type="button" class="inv-tab-btn" data-tab="config" id="invTabConfigBtn" role="tab" style="display:none"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">settings</span>Configurações</button>
       </div>
     </div>
   </div>
@@ -53,7 +53,7 @@
     <div class="inv-acoes-topo">
       <button type="button" class="btn-inv-novo"
               onclick="window.__inventario&&window.__inventario.abrirNovoMaterial()">
-        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span> Novo Material
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span>Novo Material
       </button>
     </div>
 
@@ -115,7 +115,7 @@
       </div>
       <button type="button" class="btn-inv-registar"
               onclick="window.__inventario&&window.__inventario.registarMovimento()">
-        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span> Registar Movimento
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span>Registar Movimento
       </button>
     </div>
 
@@ -125,8 +125,8 @@
       <select id="filtroMovLocal"></select>
       <select id="filtroMovTipo">
         <option value="">Todos os tipos</option>
-        <option value="entrada"><span class="material-symbols-rounded" style="vertical-align: middle;">arrow_upward</span> Entradas</option>
-        <option value="saida"><span class="material-symbols-rounded" style="vertical-align: middle;">arrow_downward</span> Saídas</option>
+        <option value="entrada">↑ Entradas</option>
+        <option value="saida">↓ Saídas</option>
         <option value="ajuste">🛠 Ajustes</option>
       </select>
     </div>
@@ -163,7 +163,7 @@
         <div class="inv-config-add">
           <input type="text" id="novoLocal" placeholder="Novo local..."
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('locais','novoLocal');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('locais','novoLocal')">➕</button>
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('locais','novoLocal')"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span></button>
         </div>
       </div>
 
@@ -173,7 +173,7 @@
         <div class="inv-config-add">
           <input type="text" id="novaCategoria" placeholder="Nova categoria..."
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('categorias','novaCategoria');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('categorias','novaCategoria')">➕</button>
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('categorias','novaCategoria')"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span></button>
         </div>
       </div>
 
@@ -183,7 +183,7 @@
         <div class="inv-config-add">
           <input type="text" id="novaTematica" placeholder="Nova temática..."
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('tematicas','novaTematica');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('tematicas','novaTematica')">➕</button>
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('tematicas','novaTematica')"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span></button>
         </div>
       </div>
 
@@ -193,7 +193,7 @@
         <div class="inv-config-add">
           <input type="text" id="novoIdioma" placeholder="Novo idioma..."
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('idiomas','novoIdioma');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('idiomas','novoIdioma')">➕</button>
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('idiomas','novoIdioma')"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span></button>
         </div>
       </div>
 
