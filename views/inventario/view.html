@@ -53,7 +53,7 @@
     <div class="inv-acoes-topo">
       <button type="button" class="btn-inv-novo"
               onclick="window.__inventario&&window.__inventario.abrirNovoMaterial()">
-        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span>Novo Material
+        <span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">add</span>Novo Material
       </button>
     </div>
 
@@ -96,8 +96,8 @@
         <div class="field-group">
           <label>Tipo</label>
           <select id="movTipo">
-            <option value="entrada"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">arrow_upward</span> Entrada</option>
-            <option value="saida"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">arrow_downward</span> Saída</option>
+            <option value="entrada">↑ Entrada</option>
+            <option value="saida">↓ Saída</option>
           </select>
         </div>
         <div class="field-group">
@@ -115,7 +115,7 @@
       </div>
       <button type="button" class="btn-inv-registar"
               onclick="window.__inventario&&window.__inventario.registarMovimento()">
-        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span>Registar Movimento
+        <span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">save</span>Registar Movimento
       </button>
     </div>
 
@@ -163,7 +163,7 @@
         <div class="inv-config-add">
           <input type="text" id="novoLocal" placeholder="Novo local..."
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('locais','novoLocal');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('locais','novoLocal')"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span></button>
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('locais','novoLocal')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">add</span></button>
         </div>
       </div>
 
@@ -173,7 +173,7 @@
         <div class="inv-config-add">
           <input type="text" id="novaCategoria" placeholder="Nova categoria..."
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('categorias','novaCategoria');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('categorias','novaCategoria')"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span></button>
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('categorias','novaCategoria')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">add</span></button>
         </div>
       </div>
 
@@ -183,7 +183,7 @@
         <div class="inv-config-add">
           <input type="text" id="novaTematica" placeholder="Nova temática..."
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('tematicas','novaTematica');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('tematicas','novaTematica')"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span></button>
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('tematicas','novaTematica')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">add</span></button>
         </div>
       </div>
 
@@ -193,7 +193,7 @@
         <div class="inv-config-add">
           <input type="text" id="novoIdioma" placeholder="Novo idioma..."
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('idiomas','novoIdioma');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('idiomas','novoIdioma')"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span></button>
+          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('idiomas','novoIdioma')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">add</span></button>
         </div>
       </div>
 
@@ -266,9 +266,9 @@
       <button class="btn-modal-cancelar"
               onclick="window.__inventario&&window.__inventario.fecharModalMovimentoRapido()">Cancelar</button>
       <button class="btn-modal-saida"
-              onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('saida')">⬇️ Saída</button>
+              onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('saida')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">arrow_downward</span> Saída</button>
       <button class="btn-modal-entrada"
-              onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('entrada')">⬆️ Entrada</button>
+              onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('entrada')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">arrow_upward</span> Entrada</button>
     </div>
   </div>
 </div>
@@ -284,7 +284,7 @@
       <div class="inv-correcao-acoes-topo">
         <button type="button" class="inv-correcao-zerar-tudo"
                 onclick="window.__inventario&&window.__inventario.zerarTodosCorrecao()">
-          🔄 Repor todos os locais a zero
+          <span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">delete</span> Repor todos os locais a zero
         </button>
       </div>
       <div class="inv-correcao-lista" id="correcaoLista"></div>
@@ -298,7 +298,7 @@
       <button class="btn-modal-cancelar"
               onclick="window.__inventario&&window.__inventario.fecharModalCorrecao()">Cancelar</button>
       <button class="btn-modal-confirmar"
-              onclick="window.__inventario&&window.__inventario.guardarCorrecaoStock()">💾 Guardar Correções</button>
+              onclick="window.__inventario&&window.__inventario.guardarCorrecaoStock()"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">save</span> Guardar Correções</button>
     </div>
   </div>
 </div>
