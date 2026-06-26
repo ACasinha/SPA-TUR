@@ -30,7 +30,7 @@
   <!-- META: LOCAL + DATA -->
   <div class="meta-card">
     <div class="field-group">
-      <label>📍 Local / Posto</label>
+      <label><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">location_on</span>Local / Posto</label>
       <select id="local" onchange="agendarVerificacao()">
         <option value="" disabled selected>Escolha uma opção...</option>
         <optgroup label="Lista completa de países">
@@ -50,7 +50,7 @@
       </select>
     </div>
     <div class="field-group">
-      <label>📅 Data</label>
+      <label><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">calendar_month</span>Data</label>
       <input type="date" id="data" onchange="agendarVerificacao()">
     </div>
   </div>
@@ -141,16 +141,16 @@
      quando mostrarModalPDF() é chamado) -->
 <div id="modalEscolhaPDF" class="modal-overlay" style="display:none">
   <div class="modal-pdf-caixa">
-    <div class="modal-pdf-titulo">🖨️ Gerar Formulário PDF</div>
+    <div class="modal-pdf-titulo"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">printer</span> Gerar Formulário PDF</div>
     <div class="modal-pdf-sub">Escolha o tipo de formulário a imprimir como backup físico.</div>
     <div class="modal-pdf-opcoes">
       <button class="btn-pdf-opcao" onclick="gerarPDF('paises');fecharModalPDF()">
-        <span class="pdf-opcao-icone">🌍</span>
+        <span class="pdf-opcao-icone"><span class="material-symbols-rounded" style="font-size: 3rem;">globe</span></span>
         <span class="pdf-opcao-titulo">Por Países</span>
         <span class="pdf-opcao-desc">Lista completa de países com linhas de preenchimento manual</span>
       </button>
       <button class="btn-pdf-opcao" onclick="gerarPDF('simples');fecharModalPDF()">
-        <span class="pdf-opcao-icone">👥</span>
+        <span class="pdf-opcao-icone"><span class="material-symbols-rounded" style="font-size: 3rem;">group</span></span>
         <span class="pdf-opcao-titulo">Nacionais / Estrangeiros</span>
         <span class="pdf-opcao-desc">Formulário simplificado para locais com menos detalhe</span>
       </button>
