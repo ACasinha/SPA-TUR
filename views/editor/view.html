@@ -11,7 +11,7 @@
 
   <div class="painel-controlo">
     <div class="filtro-grupo">
-      <label for="selectorLocal">📍 Local / Posto</label>
+      <label for="selectorLocal"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">location_on</span> Local / Posto</label>
       <select id="selectorLocal">
         <option value="" disabled selected>Escolha uma opção...</option>
         <optgroup label="Lista completa de países">
@@ -31,13 +31,13 @@
       </select>
     </div>
     <div class="filtro-grupo">
-      <label for="inputMes">📅 Mês</label>
+      <label for="inputMes"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">calendar_month</span> Mês</label>
       <input type="month" id="inputMes"
              onkeydown="if(event.key==='Enter')window.__editor&&window.__editor.carregarMes()">
     </div>
     <button class="btn-carregar" id="btnCarregar"
             onclick="window.__editor&&window.__editor.carregarMes()">
-      🔍 Carregar dados
+      <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">search</span> Carregar dados
     </button>
   </div>
 
@@ -63,11 +63,11 @@
       <button class="btn-limpar-alteracoes"
               onclick="window.__editor&&window.__editor.descartarAlteracoes()"
               title="Descartar todas as alterações não guardadas">
-        🗑 Descartar alterações
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">delete</span> Descartar alterações
       </button>
       <button class="btn-guardar-tudo" id="btnGuardarTudo"
               onclick="window.__editor&&window.__editor.confirmarGuardar()" disabled>
-        💾 Guardar alterações
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span> Guardar alterações
       </button>
     </div>
 
@@ -83,7 +83,7 @@
         </div>
       </div>
       <div class="secao-alteracoes-aviso" id="secaoAlteracoesAviso">
-        ✏️ Existem alterações por guardar nesta grelha
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">table_edit</span> Existem alterações por guardar nesta grelha
       </div>
       <div class="secao-card-corpo" id="secaoCorpo">
         <div class="grelha-wrapper" id="grelhaWrapper"></div>
@@ -96,7 +96,7 @@
         <div class="secao-meta">
           <button type="button" class="btn-extras-adicionar"
                   onclick="window.__editor&&window.__editor.abrirModalExtras(null,'adicionar')">
-            ➕ Adicionar registo
+            <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span> Adicionar registo
           </button>
           <span class="secao-toggle-icone" style="cursor:default">—</span>
         </div>
@@ -125,7 +125,7 @@
 <div class="modal-overlay" id="modalExtras">
   <div class="modal-box modal-extras-box">
     <div class="modal-header">
-      <h2 id="modalExtrasTitulo">✏️ Editar</h2>
+      <h2 id="modalExtrasTitulo"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">edit</span> Editar</h2>
       <div class="modal-extras-meta" id="modalExtrasMeta"></div>
     </div>
     <div id="modalExtrasSelectorDiaWrap" style="display:none">
@@ -139,26 +139,26 @@
       <div id="modalExtrasOpLista" class="modal-extras-lista"></div>
       <button type="button" class="btn-modal-add-linha"
               onclick="window.__editor&&window.__editor.modalAdicionarOperador()">
-        + Adicionar operador
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span> Adicionar operador
       </button>
       <div class="modal-extras-secao-titulo" style="margin-top:16px">Sugestões e Críticas</div>
       <div id="modalExtrasSugLista" class="modal-extras-lista"></div>
       <button type="button" class="btn-modal-add-linha"
               onclick="window.__editor&&window.__editor.modalAdicionarSugestao()">
-        + Adicionar sugestão
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span> Adicionar sugestão
       </button>
       <div class="modal-extras-secao-titulo" style="margin-top:16px">Outras Observações</div>
       <textarea id="modalExtrasObservacoes" class="modal-extras-obs"
                 placeholder="Observações do dia..."></textarea>
       <div class="modal-extras-conflito-aviso" id="modalExtrasConflitoAviso" style="display:none">
-        ⚠️ Este dia tem um conflito pendente de resolução.
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">warning</span> Este dia tem um conflito pendente de resolução.
       </div>
     </div>
     <div class="modal-actions">
       <button class="btn-modal-cancelar"
               onclick="window.__editor&&window.__editor.fecharModalExtras()">Cancelar</button>
       <button class="btn-modal-confirmar"
-              onclick="window.__editor&&window.__editor.guardarModalExtras()">💾 Guardar</button>
+              onclick="window.__editor&&window.__editor.guardarModalExtras()"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span> Guardar</button>
     </div>
   </div>
 </div>
@@ -167,7 +167,7 @@
 <div class="modal-overlay" id="modalGuardar">
   <div class="modal-box">
     <div class="modal-header">
-      <h2>💾 Confirmar Registo de Alterações</h2>
+      <h2><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span> Confirmar Registo de Alterações</h2>
     </div>
     <div class="modal-body">
       <p>Está prestes a guardar alterações na base de dados. Esta operação
@@ -178,7 +178,7 @@
       <button class="btn-modal-cancelar"
               onclick="window.__editor&&window.__editor.fecharModalGuardar()">Cancelar</button>
       <button class="btn-modal-confirmar"
-              onclick="window.__editor&&window.__editor.executarGuardar()">✓ Confirmar e Guardar</button>
+              onclick="window.__editor&&window.__editor.executarGuardar()"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check_circle</span> Confirmar e Guardar</button>
     </div>
   </div>
 </div>
@@ -190,7 +190,7 @@
   <div class="modal-box modal-conflito-box">
 
     <div class="modal-header">
-      <h2>⚠️ Conflito de Dados</h2>
+      <h2><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">warning</span> Conflito de Dados</h2>
       <div class="conflito-meta" id="conflitoMeta"></div>
     </div>
 
@@ -200,12 +200,12 @@
       <div class="conflito-tabs" id="conflitoTabs">
         <button class="conflito-tab ativa" data-tab="paises"
                 onclick="window.__editor&&window.__editor.activarTabConflito('paises')">
-          🌍 Países
+          <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">globe</span> Países
           <span class="conflito-tab-badge" id="conflitoTabBadgePaises" style="display:none">!</span>
         </button>
         <button class="conflito-tab" data-tab="extras"
                 onclick="window.__editor&&window.__editor.activarTabConflito('extras')">
-          📋 Operadores &amp; Extras
+          <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">identity_platform</span> Operadores &amp; Extras
           <span class="conflito-tab-badge" id="conflitoTabBadgeExtras" style="display:none">!</span>
         </button>
       </div>
@@ -215,7 +215,7 @@
         <div class="conflito-comparacao">
           <div class="conflito-lado">
             <div class="conflito-lado-titulo servidor">
-              📊 Dados no servidor
+              <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">database</span> Dados no servidor
               <span class="conflito-lado-sub" id="conflitoServidorAutor"></span>
             </div>
             <table class="conflito-tabela" id="conflitoTabelaServidor"></table>
@@ -224,7 +224,7 @@
           <div class="conflito-vs">VS</div>
           <div class="conflito-lado">
             <div class="conflito-lado-titulo offline">
-              📦 Registo offline
+              <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">wifi_off</span> Registo offline
               <span class="conflito-lado-sub" id="conflitoOfflineAutor"></span>
             </div>
             <table class="conflito-tabela" id="conflitoTabelaOffline"></table>
@@ -239,15 +239,15 @@
 
         <!-- Operadores -->
         <div class="conflito-extras-bloco">
-          <div class="conflito-extras-titulo">🏨 Operadores e Agências</div>
+          <div class="conflito-extras-titulo"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">identity_platform</span> Operadores e Agências</div>
           <div class="conflito-comparacao conflito-comparacao-extras">
             <div class="conflito-lado">
-              <div class="conflito-lado-titulo servidor">📊 Servidor</div>
+              <div class="conflito-lado-titulo servidor"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">database</span> Servidor</div>
               <div class="conflito-extras-lista" id="conflitoOpServidor"></div>
             </div>
             <div class="conflito-vs">VS</div>
             <div class="conflito-lado">
-              <div class="conflito-lado-titulo offline">📦 Offline</div>
+              <div class="conflito-lado-titulo offline"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">wifi_off</span> Offline</div>
               <div class="conflito-extras-lista" id="conflitoOpOffline"></div>
             </div>
           </div>
