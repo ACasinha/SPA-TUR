@@ -24,7 +24,7 @@
   var _materiais           = [];
   var _movimentos          = [];
   var _tabAtiva            = 'painel';
-  var _apenasAlerta        = false;
+  var _filtros             = { alerta: false, locais: [], categorias: [], tematicas: [], idiomas: [] };
   var _editandoMaterialId  = null;
   var _movRapidoMaterialId = null;
   var _correcaoMaterialId  = null;
@@ -75,12 +75,11 @@
       _al(btn, 'click', function() { _activarTab(btn.getAttribute('data-tab')); });
     });
 
-    ['filtroLocal', 'filtroCategoria', 'filtroTematica', 'filtroIdioma'].forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) _al(el, 'change', _onFiltroPainelChange);
-    });
     var filtroTexto = document.getElementById('filtroTexto');
-    if (filtroTexto) _al(filtroTexto, 'input', _onFiltroPainelChange);
+    if (filtroTexto) _al(filtroTexto, 'input', function() {
+      _filtros.texto = filtroTexto.value.trim().toLowerCase();
+      _renderPainel();
+    });
 
     ['filtroMovMaterial', 'filtroMovLocal', 'filtroMovTipo'].forEach(function(id) {
       var el = document.getElementById(id);
@@ -114,7 +113,8 @@
     _materiais = []; _movimentos = [];
     _config = { locais: [], categorias: [], tematicas: [], idiomas: [] };
     _editandoMaterialId = null; _movRapidoMaterialId = null; _correcaoMaterialId = null;
-    _apenasAlerta = false; _tabAtiva = 'painel';
+    _filtros = { alerta: false, locais: [], categorias: [], tematicas: [], idiomas: [], texto: '' };
+    _tabAtiva = 'painel';
 
     window.__inventario = null;
     spaResetHeader();
@@ -246,11 +246,9 @@
   // ============================================================
 
   function _popularSelects() {
-    _popularSelectComTodos('filtroLocal',     _config.locais,     'Todos os locais');
-    _popularSelectComTodos('filtroCategoria', _config.categorias, 'Todas as categorias');
-    _popularSelectComTodos('filtroTematica',  _config.tematicas,  'Todas as temáticas');
-    _popularSelectComTodos('filtroIdioma',    _config.idiomas,    'Todos os idiomas');
-    _popularSelectComTodos('filtroMovLocal',  _config.locais,     'Todos os locais');
+    // Filtros do painel: geridos por pills (ver _renderFiltrosPills)
+    // Filtros dos movimentos:
+    _popularSelectComTodos('filtroMovLocal',  _config.locais,  'Todos os locais');
 
     _popularSelectLocal(document.getElementById('movLocal'));
 
@@ -301,6 +299,109 @@
   }
 
   // ============================================================
+  // FILTROS POR PILLS — painel principal
+  // ============================================================
+
+  function _renderFiltrosPills() {
+    var area = document.getElementById('invPillsArea');
+    if (!area) return;
+    area.innerHTML = '';
+
+    var temFiltrosActivos = _filtrosActivos();
+
+    // ── Linha 1: pill de alerta + pill de limpar ──────────────
+    var linhaControlo = document.createElement('div');
+    linhaControlo.className = 'inv-pills-linha';
+
+    var pillAlerta = document.createElement('button');
+    pillAlerta.type = 'button';
+    pillAlerta.className = 'inv-pill inv-pill-alerta' + (_filtros.alerta ? ' activa' : '');
+    pillAlerta.innerHTML = '<span class="inv-pill-icone">⚠️</span> Stock baixo / esgotado';
+    pillAlerta.addEventListener('click', function() {
+      _filtros.alerta = !_filtros.alerta;
+      _renderFiltrosPills();
+      _renderPainel();
+    });
+    linhaControlo.appendChild(pillAlerta);
+
+    if (temFiltrosActivos) {
+      var pillLimpar = document.createElement('button');
+      pillLimpar.type = 'button';
+      pillLimpar.className = 'inv-pill inv-pill-limpar';
+      pillLimpar.innerHTML = '✕ Limpar filtros';
+      pillLimpar.addEventListener('click', function() {
+        _limparFiltros();
+      });
+      linhaControlo.appendChild(pillLimpar);
+    }
+
+    area.appendChild(linhaControlo);
+
+    // ── Grupos de pills por dimensão ──────────────────────────
+    var grupos = [
+      { chave: 'locais',     label: 'Local',     valores: _config.locais },
+      { chave: 'categorias', label: 'Categoria', valores: _config.categorias },
+      { chave: 'tematicas',  label: 'Temática',  valores: _config.tematicas },
+      { chave: 'idiomas',    label: 'Idioma',    valores: _config.idiomas }
+    ];
+
+    grupos.forEach(function(grupo) {
+      if (!grupo.valores.length) return;
+
+      var linha = document.createElement('div');
+      linha.className = 'inv-pills-linha';
+
+      var label = document.createElement('span');
+      label.className = 'inv-pills-label';
+      label.textContent = grupo.label + ':';
+      linha.appendChild(label);
+
+      grupo.valores.slice().sort().forEach(function(valor) {
+        var activa = _filtros[grupo.chave].indexOf(valor) !== -1;
+        var pill   = document.createElement('button');
+        pill.type  = 'button';
+        pill.className = 'inv-pill inv-pill-grupo' + (activa ? ' activa' : '');
+        pill.textContent = valor;
+        pill.addEventListener('click', function() {
+          _toggleFiltro(grupo.chave, valor);
+        });
+        linha.appendChild(pill);
+      });
+
+      area.appendChild(linha);
+    });
+  }
+
+  function _toggleFiltro(grupo, valor) {
+    var arr = _filtros[grupo];
+    var idx = arr.indexOf(valor);
+    if (idx === -1) {
+      arr.push(valor);
+    } else {
+      arr.splice(idx, 1);
+    }
+    _renderFiltrosPills();
+    _renderPainel();
+  }
+
+  function _limparFiltros() {
+    _filtros = { alerta: false, locais: [], categorias: [], tematicas: [], idiomas: [], texto: '' };
+    var inputTexto = document.getElementById('filtroTexto');
+    if (inputTexto) inputTexto.value = '';
+    _renderFiltrosPills();
+    _renderPainel();
+  }
+
+  function _filtrosActivos() {
+    return _filtros.alerta
+        || _filtros.locais.length > 0
+        || _filtros.categorias.length > 0
+        || _filtros.tematicas.length > 0
+        || _filtros.idiomas.length > 0
+        || !!(_filtros.texto);
+  }
+
+  // ============================================================
   // CÁLCULOS DE STOCK
   // ============================================================
 
@@ -342,14 +443,11 @@
   }
 
   function verAlertas() {
-    _apenasAlerta = true;
+    _filtros = { alerta: true, locais: [], categorias: [], tematicas: [], idiomas: [], texto: '' };
+    var inputTexto = document.getElementById('filtroTexto');
+    if (inputTexto) inputTexto.value = '';
     _activarTab('painel');
-    _renderPainel();
-    mostrarToast('A mostrar apenas materiais com alerta. Altere os filtros para limpar.', 'info');
-  }
-
-  function _onFiltroPainelChange() {
-    _apenasAlerta = false;
+    _renderFiltrosPills();
     _renderPainel();
   }
 
@@ -358,18 +456,28 @@
   // ============================================================
 
   function _renderPainel() {
-    var filtroLocal     = (document.getElementById('filtroLocal')     || {}).value || '';
-    var filtroCategoria = (document.getElementById('filtroCategoria') || {}).value || '';
-    var filtroTematica  = (document.getElementById('filtroTematica')  || {}).value || '';
-    var filtroIdioma    = (document.getElementById('filtroIdioma')    || {}).value || '';
-    var filtroTexto     = ((document.getElementById('filtroTexto')    || {}).value || '').trim().toLowerCase();
+    var texto = (_filtros.texto || '').trim().toLowerCase();
 
     var lista = _materiais.filter(function(m) {
-      if (filtroCategoria && m.categoria !== filtroCategoria) return false;
-      if (filtroTematica  && m.tematica  !== filtroTematica)  return false;
-      if (filtroIdioma    && m.idioma    !== filtroIdioma)    return false;
-      if (filtroTexto     && (m.nome || '').toLowerCase().indexOf(filtroTexto) === -1) return false;
-      if (_apenasAlerta   && _calcularEstado(m) === 'ok') return false;
+      // Alerta: só stock baixo ou esgotado
+      if (_filtros.alerta && _calcularEstado(m) === 'ok') return false;
+
+      // Local: OR dentro do grupo — material tem stock em pelo menos um local seleccionado
+      if (_filtros.locais.length) {
+        var temLocal = _filtros.locais.some(function(local) {
+          return (m.stockPorLocal && (m.stockPorLocal[local] || 0) > 0);
+        });
+        if (!temLocal) return false;
+      }
+
+      // Categoria, temática, idioma: OR dentro do grupo
+      if (_filtros.categorias.length && _filtros.categorias.indexOf(m.categoria) === -1) return false;
+      if (_filtros.tematicas.length  && _filtros.tematicas.indexOf(m.tematica)   === -1) return false;
+      if (_filtros.idiomas.length    && _filtros.idiomas.indexOf(m.idioma)        === -1) return false;
+
+      // Texto
+      if (texto && (m.nome || '').toLowerCase().indexOf(texto) === -1) return false;
+
       return true;
     });
 
@@ -383,8 +491,11 @@
           '<div>Nenhum material encontrado com estes filtros.</div>' +
         '</div>';
     } else {
+      // Se há locais filtrados, passar o primeiro para destacar no cartão;
+      // se há mais do que um, o cartão mostrará o total geral.
+      var localDestaque = _filtros.locais.length === 1 ? _filtros.locais[0] : '';
       lista.forEach(function(m) {
-        grelha.appendChild(_criarCartaoMaterial(m, filtroLocal));
+        grelha.appendChild(_criarCartaoMaterial(m, localDestaque));
       });
     }
 
@@ -665,6 +776,7 @@
     })
     .then(function() {
       _popularSelects();
+      _renderFiltrosPills();
       _renderPainel();
       _renderTabelaMateriais();
     })
@@ -1080,6 +1192,7 @@
     _guardarConfig().then(function() {
       _renderConfig();
       _popularSelects();
+      _renderFiltrosPills();
       mostrarToast('✓ Adicionado.', 'sucesso');
     }).catch(function(err) {
       mostrarToast('Erro: ' + err.message, 'erro');
@@ -1113,6 +1226,7 @@
       .then(function() {
         _renderConfig();
         _popularSelects();
+        _renderFiltrosPills();
         mostrarToast('✓ "' + valorAntigo + '" renomeado para "' + novoValor + '".', 'sucesso');
       })
       .catch(function(err) {
@@ -1132,6 +1246,7 @@
     _guardarConfig().then(function() {
       _renderConfig();
       _popularSelects();
+      _renderFiltrosPills();
       mostrarToast('Removido.', 'info');
     }).catch(function(err) {
       mostrarToast('Erro: ' + err.message, 'erro');
