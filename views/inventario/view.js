@@ -133,6 +133,7 @@
     Promise.all([_carregarConfig(), _carregarMateriais(), _carregarMovimentos()])
       .then(function() {
         _popularSelects();
+        _renderFiltrosPills();
         _renderPainel();
         _renderTabelaMateriais();
         _renderTabelaMovimentos();
