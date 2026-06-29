@@ -30,19 +30,18 @@
        PAINEL — vista visual e rápida do stock
   ============================================================ -->
   <div class="inv-tab-panel ativo" id="invPainelPainel" role="tabpanel">
-
-    <div class="inv-filtros">
-      <select id="filtroLocal"></select>
-      <select id="filtroCategoria"></select>
-      <select id="filtroTematica"></select>
-      <select id="filtroIdioma"></select>
-      <input type="text" id="filtroTexto" placeholder="🔍 Pesquisar por nome...">
+ 
+    <!-- Pesquisa de texto + pills de filtro (geradas pelo JS a partir da configuração) -->
+    <div class="inv-filtros-busca">
+      <input type="text" id="filtroTexto" class="inv-filtros-texto"
+             placeholder="🔍 Pesquisar por nome..." autocomplete="off">
     </div>
-
+    <div class="inv-pills-area" id="invPillsArea"></div>
+ 
     <div class="inv-stats-resumo" id="invStatsResumo"></div>
-
+ 
     <div class="inv-grelha-cartoes" id="invGrelhaCartoes"></div>
-
+ 
   </div>
 
   <!-- ============================================================
@@ -120,7 +119,7 @@
     </div>
 
     <h3 class="inv-subtitulo inv-subtitulo-historico">Histórico Recente</h3>
-    <div class="inv-filtros">
+    <div class="inv-filtros inv-filtros-select">
       <select id="filtroMovMaterial"></select>
       <select id="filtroMovLocal"></select>
       <select id="filtroMovTipo">
