@@ -569,12 +569,16 @@
       '<div class="inv-cartao-rodape">' +
         '<span class="inv-cartao-minimo">Mín.: ' + (m.stockMinimo || 0) + '</span>' +
         '<div class="inv-cartao-rodape-btns">' +
-          '<button type="button" class="inv-cartao-btn"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">swap_vert</span>Registar Movimento</button>' +
+          '<button type="button" class="inv-cartao-btn-corrigir"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">data_check</span>Ajustar Stock</button>' +
+          '<button type="button" class="inv-cartao-btn"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">swap_vert</span>Novo Movimento</button>' +
         '</div>' +
       '</div>';
 
     card.querySelector('.inv-cartao-btn').addEventListener('click', function() {
       abrirMovimentoRapido(m.id);
+    });
+    card.querySelector('.inv-cartao-btn-corrigir').addEventListener('click', function() {
+      abrirCorrecaoStock(m.id);
     });
 
     return card;
@@ -637,7 +641,7 @@
     btnCorrecao.title = 'Corrigir stock';
     var iconCorrecao = document.createElement('span');
     iconCorrecao.className = 'material-symbols-rounded';
-    iconCorrecao.textContent = 'inventory';
+    iconCorrecao.textContent = 'data_check';
     btnCorrecao.appendChild(iconCorrecao);
     btnCorrecao.addEventListener('click', function() { abrirCorrecaoStock(m.id); });
     tdAcoes.appendChild(btnCorrecao);
@@ -942,7 +946,7 @@
 
     lista.forEach(function(mv) {
       var tr = document.createElement('tr');
-      var tipoLabel = mv.tipo === 'entrada' ? '⬆️ Entrada' : (mv.tipo === 'saida' ? '⬇️ Saída' : '🛠 Ajuste');
+      var tipoLabel = mv.tipo === 'entrada' ? '↑ Entrada' : (mv.tipo === 'saida' ? '↓ Saída' : '🔧 Ajuste');
       var qtdDisplay;
       if (mv.tipo === 'ajuste') {
         var sinal = (mv.delta || 0) > 0 ? '+' : '';
