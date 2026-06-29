@@ -570,7 +570,7 @@
         '<span class="inv-cartao-minimo">Mín.: ' + (m.stockMinimo || 0) + '</span>' +
         '<div class="inv-cartao-rodape-btns">' +
           '<button type="button" class="inv-cartao-btn-corrigir" title="Corrigir stock"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">inventory</span>Corrigir stock</button>' +
-          '<button type="button" class="inv-cartao-btn"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">swap_vert</span>Movimento</button>' +
+          '<button type="button" class="inv-cartao-btn"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">swap_vert</span>Registar Movimento</button>' +
         '</div>' +
       '</div>';
 
@@ -642,7 +642,7 @@
     var iconMov = document.createElement('span');
     iconMov.className = 'material-symbols-rounded';
     iconMov.textContent = 'inventory';
-    btnMov.appendChild(iconMov);
+    btnMov.appendChild(iconCorrecao);
     btnMov.addEventListener('click', function() { abrirCorrecaoStock(m.id); });
     tdAcoes.appendChild(btnCorrecao);
 
@@ -653,7 +653,7 @@
     var iconMov = document.createElement('span');
     iconMov.className = 'material-symbols-rounded';
     iconMov.textContent = 'edit';
-    btnMov.appendChild(iconMov);
+    btnMov.appendChild(iconEdit);
     btnMov.addEventListener('click', function() { abrirEditarMaterial(m.id); });
     tdAcoes.appendChild(btnEdit);
 
@@ -665,7 +665,7 @@
       var iconMov = document.createElement('span');
       iconMov.className = 'material-symbols-rounded';
       iconMov.textContent = 'delete';
-      btnMov.appendChild(iconMov);
+      btnMov.appendChild(iconArq);
       btnMov.addEventListener('click', function() { arquivarMaterial(m.id); });
       tdAcoes.appendChild(btnArq);
     }
