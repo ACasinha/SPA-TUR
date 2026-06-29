@@ -569,16 +569,12 @@
       '<div class="inv-cartao-rodape">' +
         '<span class="inv-cartao-minimo">Mín.: ' + (m.stockMinimo || 0) + '</span>' +
         '<div class="inv-cartao-rodape-btns">' +
-          '<button type="button" class="inv-cartao-btn-corrigir" title="Corrigir stock"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">inventory</span>Corrigir stock</button>' +
           '<button type="button" class="inv-cartao-btn"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">swap_vert</span>Registar Movimento</button>' +
         '</div>' +
       '</div>';
 
     card.querySelector('.inv-cartao-btn').addEventListener('click', function() {
       abrirMovimentoRapido(m.id);
-    });
-    card.querySelector('.inv-cartao-btn-corrigir').addEventListener('click', function() {
-      abrirCorrecaoStock(m.id);
     });
 
     return card;
@@ -635,38 +631,38 @@
     btnMov.addEventListener('click', function() { abrirMovimentoRapido(m.id); });
     tdAcoes.appendChild(btnMov);
 
-    var btnMov = document.createElement('button');
-    btnMov.type = 'button';
-    btnMov.className = 'btn-inv-acao';
-    btnMov.title = 'Corrigir stock';
-    var iconMov = document.createElement('span');
-    iconMov.className = 'material-symbols-rounded';
-    iconMov.textContent = 'inventory';
-    btnMov.appendChild(iconCorrecao);
-    btnMov.addEventListener('click', function() { abrirCorrecaoStock(m.id); });
+    var btnCorrecao = document.createElement('button');
+    btnCorrecao.type = 'button';
+    btnCorrecao.className = 'btn-inv-acao';
+    btnCorrecao.title = 'Corrigir stock';
+    var iconCorrecao = document.createElement('span');
+    iconCorrecao.className = 'material-symbols-rounded';
+    iconCorrecao.textContent = 'inventory';
+    btnCorrecao.appendChild(iconCorrecao);
+    btnCorrecao.addEventListener('click', function() { abrirCorrecaoStock(m.id); });
     tdAcoes.appendChild(btnCorrecao);
 
-    var btnMov = document.createElement('button');
-    btnMov.type = 'button';
-    btnMov.className = 'btn-inv-acao';
-    btnMov.title = 'Editar';
-    var iconMov = document.createElement('span');
-    iconMov.className = 'material-symbols-rounded';
-    iconMov.textContent = 'edit';
-    btnMov.appendChild(iconEdit);
-    btnMov.addEventListener('click', function() { abrirEditarMaterial(m.id); });
+    var btnEdit = document.createElement('button');
+    btnEdit.type = 'button';
+    btnEdit.className = 'btn-inv-acao';
+    btnEdit.title = 'Editar';
+    var iconEdit = document.createElement('span');
+    iconEdit.className = 'material-symbols-rounded';
+    iconEdit.textContent = 'edit';
+    btnEdit.appendChild(iconEdit);
+    btnEdit.addEventListener('click', function() { abrirEditarMaterial(m.id); });
     tdAcoes.appendChild(btnEdit);
 
     if (_isAdmin) {
-      var btnMov = document.createElement('button');
-      btnMov.type = 'button';
-      btnMov.className = 'btn-inv-acao';
-      btnMov.title = 'Arquivar';
-      var iconMov = document.createElement('span');
-      iconMov.className = 'material-symbols-rounded';
-      iconMov.textContent = 'delete';
-      btnMov.appendChild(iconArq);
-      btnMov.addEventListener('click', function() { arquivarMaterial(m.id); });
+      var btnArq = document.createElement('button');
+      btnArq.type = 'button';
+      btnArq.className = 'btn-inv-acao';
+      btnArq.title = 'Arquivar';
+      var iconArq = document.createElement('span');
+      iconArq.className = 'material-symbols-rounded';
+      iconArq.textContent = 'delete';
+      btnArq.appendChild(iconArq);
+      btnArq.addEventListener('click', function() { arquivarMaterial(m.id); });
       tdAcoes.appendChild(btnArq);
     }
 
