@@ -317,7 +317,7 @@
     var pillAlerta = document.createElement('button');
     pillAlerta.type = 'button';
     pillAlerta.className = 'inv-pill inv-pill-alerta' + (_filtros.alerta ? ' activa' : '');
-    pillAlerta.innerHTML = '<span class="inv-pill-icone">⚠️</span> Stock baixo / esgotado';
+    pillAlerta.innerHTML = '<span class="inv-pill-icone"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">warning</span></span> Stock baixo / esgotado';
     pillAlerta.addEventListener('click', function() {
       _filtros.alerta = !_filtros.alerta;
       _renderFiltrosPills();
@@ -329,7 +329,7 @@
       var pillLimpar = document.createElement('button');
       pillLimpar.type = 'button';
       pillLimpar.className = 'inv-pill inv-pill-limpar';
-      pillLimpar.innerHTML = '✕ Limpar filtros';
+      pillLimpar.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">close</span> Limpar filtros';
       pillLimpar.addEventListener('click', function() {
         _limparFiltros();
       });
@@ -569,8 +569,8 @@
       '<div class="inv-cartao-rodape">' +
         '<span class="inv-cartao-minimo">Mín.: ' + (m.stockMinimo || 0) + '</span>' +
         '<div class="inv-cartao-rodape-btns">' +
-          '<button type="button" class="inv-cartao-btn-corrigir" title="Corrigir stock">🛠</button>' +
-          '<button type="button" class="inv-cartao-btn">🔄 Movimento</button>' +
+          '<button type="button" class="inv-cartao-btn-corrigir" title="Corrigir stock"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">inventory</span>Corrigir stock</button>' +
+          '<button type="button" class="inv-cartao-btn"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">swap_vert</span>Movimento</button>' +
         '</div>' +
       '</div>';
 
@@ -627,34 +627,46 @@
     var btnMov = document.createElement('button');
     btnMov.type = 'button';
     btnMov.className = 'btn-inv-acao';
-    btnMov.textContent = '🔄';
     btnMov.title = 'Registar movimento';
+    var iconMov = document.createElement('span');
+    iconMov.className = 'material-symbols-rounded';
+    iconMov.textContent = 'swap_vert';
+    btnMov.appendChild(iconMov);
     btnMov.addEventListener('click', function() { abrirMovimentoRapido(m.id); });
     tdAcoes.appendChild(btnMov);
 
-    var btnCorrecao = document.createElement('button');
-    btnCorrecao.type = 'button';
-    btnCorrecao.className = 'btn-inv-acao';
-    btnCorrecao.textContent = '🛠';
-    btnCorrecao.title = 'Corrigir stock';
-    btnCorrecao.addEventListener('click', function() { abrirCorrecaoStock(m.id); });
+    var btnMov = document.createElement('button');
+    btnMov.type = 'button';
+    btnMov.className = 'btn-inv-acao';
+    btnMov.title = 'Corrigir stock';
+    var iconMov = document.createElement('span');
+    iconMov.className = 'material-symbols-rounded';
+    iconMov.textContent = 'inventory';
+    btnMov.appendChild(iconMov);
+    btnMov.addEventListener('click', function() { abrirCorrecaoStock(m.id); });
     tdAcoes.appendChild(btnCorrecao);
 
-    var btnEdit = document.createElement('button');
-    btnEdit.type = 'button';
-    btnEdit.className = 'btn-inv-acao';
-    btnEdit.textContent = '✏️';
-    btnEdit.title = 'Editar';
-    btnEdit.addEventListener('click', function() { abrirEditarMaterial(m.id); });
+    var btnMov = document.createElement('button');
+    btnMov.type = 'button';
+    btnMov.className = 'btn-inv-acao';
+    btnMov.title = 'Editar';
+    var iconMov = document.createElement('span');
+    iconMov.className = 'material-symbols-rounded';
+    iconMov.textContent = 'edit';
+    btnMov.appendChild(iconMov);
+    btnMov.addEventListener('click', function() { abrirEditarMaterial(m.id); });
     tdAcoes.appendChild(btnEdit);
 
     if (_isAdmin) {
-      var btnArq = document.createElement('button');
-      btnArq.type = 'button';
-      btnArq.className = 'btn-inv-acao btn-inv-acao-perigo';
-      btnArq.textContent = '🗑';
-      btnArq.title = 'Arquivar';
-      btnArq.addEventListener('click', function() { arquivarMaterial(m.id); });
+      var btnMov = document.createElement('button');
+      btnMov.type = 'button';
+      btnMov.className = 'btn-inv-acao';
+      btnMov.title = 'Arquivar';
+      var iconMov = document.createElement('span');
+      iconMov.className = 'material-symbols-rounded';
+      iconMov.textContent = 'delete';
+      btnMov.appendChild(iconMov);
+      btnMov.addEventListener('click', function() { arquivarMaterial(m.id); });
       tdAcoes.appendChild(btnArq);
     }
 
