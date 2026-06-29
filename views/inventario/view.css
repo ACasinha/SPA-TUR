@@ -130,19 +130,18 @@
 .inv-subtitulo-historico { margin-top: 28px; }
 
 /* ============================================================
-   FILTROS
+   FILTROS DOS MOVIMENTOS (select dropdown — apenas nesta secção)
 ============================================================ */
-.inv-filtros {
+.inv-filtros-select {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   margin-bottom: var(--gap);
 }
-.inv-filtros select,
-.inv-filtros input[type="text"] {
+.inv-filtros-select select {
   border: 1.5px solid var(--cinza-claro);
   border-radius: var(--radius-sm);
-  padding: 9px 12px;
+  padding: 9px 34px 9px 12px;
   font-size: var(--text-sm);
   color: var(--cinza-escuro);
   background: var(--branco);
@@ -151,19 +150,144 @@
   min-width: 160px;
   -webkit-appearance: none;
   appearance: none;
-  transition: border-color var(--transition-base), box-shadow var(--transition-base);
-}
-.inv-filtros select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B4A2B' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
-  padding-right: 34px;
   cursor: pointer;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
-.inv-filtros select:focus,
-.inv-filtros input[type="text"]:focus {
+.inv-filtros-select select:focus {
   outline: none; border-color: var(--terra);
   box-shadow: 0 0 0 3px rgba(139,74,43,0.10);
+}
+ 
+/* ============================================================
+   FILTROS POR PILLS — painel principal
+============================================================ */
+.inv-filtros-busca {
+  margin-bottom: 10px;
+}
+.inv-filtros-texto {
+  width: 100%;
+  border: 1.5px solid var(--cinza-claro);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px 9px 38px;
+  font-size: var(--text-sm);
+  color: var(--cinza-escuro);
+  background: var(--branco)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235A5A5A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E")
+    no-repeat 12px center;
+  min-height: 40px;
+  -webkit-appearance: none;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+.inv-filtros-texto:focus {
+  outline: none; border-color: var(--terra);
+  box-shadow: 0 0 0 3px rgba(139,74,43,0.10);
+}
+ 
+.inv-pills-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: var(--gap);
+}
+ 
+.inv-pills-linha {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+ 
+.inv-pills-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--cinza);
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 72px;
+}
+ 
+/* Pill base */
+.inv-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1.5px solid var(--cinza-claro);
+  border-radius: 20px;
+  background: var(--branco);
+  color: var(--cinza-escuro);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  font-family: inherit;
+  padding: 5px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 30px;
+  transition: background var(--transition-fast),
+              border-color var(--transition-fast),
+              color var(--transition-fast),
+              transform var(--transition-fast);
+  user-select: none;
+}
+.inv-pill:hover {
+  border-color: var(--terra-light);
+  background: var(--terra-pale);
+  color: var(--terra);
+}
+.inv-pill:active { transform: scale(0.97); }
+ 
+/* Pill de grupo — activa */
+.inv-pill-grupo.activa {
+  background: var(--terra);
+  border-color: var(--terra);
+  color: white;
+  font-weight: 700;
+}
+.inv-pill-grupo.activa:hover {
+  background: var(--terra-dark);
+  border-color: var(--terra-dark);
+  color: white;
+}
+ 
+/* Pill de alerta (stock baixo/esgotado) */
+.inv-pill-alerta {
+  border-color: rgba(243,156,18,0.35);
+  color: #8a6510;
+}
+.inv-pill-alerta:hover {
+  background: rgba(243,156,18,0.10);
+  border-color: rgba(243,156,18,0.55);
+  color: #8a6510;
+}
+.inv-pill-alerta.activa {
+  background: rgba(243,156,18,0.15);
+  border-color: rgba(243,156,18,0.60);
+  color: #7a5000;
+  font-weight: 700;
+  box-shadow: 0 0 0 3px rgba(243,156,18,0.12);
+}
+.inv-pill-alerta.activa:hover {
+  background: rgba(243,156,18,0.22);
+  border-color: rgba(243,156,18,0.70);
+  color: #7a5000;
+}
+.inv-pill-icone { font-size: 0.85rem; }
+ 
+/* Pill de limpar — vermelho subtil */
+.inv-pill-limpar {
+  border-color: rgba(192,57,43,0.25);
+  color: var(--vermelho);
+  background: rgba(192,57,43,0.04);
+  font-weight: 600;
+}
+.inv-pill-limpar:hover {
+  background: rgba(192,57,43,0.10);
+  border-color: rgba(192,57,43,0.45);
+  color: var(--vermelho);
 }
 
 /* ============================================================
