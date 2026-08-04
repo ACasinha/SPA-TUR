@@ -539,66 +539,58 @@
   if (!datas.length) return;
 
   var btnG = document.getElementById('btnGuardarTudo');
-  if (btnG) { btnG.disabled = true; btnG.textContent = '⏳ A guardar 0/' + datas.length + '...'; }
+  if (btnG) { btnG.disabled = true; btnG.textContent = '⏳ A guardar...'; }
   mostrarToast('A guardar ' + datas.length + ' dia(s)...', 'info');
 
-  var resultados  = [];
-  var concluidos  = 0;
-
-  // Envio sequencial — evita sobrecarregar a Cloud Function / rate limiter
-  // e evita que um único timeout derrube o Promise.all inteiro.
-  datas.reduce(function(cadeia, data) {
-    return cadeia.then(function() {
-      var existentes    = _dadosMes[data] || {};
-      var alteracoesDia = _alteracoes[data] || {};
-      var finais = {};
-      Object.keys(existentes).forEach(function(p) {
-        if ((existentes[p] || 0) > 0) finais[p] = existentes[p];
-      });
-      Object.keys(alteracoesDia).forEach(function(p) {
-        var v = alteracoesDia[p] || 0;
-        if (v > 0) finais[p] = v; else delete finais[p];
-      });
-
-      return chamarAPI('guardarRegisto', {
-        data: data, local: _localAtual, paises: finais,
-        operadores: [], sugestoes: [], observacoes: ''
-      })
-      .then(function(resp) { resultados.push({ data: data, resp: resp }); })
-      .catch(function(err) { resultados.push({ data: data, erro: err }); })
-      .then(function() {
-        concluidos++;
-        if (btnG) btnG.textContent = '⏳ A guardar ' + concluidos + '/' + datas.length + '...';
-      });
+  var registos = datas.map(function(data) {
+    var existentes    = _dadosMes[data] || {};
+    var alteracoesDia = _alteracoes[data] || {};
+    var finais = {};
+    Object.keys(existentes).forEach(function(p) {
+      if ((existentes[p] || 0) > 0) finais[p] = existentes[p];
     });
-  }, Promise.resolve())
-  .then(function() {
-    var sucesso = resultados.filter(function(r) { return r.resp && r.resp.sucesso; }).length;
-    var falhou  = resultados.length - sucesso;
-    if (btnG) { btnG.disabled = false; btnG.textContent = '💾 Guardar alterações'; }
-
-    // Só remove de _alteracoes os dias com sucesso CONFIRMADO pelo servidor
-    resultados.forEach(function(r) {
-      if (r.resp && r.resp.sucesso) {
-        if (!_dadosMes[r.data]) _dadosMes[r.data] = {};
-        Object.keys(_alteracoes[r.data] || {}).forEach(function(p) {
-          _dadosMes[r.data][p] = _alteracoes[r.data][p];
-        });
-        delete _alteracoes[r.data];
-        document.querySelectorAll('.cel-input.alterada[data-data="' + r.data + '"]')
-          .forEach(function(el) { el.classList.remove('alterada'); });
-      }
+    Object.keys(alteracoesDia).forEach(function(p) {
+      var v = alteracoesDia[p] || 0;
+      if (v > 0) finais[p] = v; else delete finais[p];
     });
 
-    _totalAlteracoes = _contarAlteracoes();
-    _atualizarBarraAlteracoes();
-
-    if (falhou === 0) {
-      mostrarToast('✓ ' + sucesso + ' dia(s) guardado(s) com sucesso.', 'sucesso');
-    } else {
-      mostrarToast('⚠️ ' + sucesso + ' guardado(s), ' + falhou + ' com erro. Volte a tentar guardar para os dias em falta.', 'aviso');
-    }
+    // Preservar extras já guardados — a grelha só edita países.
+    var ext = _dadosExtras[data] || {};
+    return {
+      data:        data,
+      paises:      finais,
+      operadores:  ext.operadores  || [],
+      sugestoes:   ext.sugestoes   || [],
+      observacoes: ext.observacoes || ''
+    };
   });
+
+  chamarAPI('guardarRegistosLote', { local: _localAtual, registos: registos })
+    .then(function(resp) {
+      if (btnG) { btnG.disabled = false; btnG.textContent = '💾 Guardar alterações'; }
+
+      if (resp.sucesso) {
+        datas.forEach(function(data) {
+          if (!_dadosMes[data]) _dadosMes[data] = {};
+          Object.keys(_alteracoes[data] || {}).forEach(function(p) {
+            _dadosMes[data][p] = _alteracoes[data][p];
+          });
+        });
+        _alteracoes = {}; _totalAlteracoes = 0;
+        _atualizarBarraAlteracoes();
+        document.querySelectorAll('.cel-input.alterada').forEach(function(el) {
+          el.classList.remove('alterada');
+        });
+        mostrarToast('✓ ' + resp.mensagem, 'sucesso');
+      } else {
+        mostrarToast('⚠️ Erro: ' + resp.mensagem, 'erro');
+        _atualizarBarraAlteracoes();
+      }
+    })
+    .catch(function(err) {
+      if (btnG) { btnG.disabled = false; btnG.textContent = '💾 Guardar alterações'; }
+      mostrarToast('Erro ao guardar: ' + err.message, 'erro');
+    });
 }
 
   function descartarAlteracoes() {
