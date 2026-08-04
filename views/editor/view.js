@@ -534,15 +534,21 @@
   function fecharModalGuardar() { _fecharModal('modalGuardar'); }
 
   function executarGuardar() {
-    fecharModalGuardar();
-    var datas = Object.keys(_alteracoes);
-    if (!datas.length) return;
+  fecharModalGuardar();
+  var datas = Object.keys(_alteracoes);
+  if (!datas.length) return;
 
-    var btnG = document.getElementById('btnGuardarTudo');
-    if (btnG) { btnG.disabled = true; btnG.textContent = '⏳ A guardar...'; }
-    mostrarToast('A guardar ' + datas.length + ' dia(s)...', 'info');
+  var btnG = document.getElementById('btnGuardarTudo');
+  if (btnG) { btnG.disabled = true; btnG.textContent = '⏳ A guardar 0/' + datas.length + '...'; }
+  mostrarToast('A guardar ' + datas.length + ' dia(s)...', 'info');
 
-    var promessas = datas.map(function(data) {
+  var resultados  = [];
+  var concluidos  = 0;
+
+  // Envio sequencial — evita sobrecarregar a Cloud Function / rate limiter
+  // e evita que um único timeout derrube o Promise.all inteiro.
+  datas.reduce(function(cadeia, data) {
+    return cadeia.then(function() {
       var existentes    = _dadosMes[data] || {};
       var alteracoesDia = _alteracoes[data] || {};
       var finais = {};
@@ -553,40 +559,47 @@
         var v = alteracoesDia[p] || 0;
         if (v > 0) finais[p] = v; else delete finais[p];
       });
+
       return chamarAPI('guardarRegisto', {
         data: data, local: _localAtual, paises: finais,
         operadores: [], sugestoes: [], observacoes: ''
+      })
+      .then(function(resp) { resultados.push({ data: data, resp: resp }); })
+      .catch(function(err) { resultados.push({ data: data, erro: err }); })
+      .then(function() {
+        concluidos++;
+        if (btnG) btnG.textContent = '⏳ A guardar ' + concluidos + '/' + datas.length + '...';
       });
     });
+  }, Promise.resolve())
+  .then(function() {
+    var sucesso = resultados.filter(function(r) { return r.resp && r.resp.sucesso; }).length;
+    var falhou  = resultados.length - sucesso;
+    if (btnG) { btnG.disabled = false; btnG.textContent = '💾 Guardar alterações'; }
 
-    Promise.all(promessas)
-      .then(function(resultados) {
-        var sucesso = resultados.filter(function(r) { return r && r.sucesso; }).length;
-        var falhou  = resultados.length - sucesso;
-        if (btnG) { btnG.disabled = false; btnG.textContent = '💾 Guardar alterações'; }
-        if (falhou === 0) {
-          datas.forEach(function(data) {
-            if (!_dadosMes[data]) _dadosMes[data] = {};
-            Object.keys(_alteracoes[data] || {}).forEach(function(p) {
-              _dadosMes[data][p] = _alteracoes[data][p];
-            });
-          });
-          _alteracoes = {}; _totalAlteracoes = 0;
-          _atualizarBarraAlteracoes();
-          document.querySelectorAll('.cel-input.alterada').forEach(function(el) {
-            el.classList.remove('alterada');
-          });
-          mostrarToast('✓ ' + sucesso + ' dia(s) guardado(s) com sucesso.', 'sucesso');
-        } else {
-          mostrarToast('⚠️ ' + sucesso + ' guardado(s), ' + falhou + ' com erro.', 'aviso');
-          _atualizarBarraAlteracoes();
-        }
-      })
-      .catch(function(err) {
-        if (btnG) { btnG.disabled = false; btnG.textContent = '💾 Guardar alterações'; }
-        mostrarToast('Erro ao guardar: ' + err.message, 'erro');
-      });
-  }
+    // Só remove de _alteracoes os dias com sucesso CONFIRMADO pelo servidor
+    resultados.forEach(function(r) {
+      if (r.resp && r.resp.sucesso) {
+        if (!_dadosMes[r.data]) _dadosMes[r.data] = {};
+        Object.keys(_alteracoes[r.data] || {}).forEach(function(p) {
+          _dadosMes[r.data][p] = _alteracoes[r.data][p];
+        });
+        delete _alteracoes[r.data];
+        document.querySelectorAll('.cel-input.alterada[data-data="' + r.data + '"]')
+          .forEach(function(el) { el.classList.remove('alterada'); });
+      }
+    });
+
+    _totalAlteracoes = _contarAlteracoes();
+    _atualizarBarraAlteracoes();
+
+    if (falhou === 0) {
+      mostrarToast('✓ ' + sucesso + ' dia(s) guardado(s) com sucesso.', 'sucesso');
+    } else {
+      mostrarToast('⚠️ ' + sucesso + ' guardado(s), ' + falhou + ' com erro. Volte a tentar guardar para os dias em falta.', 'aviso');
+    }
+  });
+}
 
   function descartarAlteracoes() {
     if (_totalAlteracoes === 0) return;
