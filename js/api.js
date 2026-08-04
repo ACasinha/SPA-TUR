@@ -121,6 +121,12 @@ function apiGuardarRegisto(payload, onSuccess, onFailure) {
     .catch(function (err) { onFailure({ message: err.message }); });
 }
 
+function apiGuardarRegistosLote(payload, onSuccess, onFailure) {
+  chamarAPI('guardarRegistosLote', payload)
+    .then(onSuccess)
+    .catch(function (err) { onFailure({ message: err.message }); });
+}
+
 function apiCriarUtilizador(payload, onSuccess, onFailure) {
   chamarAPI('criarUtilizador', payload)
     .then(onSuccess)
