@@ -37,7 +37,7 @@
       icone:   'list_alt',
       rota:    '/',
       visible: function(p) {
-        return p.role === 'administrador' || p.role === 'utilizador';
+        return p.role === 'administrador' || p.acessoRegisto === true;
       }
     },
     {
@@ -47,7 +47,6 @@
       rota:    '/dashboard',
       visible: function(p) {
         return p.role === 'administrador'
-            || p.role === 'visualizador'
             || p.acessoDashboard === true;
       }
     },
@@ -466,8 +465,8 @@
   function _labelRole(perfil) {
     if (!perfil) return '';
     if (perfil.role === 'administrador') return 'Administrador';
-    if (perfil.role === 'visualizador')  return 'Visualizador';
     var extras = [];
+    if (perfil.acessoRegisto)     extras.push('Registo');
     if (perfil.acessoDashboard)  extras.push('Dashboard');
     if (perfil.acessoEditor)     extras.push('Editor');
     if (perfil.acessoInventario) extras.push('Inventário');

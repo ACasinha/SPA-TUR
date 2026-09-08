@@ -10,15 +10,15 @@ var ROTAS = {
     view:      'registo',
     titulo:    'Registo Diário',
     deps:      [],
-    acesso:    function(p) { return p.role === 'administrador' || p.role === 'utilizador'; },
-    semAcesso: 'Esta conta não tem acesso à aplicação de registo.'
+    acesso:    function(p) { return p.role === 'administrador' || p.acessoRegisto === true; },
+    semAcesso: 'Esta conta não tem acesso ao registo diário.'
   },
   '/dashboard': {
     view:      'dashboard',
     titulo:    'Dashboard',
     deps:      [],
     acesso:    function(p) {
-      return p.role === 'administrador' || p.role === 'visualizador' || p.acessoDashboard === true;
+      return p.role === 'administrador' || p.acessoDashboard === true;
     },
     semAcesso: 'Não tem permissão para aceder ao dashboard.'
   },

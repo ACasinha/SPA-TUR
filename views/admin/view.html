@@ -8,23 +8,15 @@
   </div>
 
   <div class="roles-legenda" id="rolesLegenda">
-    <div class="role-item">
-      <span class="badge-role badge-admin">Admin</span>
-      <span>Acesso total — registo, dashboard, editor, inventário e gestão de utilizadores</span>
-    </div>
-    <div class="role-item">
-      <span class="badge-role badge-user">Utilizador</span>
-      <span>Acesso ao registo diário de nacionalidades</span>
-    </div>
-    <div class="role-item">
-      <span class="badge-role badge-user badge-user-extra">Utilizador 📊✏️📦</span>
-      <span>Registo diário com acessos opcionais ao dashboard, editor e/ou inventário</span>
-    </div>
-    <div class="role-item">
-      <span class="badge-role badge-visualizador">Visualizador</span>
-      <span>Acesso apenas ao dashboard de análise (só leitura)</span>
-    </div>
+  <div class="role-item">
+    <span class="badge-role badge-admin">Admin</span>
+    <span>Acesso total — registo, dashboard, editor, inventário e gestão de utilizadores</span>
   </div>
+  <div class="role-item">
+    <span class="badge-role badge-user badge-user-extra">Utilizador 📋📊✏️📦</span>
+    <span>Acesso apenas aos módulos atribuídos (Registo Diário, Dashboard, Editor Mensal e/ou Inventário) — tem de ter pelo menos um</span>
+  </div>
+</div>
 
   <div class="users-table-container">
     <div class="loading-overlay" id="loadingUsers">
@@ -61,12 +53,14 @@
         <input type="password" id="userPassword" placeholder="Mínimo 6 caracteres"></div>
       <div class="form-group"><label>Role *</label>
         <select id="userRole" onchange="window.__admin&&window.__admin.onRoleChange('userRole','roleInfoNovo','grupoAcessosNovo')">
-          <option value="utilizador">Utilizador — Registo diário</option>
-          <option value="visualizador">Visualizador — Apenas dashboard</option>
+          <option value="utilizador">Utilizador</option>
           <option value="administrador">Administrador — Acesso total</option>
         </select></div>
       <div class="role-info" id="roleInfoNovo"></div>
       <div id="grupoAcessosNovo">
+        <div class="form-group"><label class="checkbox-label">
+          <input type="checkbox" id="userAcessoRegisto">
+          <span>Permitir acesso ao Registo Diário</span></label></div>
         <div class="form-group"><label class="checkbox-label">
           <input type="checkbox" id="userAcessoDashboard">
           <span>Permitir acesso ao Dashboard</span></label></div>
@@ -97,12 +91,14 @@
         <input type="email" id="editUserEmail" disabled style="opacity:0.6"></div>
       <div class="form-group"><label>Role *</label>
         <select id="editUserRole" onchange="window.__admin&&window.__admin.onRoleChange('editUserRole','roleInfoEditar','grupoAcessosEditar')">
-          <option value="utilizador">Utilizador — Registo diário</option>
-          <option value="visualizador">Visualizador — Apenas dashboard</option>
+          <option value="utilizador">Utilizador</option>
           <option value="administrador">Administrador — Acesso total</option>
         </select></div>
       <div class="role-info" id="roleInfoEditar"></div>
       <div id="grupoAcessosEditar">
+        <div class="form-group"><label class="checkbox-label">
+          <input type="checkbox" id="editAcessoRegisto">
+          <span>Permitir acesso ao Registo Diário</span></label></div>
         <div class="form-group"><label class="checkbox-label">
           <input type="checkbox" id="editAcessoDashboard">
           <span>Permitir acesso ao Dashboard</span></label></div>

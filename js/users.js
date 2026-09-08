@@ -31,7 +31,7 @@ var _timestampCache  = 0;
 var CACHE_TTL_MS     = 5 * 60 * 1000; // 5 minutos
 
 // Roles aceites pela aplicação
-var ROLES_VALIDAS = ['utilizador', 'visualizador', 'administrador'];
+var ROLES_VALIDAS = ['utilizador', 'administrador'];
 
 // ============================================================
 // obterPerfilUtilizador
@@ -90,9 +90,13 @@ function limparCacheUtilizador() {
 // Cada um aceita um objecto perfil e devolve boolean.
 // ============================================================
 
+function _temAcessoRegisto(perfil) {
+  return perfil.role === 'administrador'
+      || perfil.acessoRegisto === true;
+}
+
 function _temAcessoDashboard(perfil) {
   return perfil.role === 'administrador'
-      || perfil.role === 'visualizador'
       || perfil.acessoDashboard === true;
 }
 
@@ -113,6 +117,10 @@ function _eAdmin(perfil) {
 // Versões assíncronas — usadas quando o perfil ainda não está em cache
 function verificarSeAdmin() {
   return obterPerfilUtilizador().then(_eAdmin).catch(function () { return false; });
+}
+
+function verificarAcessoRegisto() {
+  return obterPerfilUtilizador().then(_temAcessoRegisto).catch(function () { return false; });
 }
 
 function verificarAcessoDashboard() {
@@ -236,6 +244,7 @@ function _criarPerfilBase(user) {
     email:            user.email,
     nome:             user.displayName || user.email.split('@')[0],
     role:             'utilizador',
+    acessoRegisto:    true,   // preserva o comportamento antigo (role utilizador = acesso ao registo)
     acessoDashboard:  false,
     acessoEditor:     false,
     acessoInventario: false,
@@ -250,9 +259,8 @@ function _criarPerfilBase(user) {
     });
 }
 
-// Garante retrocompatibilidade: campos booleanos opcionais
-// podem estar ausentes em documentos criados antes da sua adição.
 function _normalizarPerfil(perfil) {
+  if (perfil.acessoRegisto    === undefined) perfil.acessoRegisto    = true; // retrocompat: docs antigos de 'utilizador' tinham acesso implícito
   if (perfil.acessoDashboard  === undefined) perfil.acessoDashboard  = false;
   if (perfil.acessoEditor     === undefined) perfil.acessoEditor     = false;
   if (perfil.acessoInventario === undefined) perfil.acessoInventario = false;
