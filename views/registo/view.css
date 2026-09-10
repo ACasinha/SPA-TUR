@@ -236,7 +236,7 @@ table tbody tr:hover { background: rgba(0,0,0,0.04); }
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--background);
+  background: var(--elementos);
   padding: 0 12px;
   transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
