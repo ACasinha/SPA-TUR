@@ -27,6 +27,11 @@
   --vermelho:     #c0392b;
   --vermelho-light: #e74c3c;
 
+  --background: #FDFAF6;
+  --elementos: #FFFFFF;
+  --texto: #2C2C2C;
+  --subtexto: #5A5A5A;
+
   /* Feedback de estado */
   --cor-sucesso:    var(--verde);
   --cor-sucesso-bg: rgba(61, 90, 62, 0.08);
@@ -86,8 +91,11 @@
 }
 
 [data-theme="dark"] {
-  --branco: #1a1a1a;
-  --text-color: #f0f0f0;
+  --background: #121212;
+  --elementos: #1E1E1E;
+  --texto: #E0E0E0;
+  --subtexto: #A0A0A0;
+  --border: #2C2C2C;
 }
 
 html {
