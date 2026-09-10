@@ -7,6 +7,13 @@
 
 var ROTAS = {
   '/': {
+    view:      'inicio',
+    titulo:    'Início',
+    deps:      [],
+    acesso:    function(p) { return true; },
+    semAcesso: ''
+  },
+  '/registo': {
     view:      'registo',
     titulo:    'Registo Diário',
     deps:      [],
