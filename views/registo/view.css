@@ -212,7 +212,7 @@ table tbody tr:hover { background: rgba(0,0,0,0.04); }
 }
 
 /* Destaque */
-.row-destaque td { background: var(--background) }
+.row-destaque td { background: var(--elementos) }
 .row-destaque td:first-child { color: var(--terra); font-weight: 700; }
 
 /* ============================================================
@@ -456,7 +456,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 .sug-table td:last-child { width:clamp(110px,25vw,160px); }
 
 .op-table th, .sug-table th {
-  background: white;
+  background: var(--elementos);
   padding: clamp(7px,1.5vw,9px) clamp(8px,1.5vw,12px);
   font-size:var(--text-xs); text-transform:uppercase;
   letter-spacing:1px; color:var(--texto); font-weight:700;
