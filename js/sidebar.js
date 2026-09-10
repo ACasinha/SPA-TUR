@@ -9,6 +9,7 @@
 //   • Expor zona sidebar-header-extra para as views
 //   • Redirecionar spaSetHeader({ direita }) para a sidebar
 //     em desktop, mantendo compatibilidade com o header em mobile
+//
 // ============================================================
 
 'use strict';
@@ -28,63 +29,57 @@
   var _sidebarEl           = null;
   var _shellMainEl         = null;
   var _construida          = false;
+  var _resizeListenerLigado = false; // NOVO — garante que o resize é ligado uma única vez, sempre
 
   // ── Itens de menu — espelham os do nav-menu.js ──────────────
   var MENU_ITEMS = [
-  {
-    id:      'sb-inicio',
-    label:   'Início',
-    icone:   'home',
-    rota:    '/',
-    visible: function(p) { return true; }
-  },
-  {
-    id:      'sb-registo',
-    label:   'Registo Diário',
-    icone:   'list_alt',
-    rota:    '/registo',
-    visible: function(p) {
-      return p.role === 'administrador' || p.acessoRegisto === true;
+    {
+      id:      'sb-registo',
+      label:   'Registo Diário',
+      icone:   'list_alt',
+      rota:    '/',
+      visible: function(p) {
+        return p.role === 'administrador' || p.acessoRegisto === true;
+      }
+    },
+    {
+      id:      'sb-dashboard',
+      label:   'Dashboard',
+      icone:   'analytics',
+      rota:    '/dashboard',
+      visible: function(p) {
+        return p.role === 'administrador'
+            || p.acessoDashboard === true;
+      }
+    },
+    {
+      id:      'sb-editor',
+      label:   'Editor Mensal',
+      icone:   'edit_document',
+      rota:    '/editor',
+      visible: function(p) {
+        return p.role === 'administrador' || p.acessoEditor === true;
+      }
+    },
+    {
+      id:      'sb-inventario',
+      label:   'Inventário de Material',
+      icone:   'inventory_2',
+      rota:    '/inventario',
+      visible: function(p) {
+        return p.role === 'administrador' || p.acessoInventario === true;
+      }
+    },
+    {
+      id:      'sb-admin',
+      label:   'Gestão de Utilizadores',
+      icone:   'admin_panel_settings',
+      rota:    '/admin',
+      visible: function(p) {
+        return p.role === 'administrador';
+      }
     }
-  },
-  {
-    id:      'sb-dashboard',
-    label:   'Dashboard',
-    icone:   'analytics',
-    rota:    '/dashboard',
-    visible: function(p) {
-      return p.role === 'administrador'
-          || p.acessoDashboard === true;
-    }
-  },
-  {
-    id:      'sb-editor',
-    label:   'Editor Mensal',
-    icone:   'edit_document',
-    rota:    '/editor',
-    visible: function(p) {
-      return p.role === 'administrador' || p.acessoEditor === true;
-    }
-  },
-  {
-    id:      'sb-inventario',
-    label:   'Inventário de Material',
-    icone:   'inventory_2',
-    rota:    '/inventario',
-    visible: function(p) {
-      return p.role === 'administrador' || p.acessoInventario === true;
-    }
-  },
-  {
-    id:      'sb-admin',
-    label:   'Gestão de Utilizadores',
-    icone:   'admin_panel_settings',
-    rota:    '/admin',
-    visible: function(p) {
-      return p.role === 'administrador';
-    }
-  }
-];
+  ];
 
   // ============================================================
   // INICIALIZAÇÃO
@@ -93,6 +88,13 @@
   function construirSidebar(perfil) {
     _perfil    = perfil;
     _colapsada = localStorage.getItem(CHAVE_ESTADO) === '1';
+
+    // FIX: ligar o listener de resize SEMPRE, antes de qualquer
+    // early-return por breakpoint. Assim, mesmo que esta primeira
+    // chamada ocorra com a janela em modo mobile (ex: DevTools
+    // aberto), uma mudança de largura subsequente continua a ser
+    // detectada e a sidebar/shell é reconstruída correctamente.
+    _ligarResizeListener();
 
     // Só em desktop
     if (!_eDesktop()) {
@@ -106,9 +108,12 @@
 
     // Interceptar spaSetHeader para redirecionar o conteúdo direito
     _interceptarSpaSetHeader();
+  }
 
-    // Listener de resize para activar/desactivar
+  function _ligarResizeListener() {
+    if (_resizeListenerLigado) return;
     window.addEventListener('resize', _onResize);
+    _resizeListenerLigado = true;
   }
 
   // ============================================================
@@ -396,8 +401,11 @@
   // ============================================================
 
   function _interceptarSpaSetHeader() {
-    // Guardar a função original
-    var _spaSetHeaderOriginal = window.spaSetHeader;
+    // Guardar a função original apenas se ainda não estiver guardada,
+    // para não perder a referência original em reconstruções sucessivas.
+    if (!window._spaSetHeaderOriginal) {
+      window._spaSetHeaderOriginal = window.spaSetHeader;
+    }
 
     window.spaSetHeader = function(opcoes) {
       opcoes = opcoes || {};
@@ -425,9 +433,6 @@
         }
       }
     };
-
-    // Guardar referência ao original para o reset
-    window._spaSetHeaderOriginal = _spaSetHeaderOriginal;
   }
 
   // ============================================================
