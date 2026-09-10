@@ -51,6 +51,7 @@
 }
 .filtro-grupo select,
 .filtro-grupo input[type="month"] {
+  width: 100%;
   border: 1.5px solid var(--cinza-claro);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
