@@ -212,7 +212,7 @@ table tbody tr:hover { background: rgba(0,0,0,0.04); }
 }
 
 /* Destaque */
-.row-destaque td { background: white }
+.row-destaque td { background: var(--background) }
 .row-destaque td:first-child { color: var(--terra); font-weight: 700; }
 
 /* ============================================================
@@ -347,7 +347,7 @@ table tbody tr:hover { background: rgba(0,0,0,0.04); }
   width: clamp(72px, 14vw, 96px);
   min-width: 72px;
   flex-shrink: 0;
-  border: 1.5px solid var(--subtexto);
+  border: 1.5px solid var(--cinza-claro);
   border-radius: 7px;
   padding: 8px 4px;
   text-align: center;
