@@ -131,7 +131,9 @@
                 onclick="instalarApp()" title="Instalar app">
           <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">install_desktop</span> Instalar app
         </button>
-        <button class="btn-rodape" id="theme-toggle">Alternar Tema</button>
+        <button class="btn-rodape" id="theme-toggle">
+          <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">dark_mode</span>Alterar Tema
+        </button>
       </div>
     </div>
   </footer>
@@ -178,22 +180,37 @@
 <script defer src="js/sidebar.js"></script>
 
   <script>
-const toggleBtn = document.getElementById('theme-toggle');
+const themeToggleBtn = document.getElementById('theme-toggle');
+const themeIcon = document.getElementById('theme-icon');
 const currentTheme = localStorage.getItem('theme');
 
-// Verificar se já havia um tema guardado
-if (currentTheme) {
-  document.documentElement.setAttribute('data-theme', currentTheme);
+// Função para atualizar o ícone visualmente
+function updateIcon(theme) {
+  if (theme === 'dark') {
+    themeIcon.textContent = 'light_mode'; // Mostra o sol se estiver dark
+  } else {
+    themeIcon.textContent = 'dark_mode';  // Mostra a lua se estiver light
+  }
 }
 
-toggleBtn.addEventListener('click', () => {
+// Verificar o tema guardado ao carregar a página
+if (currentTheme) {
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  updateIcon(currentTheme);
+}
+
+// Detetar o clique no botão
+themeToggleBtn.addEventListener('click', () => {
   let theme = document.documentElement.getAttribute('data-theme');
+  
   if (theme === 'dark') {
     document.documentElement.setAttribute('data-theme', 'light');
     localStorage.setItem('theme', 'light');
+    updateIcon('light');
   } else {
     document.documentElement.setAttribute('data-theme', 'dark');
     localStorage.setItem('theme', 'dark');
+    updateIcon('dark');
   }
 });
 
