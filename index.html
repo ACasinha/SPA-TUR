@@ -179,7 +179,13 @@
 <script defer src="js/pwa.js"></script>
 <script defer src="js/sidebar.js"></script>
 
-  <script>
+<!-- Router — carrega após os módulos base -->
+<script defer src="js/router.js"></script>
+
+<!-- Arranque da SPA -->
+<script defer src="js/app-shell.js"></script>
+
+<script>
 const themeToggleBtn = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
 const currentTheme = localStorage.getItem('theme');
@@ -215,12 +221,5 @@ themeToggleBtn.addEventListener('click', () => {
 });
 
   </script>
-
-<!-- Router — carrega após os módulos base -->
-<script defer src="js/router.js"></script>
-
-<!-- Arranque da SPA -->
-<script defer src="js/app-shell.js"></script>
-
 </body>
 </html>
