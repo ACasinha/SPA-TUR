@@ -73,7 +73,7 @@ textarea {
   padding: clamp(10px, 2vw, 12px) clamp(12px, 2.5vw, 14px);
   font-size: var(--text-base);
   color: var(--texto);
-  background: var(--background);
+  background: var(--elementos);
   transition: border-color var(--transition-base),
               box-shadow var(--transition-base),
               background var(--transition-base);
