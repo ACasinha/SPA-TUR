@@ -186,37 +186,27 @@
 <script defer src="js/app-shell.js"></script>
 
 <script>
-const themeToggleBtn = document.getElementById('theme-toggle');
-const themeIcon = document.getElementById('theme-icon');
-const currentTheme = localStorage.getItem('theme');
+// 1. Verificar e aplicar o tema imediatamente (evita o "flash" branco)
+const currentTheme = localStorage.getItem('theme') || 'light';
+document.documentElement.setAttribute('data-theme', currentTheme);
 
-// Função para atualizar o ícone visualmente
-function updateIcon(theme) {
-  if (theme === 'dark') {
-    themeIcon.textContent = 'light_mode'; // Mostra o sol se estiver dark
-  } else {
-    themeIcon.textContent = 'dark_mode';  // Mostra a lua se estiver light
-  }
-}
+// 2. Ouvir cliques no DOCUMENT (Delegação de Eventos)
+document.addEventListener('click', (e) => {
+  // Verifica se o clique foi no botão ou dentro do botão (no ícone)
+  const btn = e.target.closest('#theme-toggle');
+  if (!btn) return; // Se não for o botão do tema, ignora
 
-// Verificar o tema guardado ao carregar a página
-if (currentTheme) {
-  document.documentElement.setAttribute('data-theme', currentTheme);
-  updateIcon(currentTheme);
-}
+  const themeIcon = btn.querySelector('#theme-icon');
+  let currentTheme = document.documentElement.getAttribute('data-theme');
+  let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-// Detetar o clique no botão
-themeToggleBtn.addEventListener('click', () => {
-  let theme = document.documentElement.getAttribute('data-theme');
-  
-  if (theme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'light');
-    localStorage.setItem('theme', 'light');
-    updateIcon('light');
-  } else {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    localStorage.setItem('theme', 'dark');
-    updateIcon('dark');
+  // Atualiza o HTML e o LocalStorage
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+
+  // Atualiza o texto do ícone diretamente a partir do botão clicado
+  if (themeIcon) {
+    themeIcon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
   }
 });
 
