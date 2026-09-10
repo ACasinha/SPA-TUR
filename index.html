@@ -131,6 +131,7 @@
                 onclick="instalarApp()" title="Instalar app">
           <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">install_desktop</span> Instalar app
         </button>
+        <button class="btn-rodape" id="theme-toggle">Alternar Tema</button>
       </div>
     </div>
   </footer>
@@ -175,6 +176,28 @@
 <script defer src="js/nav-menu.js"></script>
 <script defer src="js/pwa.js"></script>
 <script defer src="js/sidebar.js"></script>
+
+  <script>
+const toggleBtn = document.getElementById('theme-toggle');
+const currentTheme = localStorage.getItem('theme');
+
+// Verificar se já havia um tema guardado
+if (currentTheme) {
+  document.documentElement.setAttribute('data-theme', currentTheme);
+}
+
+toggleBtn.addEventListener('click', () => {
+  let theme = document.documentElement.getAttribute('data-theme');
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    localStorage.setItem('theme', 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
+  }
+});
+
+  </script>
 
 <!-- Router — carrega após os módulos base -->
 <script defer src="js/router.js"></script>
