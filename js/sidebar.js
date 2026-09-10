@@ -33,54 +33,61 @@
 
   // ── Itens de menu — espelham os do nav-menu.js ──────────────
   var MENU_ITEMS = [
-    {
-      id:      'sb-registo',
-      label:   'Registo Diário',
-      icone:   'list_alt',
-      rota:    '/',
-      visible: function(p) {
-        return p.role === 'administrador' || p.acessoRegisto === true;
-      }
-    },
-    {
-      id:      'sb-dashboard',
-      label:   'Dashboard',
-      icone:   'analytics',
-      rota:    '/dashboard',
-      visible: function(p) {
-        return p.role === 'administrador'
-            || p.acessoDashboard === true;
-      }
-    },
-    {
-      id:      'sb-editor',
-      label:   'Editor Mensal',
-      icone:   'edit_document',
-      rota:    '/editor',
-      visible: function(p) {
-        return p.role === 'administrador' || p.acessoEditor === true;
-      }
-    },
-    {
-      id:      'sb-inventario',
-      label:   'Inventário de Material',
-      icone:   'inventory_2',
-      rota:    '/inventario',
-      visible: function(p) {
-        return p.role === 'administrador' || p.acessoInventario === true;
-      }
-    },
-    {
-      id:      'sb-admin',
-      label:   'Gestão de Utilizadores',
-      icone:   'admin_panel_settings',
-      rota:    '/admin',
-      visible: function(p) {
-        return p.role === 'administrador';
-      }
+  {
+    id:      'sb-inicio',
+    label:   'Início',
+    icone:   'home',
+    rota:    '/',
+    visible: function(p) { return true; }
+  },
+  {
+    id:      'sb-registo',
+    label:   'Registo Diário',
+    icone:   'list_alt',
+    rota:    '/registo',
+    visible: function(p) {
+      return p.role === 'administrador' || p.acessoRegisto === true;
     }
-  ];
-
+  },
+  {
+    id:      'sb-dashboard',
+    label:   'Dashboard',
+    icone:   'analytics',
+    rota:    '/dashboard',
+    visible: function(p) {
+      return p.role === 'administrador'
+          || p.acessoDashboard === true;
+    }
+  },
+  {
+    id:      'sb-editor',
+    label:   'Editor Mensal',
+    icone:   'edit_document',
+    rota:    '/editor',
+    visible: function(p) {
+      return p.role === 'administrador' || p.acessoEditor === true;
+    }
+  },
+  {
+    id:      'sb-inventario',
+    label:   'Inventário de Material',
+    icone:   'inventory_2',
+    rota:    '/inventario',
+    visible: function(p) {
+      return p.role === 'administrador' || p.acessoInventario === true;
+    }
+  },
+  {
+    id:      'sb-admin',
+    label:   'Gestão de Utilizadores',
+    icone:   'admin_panel_settings',
+    rota:    '/admin',
+    visible: function(p) {
+      return p.role === 'administrador';
+    }
+  }
+];
+  
   // ============================================================
   // INICIALIZAÇÃO
   // ============================================================
