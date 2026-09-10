@@ -15,48 +15,54 @@
   var _menuAberto = false;
 
   var MENU_ITEMS = [
-    {
-      id:    'nav-app',
-      label: '<span class="material-symbols-rounded">list_alt</span><span class="nav-text-wrapper">Registo Diário</span>',
-      rota:  '/',
-      visible: function(p) {
-        return p.role === 'administrador' || p.acessoRegisto === true;
-      }
-    },
-    {
-      id:    'nav-dashboard',
-      label: '<span class="material-symbols-rounded">analytics</span><span class="nav-text-wrapper">Dashboard</span>',
-      rota:  '/dashboard',
-      visible: function(p) {
-        return p.role === 'administrador'
-            || p.acessoDashboard === true;
-      }
-    },
-    {
-      id:    'nav-editor',
-      label: '<span class="material-symbols-rounded">edit_document</span><span class="nav-text-wrapper">Editor Mensal</span>',
-      rota:  '/editor',
-      visible: function(p) {
-        return p.role === 'administrador' || p.acessoEditor === true;
-      }
-    },
-    {
-      id:    'nav-inventario',
-      label: '<span class="material-symbols-rounded">inventory_2</span><span class="nav-text-wrapper">Inventário de Material</span>',
-      rota:  '/inventario',
-      visible: function(p) {
-        return p.role === 'administrador' || p.acessoInventario === true;
-      }
-    },
-    {
-      id:    'nav-admin',
-      label: '<span class="material-symbols-rounded">admin_panel_settings</span><span class="nav-text-wrapper">Gestão de Utilizadores</span>',
-      rota:  '/admin',
-      visible: function(p) {
-        return p.role === 'administrador';
-      }
+  {
+    id:    'nav-inicio',
+    label: '<span class="material-symbols-rounded">home</span><span class="nav-text-wrapper">Início</span>',
+    rota:  '/',
+    visible: function(p) { return true; }
+  },
+  {
+    id:    'nav-app',
+    label: '<span class="material-symbols-rounded">list_alt</span><span class="nav-text-wrapper">Registo Diário</span>',
+    rota:  '/registo',
+    visible: function(p) {
+      return p.role === 'administrador' || p.acessoRegisto === true;
     }
-  ];
+  },
+  {
+    id:    'nav-dashboard',
+    label: '<span class="material-symbols-rounded">analytics</span><span class="nav-text-wrapper">Dashboard</span>',
+    rota:  '/dashboard',
+    visible: function(p) {
+      return p.role === 'administrador'
+          || p.acessoDashboard === true;
+    }
+  },
+  {
+    id:    'nav-editor',
+    label: '<span class="material-symbols-rounded">edit_document</span><span class="nav-text-wrapper">Editor Mensal</span>',
+    rota:  '/editor',
+    visible: function(p) {
+      return p.role === 'administrador' || p.acessoEditor === true;
+    }
+  },
+  {
+    id:    'nav-inventario',
+    label: '<span class="material-symbols-rounded">inventory_2</span><span class="nav-text-wrapper">Inventário de Material</span>',
+    rota:  '/inventario',
+    visible: function(p) {
+      return p.role === 'administrador' || p.acessoInventario === true;
+    }
+  },
+  {
+    id:    'nav-admin',
+    label: '<span class="material-symbols-rounded">admin_panel_settings</span><span class="nav-text-wrapper">Gestão de Utilizadores</span>',
+    rota:  '/admin',
+    visible: function(p) {
+      return p.role === 'administrador';
+    }
+  }
+];
 
   // ── Rota actual ───────────────────────────────────────────
   function rotaActual() {
