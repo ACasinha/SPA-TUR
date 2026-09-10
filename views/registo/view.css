@@ -277,7 +277,7 @@ table tbody tr:hover { background: rgba(0,0,0,0.04); }
 .lista-pesquisa-paises {
   display: none;
   /* position e top/left/width definidos por JS via getBoundingClientRect */
-  background: white;
+  background: var(--elementos);
   border: 1.5px solid var(--subtexto);
   border-radius: var(--radius-sm);
   box-shadow: 0 8px 24px rgba(139,74,43,0.15);
