@@ -756,7 +756,7 @@ input[type="number"] {
 
 .btn-guardar {
   background: var(--terra);
-  color:var(--texto);; box-shadow:0 4px 14px rgba(139,74,43,0.35);
+  color:var(--texto); box-shadow:0 4px 14px rgba(139,74,43,0.35);
 }
 .btn-guardar:hover:not(:disabled)  { transform:translateY(-1px); box-shadow:0 6px 20px rgba(139,74,43,0.45); }
 .btn-guardar:active:not(:disabled) { transform:translateY(1px);  box-shadow:0 2px 8px rgba(139,74,43,0.25); }
