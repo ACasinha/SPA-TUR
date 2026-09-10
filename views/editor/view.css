@@ -31,12 +31,12 @@
 .painel-controlo {
   background: white;
   border-radius: var(--radius);
-  padding: clamp(14px,3vw,20px);
+  padding: var(--spacing-md) var(--spacing-lg);
   margin-bottom: var(--gap);
   box-shadow: var(--sombra);
   display: flex;
   flex-wrap: wrap;
-  gap: clamp(10px,2vw,16px);
+  gap: var(--spacing-md);
   align-items: flex-end;
 }
 
