@@ -68,7 +68,7 @@ input[type="date"],
 select:not(.op-nac-select):not(.sug-nac),
 textarea {
   width: 100%;
-  border: 1.5px solid var(--cinza-claro);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   padding: clamp(10px, 2vw, 12px) clamp(12px, 2.5vw, 14px);
   font-size: var(--text-base);
@@ -347,7 +347,7 @@ table tbody tr:hover { background: rgba(0,0,0,0.04); }
   width: clamp(72px, 14vw, 96px);
   min-width: 72px;
   flex-shrink: 0;
-  border: 1.5px solid var(--cinza-claro);
+  border: 1.5px solid var(--border);
   border-radius: 7px;
   padding: 8px 4px;
   text-align: center;
@@ -372,7 +372,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 
 .btn-stepper {
   width: 36px; height: 36px;
-  border: 1.5px solid var(--cinza-claro);
+  border: 1.5px solid var(--border);
   border-radius: 7px; background: var(--background);
   font-size: 1.25rem; font-weight: 700; line-height: 1;
   display: flex; align-items: center; justify-content: center;
@@ -401,7 +401,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 
 .op-nac-linha select {
   flex:1; min-width:0;
-  border:1.5px solid var(--cinza-claro); border-radius:6px;
+  border:1.5px solid var(--border); border-radius:6px;
   padding:6px 8px;
   font-size:var(--text-sm);
   background:var(--background); color:var(--texto);
@@ -414,7 +414,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 
 .op-nac-linha input[type="number"] {
   width:60px; flex-shrink:0;
-  border:1.5px solid var(--cinza-claro); border-radius:6px;
+  border:1.5px solid var(--border); border-radius:6px;
   padding:6px 4px; text-align:center;
   font-size:var(--text-sm); background:var(--background);
   min-height:34px; -webkit-appearance:none;
@@ -430,7 +430,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 .btn-rem-nac:hover { background:rgba(192,57,43,0.08); }
 
 .btn-add-nac {
-  background:none; border:1.5px dashed var(--cinza-claro);
+  background:none; border:1.5px dashed var(--border);
   color:var(--subtexto); border-radius:6px;
   padding:4px 10px; font-size:var(--text-xs);
   cursor:pointer; width:100%; text-align:left;
@@ -440,7 +440,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 .btn-add-nac:hover { border-color:var(--terra-light); color:var(--terra); }
 
 .sug-nac {
-  width:100%; border:1.5px solid var(--cinza-claro); border-radius:6px;
+  width:100%; border:1.5px solid var(--border); border-radius:6px;
   padding:7px 26px 7px 8px;
   font-size:var(--text-sm); background:var(--background); color:var(--texto);
   -webkit-appearance:none; appearance:none;
@@ -467,7 +467,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 }
 
 .op-table input, .sug-table input {
-  width:100%; border:1.5px solid var(--cinza-claro); border-radius:6px;
+  width:100%; border:1.5px solid var(--border); border-radius:6px;
   padding: clamp(7px,1.5vw,8px) clamp(7px,1.5vw,10px);
   font-size:var(--text-sm); background:var(--background);
   transition:border-color 0.2s; -webkit-appearance:none; min-height:38px;
@@ -555,7 +555,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
    OBSERVAÇÕES
 ============================================================ */
 .obs-area {
-  width:100%; border:1.5px solid var(--cinza-claro); border-radius:10px;
+  width:100%; border:1.5px solid var(--border); border-radius:10px;
   padding: clamp(10px,2vw,14px);
   font-size:var(--text-base); min-height:80px; resize:vertical;
   background:var(--background); transition:border-color 0.2s;
@@ -613,7 +613,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 .btn-pdf-opcao {
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   padding: var(--spacing-md) var(--spacing-sm);
-  background: var(--terra-pale); border: 2px solid var(--cinza-claro);
+  background: var(--terra-pale); border: 2px solid var(--border);
   border-radius: var(--radius); cursor: pointer; text-align: center;
   transition: all var(--transition-base);
 }
@@ -626,7 +626,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 
 .btn-pdf-fechar {
   width:100%; padding:10px;
-  background:none; border:1.5px solid var(--cinza-claro);
+  background:none; border:1.5px solid var(--border);
   border-radius:var(--radius-sm); color:var(--subtexto);
   font-size:var(--text-sm); cursor:pointer;
   transition:border-color var(--transition-base); min-height:40px;
@@ -674,7 +674,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 .btn-novo-operador {
   width: 100%;
   background: var(--background);
-  border: 1.5px solid var(--cinza-claro);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--terra);
   font-size: var(--text-sm);
@@ -706,7 +706,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 ============================================================ */
 .op-cartao {
   background: var(--background2);
-  border: 1.5px solid var(--cinza-claro);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
   margin-bottom: 12px;
@@ -723,7 +723,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 
 .op-cartao-nome {
   width: 100%;
-  border: 1.5px solid var(--cinza-claro);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
   font-size: var(--text-base);
@@ -760,7 +760,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 .op-cartao-nac-select {
   flex: 1;
   min-width: 0;
-  border: 1.5px solid var(--cinza-claro);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 8px 26px 8px 10px;
   font-size: var(--text-sm);
@@ -783,7 +783,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 .op-cartao-nac-num {
   width: 64px !important;
   flex-shrink: 0;
-  border: 1.5px solid var(--cinza-claro) !important;
+  border: 1.5px solid var(--border) !important;
   border-radius: var(--radius-sm) !important;
   padding: 8px 4px !important;
   text-align: center;
@@ -834,7 +834,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
   width: calc(100% - 28px);
   margin: 2px 14px 10px;
   background: var(--background);
-  border: 1.5px solid var(--cinza-claro);
+  border: 1.5px solid var(--border);
   color: var(--terra);
   border-radius: var(--radius-sm);
   padding: 7px 10px;
@@ -876,7 +876,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 
 .op-cartao-total {
   width: 80px !important;
-  border: 1.5px solid var(--cinza-claro) !important;
+  border: 1.5px solid var(--border) !important;
   border-radius: var(--radius-sm) !important;
   padding: 8px 10px !important;
   text-align: center;
