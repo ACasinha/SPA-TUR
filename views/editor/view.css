@@ -54,15 +54,16 @@
   width: 100%;
   border: 1.5px solid var(--cinza-claro);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  padding: clamp(10px, 2vw, 12px) clamp(12px, 2.5vw, 14px);
   font-size: var(--text-base);
   color: var(--cinza-escuro);
   background: var(--branco);
-  min-height: 44px;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), background var(--transition-base);
   -webkit-appearance: none;
   appearance: none;
-  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  min-height: 50px;
 }
+
 .filtro-grupo select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%233D5A3E' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -76,7 +77,7 @@
 }
 
 .btn-carregar {
-  background: linear-gradient(135deg, var(--verde) 0%, var(--verde-dark) 100%);
+  background: var(--verde-dark);
   color: white; border-radius: var(--radius-sm);
   padding: 11px 20px; font-size: var(--text-base); font-weight: 700;
   min-height: 44px; white-space: nowrap; flex-shrink: 0;
