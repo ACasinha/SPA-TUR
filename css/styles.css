@@ -32,6 +32,7 @@
   --elementos: #FFFFFF;
   --texto: #2C2C2C;
   --subtexto: #5A5A5A;
+  --border: #E8E0D5;
 
   /* Feedback de estado */
   --cor-sucesso:    var(--verde);
@@ -267,7 +268,7 @@ input[type="number"] {
   color: var(--terra); margin-bottom:6px;
 }
 .login-field input {
-  width:100%; border:2px solid var(--cinza-claro);
+  width:100%; border:2px solid var(--border);
   border-radius:var(--radius-sm);
   padding: clamp(11px,2.5vw,14px) clamp(12px,2.5vw,16px);
   font-size:var(--text-base); color: var(--cinza-escuro);
@@ -312,7 +313,7 @@ input[type="number"] {
 
 .btn-login-pdf {
   width:100%; padding:clamp(10px,2.5vw,12px);
-  background:transparent; border:1.5px solid var(--cinza-claro);
+  background:transparent; border:1.5px solid var(--border);
   color:var(--cinza); border-radius:var(--radius-sm);
   font-size:var(--text-sm); font-weight:600;
   cursor:pointer; margin-top:10px;
@@ -749,7 +750,7 @@ input[type="number"] {
 }
 
 .btn-limpar {
-  background:var(--background2); color:var(--cinza); border:1.5px solid var(--cinza-claro);
+  background:var(--background2); color:var(--cinza); border:1.5px solid var(--border);
 }
 .btn-limpar:hover:not(:disabled)  { border-color:var(--cinza); background:var(--terra-pale); }
 .btn-limpar:active:not(:disabled) { transform:scale(0.97); }
