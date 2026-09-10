@@ -76,7 +76,7 @@ input:-webkit-autofill:focus {
 .admin-container {
   max-width: 860px;
   margin: clamp(12px,4vw,24px) auto;
-  padding: 0 clamp(12px,3vw,20px) clamp(40px,8vw,60px);
+  padding: 0 clamp(12px,3vw,24px) clamp(60px,10vw,90px);
 }
 
 
