@@ -7,7 +7,7 @@
 .inicio-container {
   max-width: 1100px;
   margin: 0 auto;
-  padding: clamp(20px,4vw,36px) clamp(12px,3vw,24px) clamp(60px,8vw,80px);
+  padding: clamp(12px,3vw,24px) clamp(10px,3vw,20px) clamp(60px,10vw,90px);
 }
 
 .inicio-saudacao {
