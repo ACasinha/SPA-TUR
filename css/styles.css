@@ -85,6 +85,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --text-color: #f0f0f0;
+}
+
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
