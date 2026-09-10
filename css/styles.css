@@ -28,6 +28,7 @@
   --vermelho-light: #e74c3c;
 
   --background: #FDFAF6;
+  --background2: #FFFFFF;
   --elementos: #FFFFFF;
   --texto: #2C2C2C;
   --subtexto: #5A5A5A;
@@ -92,6 +93,7 @@
 
 [data-theme="dark"] {
   --background: #121212;
+  --background2: #121212;
   --elementos: #1E1E1E;
   --texto: #E0E0E0;
   --subtexto: #A0A0A0;
@@ -106,8 +108,8 @@ html {
 
 body {
   font-family: 'Source Sans 3', sans-serif;
-  background: var(--branco);
-  color: var(--cinza-escuro);
+  background: var(--background);
+  color: var(--texto);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -148,7 +150,7 @@ input[type="number"] {
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: var(--branco);
+  background: var(--background);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -226,7 +228,7 @@ input[type="number"] {
 ============================================================ */
 .login-overlay {
   position: fixed; inset: 0; z-index: 1000;
-  background: var(--branco);
+  background: var(--background);
   display: flex; align-items: center; justify-content: center;
   padding: clamp(16px, 4vw, 32px);
   transition: opacity 0.5s ease, visibility 0.5s ease;
@@ -236,7 +238,7 @@ input[type="number"] {
 .login-overlay.hidden { opacity:0; visibility:hidden; pointer-events:none; }
 
 .login-card {
-  background: white;
+  background: var(--background2);
   border-radius: var(--radius-xl);
   padding: clamp(28px,6vw,52px) clamp(24px,6vw,48px);
   width: 100%; max-width: 420px;
@@ -269,7 +271,7 @@ input[type="number"] {
   border-radius:var(--radius-sm);
   padding: clamp(11px,2.5vw,14px) clamp(12px,2.5vw,16px);
   font-size:var(--text-base); color: var(--cinza-escuro);
-  background:white; transition: border-color 0.2s, box-shadow 0.2s;
+  background:var(--background2); transition: border-color 0.2s, box-shadow 0.2s;
   -webkit-appearance:none;
 }
 .login-field input:focus {
@@ -289,7 +291,7 @@ input[type="number"] {
   width: 100%;
   padding: clamp(13px, 3vw, 16px);
   background: var(--terra);
-  color: white; border: none;
+  color: var(--background2); border: none;
   border-radius: var(--radius-sm);
   font-size: var(--text-base); font-weight: 700;
   letter-spacing: 0.5px; cursor: pointer;
@@ -323,7 +325,7 @@ input[type="number"] {
    HEADER
 ============================================================ */
 .header {
-  background: var(--branco);
+  background: var(--background);
   color:var(--terra);
   padding: clamp(10px,2.5vw,18px) clamp(12px,3vw,28px);
   display:flex; align-items:center; justify-content:space-between;
@@ -387,7 +389,7 @@ input[type="number"] {
    BANNER PWA
 ============================================================ */
 .install-banner {
-  background: var(--terra); color:white;
+  background: var(--terra); color:var(--texto);
   padding: 10px clamp(12px,3vw,16px); font-size:var(--text-sm);
   display:none; align-items:center; justify-content:center;
   gap:10px; flex-wrap:wrap; text-align:center;
@@ -395,7 +397,7 @@ input[type="number"] {
 .install-banner.visivel { display:flex; }
 
 .btn-instalar {
-  background:white; color:var(--terra); border:none; border-radius:6px;
+  background:var(--background2); color:var(--terra); border:none; border-radius:6px;
   padding:7px 14px; font-weight:700; font-size:var(--text-sm);
   cursor:pointer; white-space:nowrap; touch-action:manipulation; min-height:36px;
 }
@@ -717,7 +719,7 @@ input[type="number"] {
   bottom: clamp(14px,3vw,24px);
   right:  clamp(10px,3vw,24px);
   padding:12px 16px; border-radius:10px;
-  color:white; font-size:var(--text-sm); font-weight:500;
+  color:var(--texto); font-size:var(--text-sm); font-weight:500;
   box-shadow:var(--sombra-forte); z-index:9999;
   transform:translateY(16px); opacity:0; transition:all 0.3s ease;
   pointer-events:none;
@@ -747,14 +749,14 @@ input[type="number"] {
 }
 
 .btn-limpar {
-  background:white; color:var(--cinza); border:1.5px solid var(--cinza-claro);
+  background:var(--background2); color:var(--cinza); border:1.5px solid var(--cinza-claro);
 }
 .btn-limpar:hover:not(:disabled)  { border-color:var(--cinza); background:var(--terra-pale); }
 .btn-limpar:active:not(:disabled) { transform:scale(0.97); }
 
 .btn-guardar {
   background: var(--terra);
-  color:white; box-shadow:0 4px 14px rgba(139,74,43,0.35);
+  color:var(--texto);; box-shadow:0 4px 14px rgba(139,74,43,0.35);
 }
 .btn-guardar:hover:not(:disabled)  { transform:translateY(-1px); box-shadow:0 6px 20px rgba(139,74,43,0.45); }
 .btn-guardar:active:not(:disabled) { transform:translateY(1px);  box-shadow:0 2px 8px rgba(139,74,43,0.25); }
@@ -794,7 +796,7 @@ input[type="number"] {
   touch-action:manipulation; min-height:30px; white-space:nowrap;
   align-items:center; display: inline-flex;
 }
-.btn-rodape:hover    { background:rgba(255,255,255,0.18); color:white; }
+.btn-rodape:hover    { background:rgba(255,255,255,0.18); color:var(--texto); }
 .btn-rodape:disabled { opacity:0.4; cursor:not-allowed; }
 .btn-rodape-instalar { border-color:rgba(240,201,106,0.4); color:var(--ouro-light); }
 .btn-rodape-instalar:hover { background:rgba(240,201,106,0.15); }
