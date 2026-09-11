@@ -10,6 +10,11 @@
 
   var _listeners = [];
 
+  function _al(target, tipo, fn) {
+  target.addEventListener(tipo, fn);
+  _listeners.push({ target: target, tipo: tipo, fn: fn });
+  }
+
   var MODULOS = [
     {
       id:     'registo',
