@@ -73,6 +73,8 @@ function _activarShell(perfil) {
         if (navigator.onLine && typeof syncSincronizarFila === 'function') {
           syncSincronizarFila();
         }
+        if (navigator.onLine && typeof syncSincronizarEstadosEmRevisao === 'function') {
+          syncSincronizarEstadosEmRevisao();
       })
       .catch(function() {});
   }
