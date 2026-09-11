@@ -123,7 +123,7 @@ function _navegar(caminho, pushState) {
       if (pushState) {
         history.pushState({ caminho: caminho }, rota.titulo, '#' + caminho);
       }
-      document.title = rota.titulo + ' — Registo de Nacionalidades';
+      document.title = rota.titulo;
 
       // 1. Desmontar view anterior
       if (_viewActual && typeof _viewActual.unmount === 'function') {
