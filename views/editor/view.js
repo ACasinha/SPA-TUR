@@ -1316,6 +1316,16 @@
 
       var dataFmt = _conflitoActivo.data;
 
+    // actualizar o estado na fila local (IndexedDB), para que
+    // o badge de "registos por sincronizar" deixe de contar este
+    // registo, que já foi resolvido no servidor.
+    if (typeof syncMarcarResolvido === 'function' && _conflitoActivo.idempotencyKey) {
+      syncMarcarResolvido(
+        _conflitoActivo.idempotencyKey,
+        decisao === 'manter_servidor' ? 'rejeitado' : 'aceite_admin'
+      ).catch(function() {}); // falha silenciosa — não bloqueia o fluxo
+    }
+
       // Actualizar dados em memória
       _actualizarColunaAposResolucao(dataFmt, paisesFinais);
 
