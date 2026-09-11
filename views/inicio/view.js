@@ -57,6 +57,22 @@
     }
   ];
 
+
+var TTL_INDICADORES = 3 * 60 * 1000; // 3 minutos
+var _cacheIndicadores = {}; // { chave: { valor, textoOuDados, timestamp } }
+
+function _comCache(chave, fnCarregar) {
+  var agora = Date.now();
+  var entrada = _cacheIndicadores[chave];
+  if (entrada && (agora - entrada.timestamp) < TTL_INDICADORES) {
+    return Promise.resolve(entrada.valor);
+  }
+  return fnCarregar().then(function(valor) {
+    _cacheIndicadores[chave] = { valor: valor, timestamp: agora };
+    return valor;
+  });
+}
+
   // ============================================================
   // CICLO DE VIDA
   // ============================================================
@@ -159,27 +175,31 @@
   // Editor — conflitos pendentes no mês actual, somados por local
   // (reutiliza a action 'obterConflitos' já usada no editor mensal)
   function _carregarIndicadorEditor(idBadge) {
-    var hoje = new Date();
-    var mes  = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0');
-    var locais = []
-      .concat(typeof LOCAIS_DETALHADOS !== 'undefined' ? LOCAIS_DETALHADOS : [])
-      .concat(typeof LOCAIS_SIMPLES    !== 'undefined' ? LOCAIS_SIMPLES    : []);
-    if (!locais.length || typeof chamarAPI !== 'function') return;
+  var hoje = new Date();
+  var mes  = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0');
+  var locais = []
+    .concat(typeof LOCAIS_DETALHADOS !== 'undefined' ? LOCAIS_DETALHADOS : [])
+    .concat(typeof LOCAIS_SIMPLES    !== 'undefined' ? LOCAIS_SIMPLES    : []);
+  if (!locais.length || typeof chamarAPI !== 'function') return;
 
-    Promise.all(locais.map(function(local) {
+  _comCache('editor', function() {
+    return Promise.all(locais.map(function(local) {
       return chamarAPI('obterConflitos', { local: local, mes: mes })
         .then(function(resp) { return (resp && resp.sucesso) ? Object.keys(resp.conflitos || {}).length : 0; })
         .catch(function() { return 0; });
     })).then(function(contagens) {
-      var total = contagens.reduce(function(a, b) { return a + b; }, 0);
-      _actualizarBadge(idBadge, total, total + (total === 1 ? ' conflito pendente' : ' conflitos pendentes'), 'aviso');
+      return contagens.reduce(function(a, b) { return a + b; }, 0);
     });
-  }
+  }).then(function(total) {
+    _actualizarBadge(idBadge, total, total + (total === 1 ? ' conflito pendente' : ' conflitos pendentes'), 'aviso');
+  });
+}
 
   // Inventário — materiais com stock baixo ou esgotado
   function _carregarIndicadorInventario(idBadge) {
-    if (typeof db === 'undefined') return;
-    db.collection('materiais').where('ativo', '==', true).get().then(function(snap) {
+  if (typeof db === 'undefined') return;
+  _comCache('inventario', function() {
+    return db.collection('materiais').where('ativo', '==', true).get().then(function(snap) {
       var n = 0;
       snap.forEach(function(doc) {
         var d = doc.data();
@@ -187,18 +207,24 @@
         Object.keys(d.stockPorLocal || {}).forEach(function(l) { total += (d.stockPorLocal[l] || 0); });
         if (total <= 0 || total < (d.stockMinimo || 0)) n++;
       });
-      _actualizarBadge(idBadge, n, n + (n === 1 ? ' material com stock baixo' : ' materiais com stock baixo'), 'erro');
-    }).catch(function() {});
-  }
+      return n;
+    });
+  }).then(function(n) {
+    _actualizarBadge(idBadge, n, n + (n === 1 ? ' material com stock baixo' : ' materiais com stock baixo'), 'erro');
+  }).catch(function() {});
+}
 
   // Admin — utilizadores activos
   function _carregarIndicadorAdmin(idBadge) {
-    if (typeof listarUtilizadores !== 'function') return;
-    listarUtilizadores().then(function(lista) {
-      var ativos = lista.filter(function(u) { return u.ativo; }).length;
-      _actualizarBadge(idBadge, ativos, ativos + (ativos === 1 ? ' utilizador ativo' : ' utilizadores ativos'), 'info', true);
-    }).catch(function() {});
-  }
+  if (typeof chamarAPI !== 'function') return;
+  _comCache('admin', function() {
+    return chamarAPI('contarUtilizadoresAtivos', {})
+      .then(function(resp) { return (resp && resp.sucesso) ? resp.total : 0; })
+      .catch(function() { return 0; });
+  }).then(function(ativos) {
+    _actualizarBadge(idBadge, ativos, ativos + (ativos === 1 ? ' utilizador ativo' : ' utilizadores ativos'), 'info', true);
+  });
+}
 
   // ============================================================
   // UTILITÁRIOS
