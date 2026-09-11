@@ -127,6 +127,12 @@
     }
   }
 
+  function _formatarDataISO(dataObj) {
+    return dataObj.getFullYear() + '-' +
+           String(dataObj.getMonth() + 1).padStart(2, '0') + '-' +
+           String(dataObj.getDate()).padStart(2, '0');
+}
+
   function _onConflitoSync(e) {
     var d = e.detail || {};
     mostrarToast(
@@ -141,7 +147,15 @@
 
   function _inicializarFormulario() {
     var dataEl = document.getElementById('data');
-    if (dataEl) dataEl.valueAsDate = new Date();
+    if (dataEl) {
+      var hoje    = new Date();
+      var minData = new Date(hoje);
+      minData.setDate(minData.getDate() - 7);
+
+      dataEl.max = _formatarDataISO(hoje);
+      dataEl.min = _formatarDataISO(minData);
+      dataEl.valueAsDate = hoje;
+    }
 
     if (typeof construirTabelaPaises === 'function')    construirTabelaPaises();
     if (typeof construirTabelaOperadores === 'function') construirTabelaOperadores(NUM_LINHAS_OP);
