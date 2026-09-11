@@ -72,17 +72,17 @@ var PAISES_SIMPLES = [
 var LOCAIS_DETALHADOS = [
   'Posto de Turismo de Monsaraz',
   'Posto de Turismo de Reguengos',
-  'Museu José Mestre Batista',
   'Casa do Barro',
 ];
 
 // ── Locais com lista simplificada (Nacionais / Estrangeiros) ──
 var LOCAIS_SIMPLES = [
+  'Museu José Mestre Batista',
   'Museu do Fresco',
   'Casa da Inquisição',
-  'Igreja de Santiago',
+  'Galeria de Santiago',
   'Igreja da Misericórdia',
-  'Arte Contemporânea',
+  'Núcleo de Arte Contemporânea',
   'Auditório António Marcelino',
 ];
 
