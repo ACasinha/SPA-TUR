@@ -75,7 +75,8 @@ function _activarShell(perfil) {
         }
         if (navigator.onLine && typeof syncSincronizarEstadosEmRevisao === 'function') {
           syncSincronizarEstadosEmRevisao();
-      });
+        }
+      })
       .catch(function() {});
   }
 
