@@ -98,6 +98,14 @@
         m.indicador('inicioBadge-' + m.id);
       }
     });
+
+    // re-sincronizar o badge do Registo Diário quando a fila
+  // offline for processada em segundo plano (ex: reconexão enquanto
+  // o utilizador está no ecrã de Início)
+  _al(window, 'rmz-sync-update', function() {
+    _carregarIndicadorRegisto('inicioBadge-registo');
+  });
+ 
   }
 
   function unmount() {
