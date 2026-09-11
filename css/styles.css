@@ -95,10 +95,10 @@
 [data-theme="dark"] {
   --background: #121212;
   --background2: #121212;
-  --elementos: #1E1E1E;
+  --elementos: #2C2C2C;
   --texto: #E0E0E0;
   --subtexto: #A0A0A0;
-  --border: #2C2C2C;
+  --border: #3C3C3C;
 }
 
 html {
