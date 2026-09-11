@@ -1,7 +1,7 @@
 {
-  "name": "Registo Diário de Visitantes",
-  "short_name": "Registo de Visitantes",
-  "description": "Registo diário de turistas e visitantes — Município de Reguengos de Monsaraz",
+  "name": "Portal Turismo CMRM",
+  "short_name": "Portal TUR",
+  "description": "Portal dos Serviços de Turismo — Município de Reguengos de Monsaraz",
   "start_url": "./index.html",
   "scope": "/",
   "display": "standalone",
