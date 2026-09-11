@@ -53,6 +53,7 @@ function verificarLigacao() {
     resetarBotaoReconectar();
     if (typeof mostrarToast === 'function') mostrarToast('Ligação restabelecida.', 'sucesso');
     if (typeof syncSincronizarFila === 'function') syncSincronizarFila();
+    if (typeof syncSincronizarEstadosEmRevisao === 'function') syncSincronizarEstadosEmRevisao();
   }
 }
 
