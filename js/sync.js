@@ -476,6 +476,52 @@ function _notificarConflito(registo, conflitoId) {
 }
 
 // ============================================================
+// SINCRONIZAR ESTADOS "EM REVISÃO" COM O SERVIDOR
+//
+// Cobre o caso cross-device: um conflito criado neste dispositivo
+// pode ter sido resolvido por um admin/editor noutro dispositivo.
+// Esta função pergunta ao servidor o estado actual de cada
+// registo local 'em_revisao' e actualiza o IndexedDB local.
+// ============================================================
+
+function sincronizarEstadosEmRevisao() {
+  if (!navigator.onLine) return Promise.resolve();
+
+  return obterEmRevisao().then(function(registos) {
+    if (!registos.length) return;
+
+    var ids = registos.map(function(r) { return r.idempotencyKey || r.id; });
+
+    return chamarAPI('verificarEstadoSync', { ids: ids }).then(function(resp) {
+      if (!resp || !resp.sucesso) return;
+      var estados = resp.estados || {};
+
+      var promessas = registos
+        .filter(function(r) {
+          var estadoServidor = estados[r.idempotencyKey || r.id];
+          return estadoServidor && estadoServidor !== 'em_revisao';
+        })
+        .map(function(r) {
+          var estadoServidor = estados[r.idempotencyKey || r.id];
+          var novoEstado = estadoServidor === 'rejeitado' ? ESTADO.REJEITADO : ESTADO.ACEITE_ADMIN;
+          return _atualizarEstado(r.id, novoEstado, {
+            sincronizadoEm: new Date().toISOString()
+          });
+        });
+
+      return Promise.all(promessas).then(function() {
+        if (promessas.length) {
+          console.log('[Sync] ' + promessas.length + ' registo(s) actualizado(s) a partir do servidor (resolvidos noutro dispositivo).');
+          _notificarUI();
+        }
+      });
+    });
+  }).catch(function(err) {
+    console.warn('[Sync] Erro ao verificar estados em revisão:', err);
+  });
+}
+
+// ============================================================
 // UTILITÁRIOS
 // ============================================================
 
@@ -515,3 +561,4 @@ window.syncMarcarResolvido   = marcarResolvido;
 window.syncLimparResolvidos  = limparResolvidos;
 window.SYNC_ESTADO           = ESTADO;
 window.syncObterRegistoLocalPorLocalData = obterRegistoLocalPorLocalData;
+window.syncSincronizarEstadosEmRevisao = sincronizarEstadosEmRevisao;
