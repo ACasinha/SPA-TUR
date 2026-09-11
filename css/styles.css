@@ -239,7 +239,7 @@ input[type="number"] {
 .login-overlay.hidden { opacity:0; visibility:hidden; pointer-events:none; }
 
 .login-card {
-  background: var(--background2);
+  background: var(--elementos);
   border-radius: var(--radius-xl);
   padding: clamp(28px,6vw,52px) clamp(24px,6vw,48px);
   width: 100%; max-width: 420px;
@@ -256,7 +256,7 @@ input[type="number"] {
   color: var(--terra); text-align:center; margin-bottom:4px;
 }
 .login-sub {
-  font-size: var(--text-xs); color: var(--cinza);
+  font-size: var(--text-xs); color: var(--subtexto);
   text-align:center; text-transform:uppercase;
   letter-spacing:1.5px; margin-bottom:clamp(20px,4vw,32px);
 }
@@ -271,8 +271,8 @@ input[type="number"] {
   width:100%; border:2px solid var(--border);
   border-radius:var(--radius-sm);
   padding: clamp(11px,2.5vw,14px) clamp(12px,2.5vw,16px);
-  font-size:var(--text-base); color: var(--cinza-escuro);
-  background:var(--background2); transition: border-color 0.2s, box-shadow 0.2s;
+  font-size:var(--text-base); color: var(--texto);
+  background:var(--background); transition: border-color 0.2s, box-shadow 0.2s;
   -webkit-appearance:none;
 }
 .login-field input:focus {
@@ -292,7 +292,7 @@ input[type="number"] {
   width: 100%;
   padding: clamp(13px, 3vw, 16px);
   background: var(--terra);
-  color: var(--background2); border: none;
+  color: var(--branco); border: none;
   border-radius: var(--radius-sm);
   font-size: var(--text-base); font-weight: 700;
   letter-spacing: 0.5px; cursor: pointer;
@@ -314,7 +314,7 @@ input[type="number"] {
 .btn-login-pdf {
   width:100%; padding:clamp(10px,2.5vw,12px);
   background:transparent; border:1.5px solid var(--border);
-  color:var(--cinza); border-radius:var(--radius-sm);
+  color:var(--subtexto); border-radius:var(--radius-sm);
   font-size:var(--text-sm); font-weight:600;
   cursor:pointer; margin-top:10px;
   transition:border-color 0.2s, color 0.2s;
