@@ -341,6 +341,9 @@ function marcarResolvido(id, decisao) {
   var novoEstado = decisao === 'rejeitado' ? ESTADO.REJEITADO : ESTADO.ACEITE_ADMIN;
   return _atualizarEstado(id, novoEstado, {
     sincronizadoEm: new Date().toISOString()
+  }).then(function(resultado) {
+    _notificarUI(); // NOVO — dispara 'rmz-sync-update' para refrescar badges
+    return resultado;
   });
 }
 
