@@ -77,13 +77,13 @@ var LOCAIS_DETALHADOS = [
 
 // ── Locais com lista simplificada (Nacionais / Estrangeiros) ──
 var LOCAIS_SIMPLES = [
-  'Museu José Mestre Batista',
   'Museu do Fresco',
   'Casa da Inquisição',
   'Galeria de Santiago',
   'Igreja da Misericórdia',
   'Núcleo de Arte Contemporânea',
   'Auditório António Marcelino',
+  'Museu José Mestre Batista',
 ];
 
 /**
