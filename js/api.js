@@ -11,18 +11,18 @@
 
 'use strict';
 
-// ── Configuração — editar apenas estes dois valores ──────────
+// Configuração injectada por js/config.js (não versionado — ver
+// js/config.example.js e .github/workflows/deploy.yml)
+if (!window.FIREBASE_CONFIG || !window.CLOUD_FUNCTION_URL) {
+  throw new Error(
+    '[api.js] Configuração em falta. Verifique se js/config.js foi ' +
+    'carregado antes de js/api.js (crie a partir de js/config.example.js ' +
+    'para desenvolvimento local).'
+  );
+}
 
-var CLOUD_FUNCTION_URL = 'https://europe-west1-stats-tur.cloudfunctions.net/rmz-api';
-
-var FIREBASE_CONFIG = {
-  apiKey:            'AIzaSyDk6jfWQC2C-5SEblLRZ5euNU6OHUusopU',
-  authDomain:        'stats-tur.firebaseapp.com',
-  projectId:         'stats-tur',
-  storageBucket:     'stats-tur.firebasestorage.app',
-  messagingSenderId: '146563538068',
-  appId:             '1:146563538068:web:429757296c7ce85d64e881'
-};
+var CLOUD_FUNCTION_URL = window.CLOUD_FUNCTION_URL;
+var FIREBASE_CONFIG    = window.FIREBASE_CONFIG;
 
 // ── Constantes de rede ───────────────────────────────────────
 
