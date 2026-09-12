@@ -33,9 +33,13 @@ jobs:
       - name: Verificar config.js gerado
         run: cat js/config.js
 
+      - name: Remover config.js do .gitignore para o deploy
+        run: sed -i '/js\/config\.js/d' .gitignore
+
       - name: Deploy para gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
           publish_branch: gh-pages
+          exclude_assets: '.github,.git'
