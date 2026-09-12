@@ -15,9 +15,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Gerar js/config.js a partir dos Secrets
+      - name: Copiar ficheiros para pasta de output
         run: |
-          cat > js/config.js << 'EOF'
+          mkdir -p _site
+          rsync -av --exclude='_site' --exclude='.git' --exclude='.github' . _site/
+
+      - name: Gerar js/config.js com os Secrets
+        run: |
+          cat > _site/js/config.js << ENDOFFILE
           'use strict';
 
           window.FIREBASE_CONFIG = {
@@ -30,12 +35,15 @@ jobs:
           };
 
           window.CLOUD_FUNCTION_URL = '${{ secrets.CLOUD_FUNCTION_URL }}';
-          EOF
+          ENDOFFILE
+
+      - name: Verificar que config.js foi gerado
+        run: cat _site/js/config.js
 
       - name: Deploy para gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          publish_dir: ./_site
           publish_branch: gh-pages
           exclude_assets: '.github'
