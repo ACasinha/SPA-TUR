@@ -1,0 +1,349 @@
+<!-- views/editor/view.html -->
+
+<!-- AVISO DE CONFLITOS -->
+<div class="conflitos-aviso" id="conflitosAviso" style="display:none">
+  <span class="conflitos-aviso-badge" id="conflitosAvisoBadge">0</span>
+  conflito(s) pendente(s) de resolução neste mês
+</div>
+
+<!-- PAINEL DE CONTROLO -->
+<div class="editor-container">
+
+  <div class="painel-controlo">
+    <div class="filtro-grupo">
+      <label for="selectorLocal"><span class="material-symbols-rounded" style="font-size: 14px; margin-right: 6px; vertical-align: middle;">location_on</span>Local / Posto</label>
+      <select id="selectorLocal">
+        <option value="" disabled selected>Escolha uma opção...</option>
+        <optgroup label="Lista completa de países">
+          <option value="Posto de Turismo de Monsaraz">Posto de Turismo de Monsaraz</option>
+          <option value="Posto de Turismo de Reguengos">Posto de Turismo de Reguengos</option>
+          <option value="Casa do Barro">Casa do Barro</option>
+        </optgroup>
+        <optgroup label="Nacionais / Estrangeiros">
+          <option value="Museu do Fresco">Museu do Fresco</option>
+          <option value="Casa da Inquisição">Casa da Inquisição</option>
+          <option value="Galeria de Santiago">Galeria de Santiago</option>
+          <option value="Igreja da Misericórdia">Igreja da Misericórdia</option>
+          <option value="Núcleo de Arte Contemporânea">Núcleo de Arte Contemporânea</option>
+          <option value="Auditório António Marcelino">Auditório António Marcelino</option>
+          <option value="Museu José Mestre Batista">Museu José Mestre Batista</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="filtro-grupo">
+      <label for="inputMes"><span class="material-symbols-rounded" style="font-size: 14px; margin-right: 6px; vertical-align: middle;">calendar_month</span>Mês</label>
+      <input type="month" id="inputMes"
+             onkeydown="if(event.key==='Enter')window.__editor&&window.__editor.carregarMes()">
+    </div>
+    <button class="btn-carregar" id="btnCarregar"
+            onclick="window.__editor&&window.__editor.carregarMes()">
+      <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">search</span>Carregar dados
+    </button>
+  </div>
+
+  <!-- ÁREA DA GRELHA -->
+  <div id="areaPrincipal">
+
+    <div class="grelha-loading" id="grelhaLoading">
+      <div class="spinner"></div>
+      <div>A carregar dados do mês...</div>
+    </div>
+
+    <div class="secao-card" id="estadoVazioCard">
+      <div class="grelha-vazia">
+        <span class="grelha-vazia-icone">📋</span>
+        <div class="grelha-vazia-titulo">Nenhuma grelha carregada</div>
+        <div>Escolha um local e um mês e clique em <strong>Carregar dados</strong> para começar.</div>
+      </div>
+    </div>
+
+    <div class="grelha-acoes" id="grelhaAcoes" style="display:none">
+      <div class="grelha-info" id="grelhaInfoTexto">—</div>
+      <span class="alteracoes-badge" id="alteracoesBadge"></span>
+      <button class="btn-limpar-alteracoes"
+              onclick="window.__editor&&window.__editor.descartarAlteracoes()"
+              title="Descartar todas as alterações não guardadas">
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">delete</span>Descartar alterações
+      </button>
+      <button class="btn-guardar-tudo" id="btnGuardarTudo"
+              onclick="window.__editor&&window.__editor.confirmarGuardar()" disabled>
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span>Guardar alterações
+      </button>
+    </div>
+
+    <div class="secao-card" id="secaoGrelha" style="display:none">
+      <div class="secao-card-header"
+           onclick="window.__editor&&window.__editor.toggleSecaoGrelha()"
+           role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'||event.key===' ')window.__editor&&window.__editor.toggleSecaoGrelha()">
+        <h2 id="secaoGrelhaTitle">Grelha Mensal</h2>
+        <div class="secao-meta">
+          <span class="secao-total-badge" id="secaoTotalBadge">0 registos</span>
+          <span class="secao-toggle-icone" id="secaoToggleIcone">▼</span>
+        </div>
+      </div>
+      <div class="secao-alteracoes-aviso" id="secaoAlteracoesAviso">
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">table_edit</span>Existem alterações por guardar nesta grelha
+      </div>
+      <div class="secao-card-corpo" id="secaoCorpo">
+        <div class="grelha-wrapper" id="grelhaWrapper"></div>
+      </div>
+    </div>
+
+    <div class="secao-card" id="secaoExtras" style="display:none">
+      <div class="secao-card-header">
+        <h2>Operadores, Sugestões e Observações</h2>
+        <div class="secao-meta">
+          <button type="button" class="btn-extras-adicionar"
+                  onclick="window.__editor&&window.__editor.abrirModalExtras(null,'adicionar')">
+            <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span>Adicionar registo
+          </button>
+          <span class="secao-toggle-icone" style="cursor:default">—</span>
+        </div>
+      </div>
+      <div class="secao-card-corpo">
+        <div class="table-scroll">
+          <table class="extras-table">
+            <thead>
+              <tr>
+                <th class="extras-th-data">Dia</th>
+                <th class="extras-th-chips">Dados registados</th>
+                <th class="extras-th-acao"></th>
+              </tr>
+            </thead>
+            <tbody id="extrasTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /areaPrincipal -->
+
+</div><!-- /editor-container -->
+
+<!-- MODAL EXTRAS -->
+<div class="modal-overlay" id="modalExtras">
+  <div class="modal-box modal-extras-box">
+    <div class="modal-header">
+      <h2 id="modalExtrasTitulo"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">edit</span>Editar</h2>
+      <div class="modal-extras-meta" id="modalExtrasMeta"></div>
+    </div>
+    <div id="modalExtrasSelectorDiaWrap" style="display:none">
+      <label class="modal-extras-label">Dia</label>
+      <select id="modalExtrasSelectorDia" class="modal-extras-select-dia"
+              onchange="window.__editor&&window.__editor.onSelectorDiaChange(this.value)">
+      </select>
+    </div>
+    <div class="modal-body">
+      <div class="modal-extras-secao-titulo">Operadores e Agências</div>
+      <div id="modalExtrasOpLista" class="modal-extras-lista"></div>
+      <button type="button" class="btn-modal-add-linha"
+              onclick="window.__editor&&window.__editor.modalAdicionarOperador()">
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span>Adicionar operador
+      </button>
+      <div class="modal-extras-secao-titulo" style="margin-top:16px">Sugestões e Críticas</div>
+      <div id="modalExtrasSugLista" class="modal-extras-lista"></div>
+      <button type="button" class="btn-modal-add-linha"
+              onclick="window.__editor&&window.__editor.modalAdicionarSugestao()">
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span>Adicionar sugestão
+      </button>
+      <div class="modal-extras-secao-titulo" style="margin-top:16px">Outras Observações</div>
+      <textarea id="modalExtrasObservacoes" class="modal-extras-obs"
+                placeholder="Observações do dia..."></textarea>
+      <div class="modal-extras-conflito-aviso" id="modalExtrasConflitoAviso" style="display:none">
+        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">warning</span>Este dia tem um conflito pendente de resolução.
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancelar"
+              onclick="window.__editor&&window.__editor.fecharModalExtras()">Cancelar</button>
+      <button class="btn-modal-confirmar"
+              onclick="window.__editor&&window.__editor.guardarModalExtras()"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span>Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR GUARDAR -->
+<div class="modal-overlay" id="modalGuardar">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span>Confirmar Registo de Alterações</h2>
+    </div>
+    <div class="modal-body">
+      <p>Está prestes a guardar alterações na base de dados. Esta operação
+         <strong>sobrescreve</strong> os valores existentes para cada dia alterado.</p>
+      <div class="modal-resumo" id="modalResumoTexto" style="white-space:pre-line;font-family:monospace"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancelar"
+              onclick="window.__editor&&window.__editor.fecharModalGuardar()">Cancelar</button>
+      <button class="btn-modal-confirmar"
+              onclick="window.__editor&&window.__editor.executarGuardar()"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check_circle</span>Confirmar e Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL CONFLITO — Países + Extras (Operadores / Sugestões / Observações)
+============================================================ -->
+<div class="modal-overlay" id="modalConflito">
+  <div class="modal-box modal-conflito-box">
+
+    <div class="modal-header">
+      <h2><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">warning</span>Conflito de Dados</h2>
+      <div class="conflito-meta" id="conflitoMeta"></div>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- TABS de secção do conflito -->
+      <div class="conflito-tabs" id="conflitoTabs">
+        <button class="conflito-tab ativa" data-tab="paises"
+                onclick="window.__editor&&window.__editor.activarTabConflito('paises')">
+          <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">globe</span>Países
+          <span class="conflito-tab-badge" id="conflitoTabBadgePaises" style="display:none">!</span>
+        </button>
+        <button class="conflito-tab" data-tab="extras"
+                onclick="window.__editor&&window.__editor.activarTabConflito('extras')">
+          <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">identity_platform</span>Operadores &amp; Extras
+          <span class="conflito-tab-badge" id="conflitoTabBadgeExtras" style="display:none">!</span>
+        </button>
+      </div>
+
+      <!-- PAINEL: Países -->
+      <div class="conflito-painel" id="conflitoPainelPaises">
+        <div class="conflito-comparacao">
+          <div class="conflito-lado">
+            <div class="conflito-lado-titulo servidor">
+              <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">database</span>Dados no servidor
+              <span class="conflito-lado-sub" id="conflitoServidorAutor"></span>
+            </div>
+            <table class="conflito-tabela" id="conflitoTabelaServidor"></table>
+            <div class="conflito-total" id="conflitoTotalServidor"></div>
+          </div>
+          <div class="conflito-vs">VS</div>
+          <div class="conflito-lado">
+            <div class="conflito-lado-titulo offline">
+              <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">wifi_off</span>Registo offline
+              <span class="conflito-lado-sub" id="conflitoOfflineAutor"></span>
+            </div>
+            <table class="conflito-tabela" id="conflitoTabelaOffline"></table>
+            <div class="conflito-total" id="conflitoTotalOffline"></div>
+          </div>
+        </div>
+        <div class="conflito-diferencas" id="conflitoDiferencas"></div>
+      </div>
+
+      <!-- PAINEL: Operadores & Extras -->
+      <div class="conflito-painel" id="conflitoPainelExtras" style="display:none">
+
+        <!-- Operadores -->
+        <div class="conflito-extras-bloco">
+          <div class="conflito-extras-titulo"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">identity_platform</span>Operadores e Agências</div>
+          <div class="conflito-comparacao conflito-comparacao-extras">
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo servidor"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">database</span>Servidor</div>
+              <div class="conflito-extras-lista" id="conflitoOpServidor"></div>
+            </div>
+            <div class="conflito-vs">VS</div>
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo offline"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">wifi_off</span>Offline</div>
+              <div class="conflito-extras-lista" id="conflitoOpOffline"></div>
+            </div>
+          </div>
+          <!-- Botões de resolução por secção -->
+          <div class="conflito-extras-acoes" id="conflitoOpAcoes" style="display:none">
+            <span class="conflito-extras-acoes-label">Manter para Operadores:</span>
+            <button class="btn-conflito btn-conflito-manter btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('operadores','servidor')">
+              ✓ Servidor
+            </button>
+            <button class="btn-conflito btn-conflito-offline btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('operadores','offline')">
+              ✓ Offline
+            </button>
+          </div>
+        </div>
+
+        <!-- Sugestões -->
+        <div class="conflito-extras-bloco">
+          <div class="conflito-extras-titulo">💬 Sugestões e Críticas</div>
+          <div class="conflito-comparacao conflito-comparacao-extras">
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo servidor">📊 Servidor</div>
+              <div class="conflito-extras-lista" id="conflitoSugServidor"></div>
+            </div>
+            <div class="conflito-vs">VS</div>
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo offline">📦 Offline</div>
+              <div class="conflito-extras-lista" id="conflitoSugOffline"></div>
+            </div>
+          </div>
+          <div class="conflito-extras-acoes" id="conflitoSugAcoes" style="display:none">
+            <span class="conflito-extras-acoes-label">Manter para Sugestões:</span>
+            <button class="btn-conflito btn-conflito-manter btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('sugestoes','servidor')">
+              ✓ Servidor
+            </button>
+            <button class="btn-conflito btn-conflito-offline btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('sugestoes','offline')">
+              ✓ Offline
+            </button>
+          </div>
+        </div>
+
+        <!-- Observações -->
+        <div class="conflito-extras-bloco">
+          <div class="conflito-extras-titulo">📝 Outras Observações</div>
+          <div class="conflito-comparacao conflito-comparacao-extras">
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo servidor">📊 Servidor</div>
+              <div class="conflito-extras-obs" id="conflitoObsServidor"></div>
+            </div>
+            <div class="conflito-vs">VS</div>
+            <div class="conflito-lado">
+              <div class="conflito-lado-titulo offline">📦 Offline</div>
+              <div class="conflito-extras-obs" id="conflitoObsOffline"></div>
+            </div>
+          </div>
+          <div class="conflito-extras-acoes" id="conflitoObsAcoes" style="display:none">
+            <span class="conflito-extras-acoes-label">Manter para Observações:</span>
+            <button class="btn-conflito btn-conflito-manter btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('observacoes','servidor')">
+              ✓ Servidor
+            </button>
+            <button class="btn-conflito btn-conflito-offline btn-conflito-sm"
+                    onclick="window.__editor&&window.__editor.resolverExtrasSecao('observacoes','offline')">
+              ✓ Offline
+            </button>
+          </div>
+        </div>
+
+        <!-- Estado: sem diferenças nos extras -->
+        <div class="conflito-sem-dif" id="conflitoExtrasSemDif" style="display:none">
+          Os dados de operadores, sugestões e observações são idênticos — sem conflito nesta secção.
+        </div>
+
+      </div><!-- /conflitoPainelExtras -->
+
+    </div><!-- /modal-body -->
+
+    <div class="modal-actions" id="conflitoModalActions">
+      <button class="btn-modal-cancelar"
+              onclick="window.__editor&&window.__editor.fecharModalConflito()">Cancelar</button>
+      <button class="btn-conflito btn-conflito-manter"
+              onclick="window.__editor&&window.__editor.resolverConflito('manter_servidor')">
+        ✓ Manter tudo do servidor
+      </button>
+      <button class="btn-conflito btn-conflito-offline"
+              onclick="window.__editor&&window.__editor.resolverConflito('usar_offline')">
+        ✓ Usar tudo do offline
+      </button>
+      <button class="btn-conflito btn-conflito-fundir"
+              onclick="window.__editor&&window.__editor.activarModoFusao()">
+        ✏️ Editar e fundir
+      </button>
+    </div>
+
+  </div>
+</div>

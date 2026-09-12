@@ -1,0 +1,8 @@
+# ============================================================
+# .gitignore — Registo Diário de Nacionalidades
+# ============================================================
+
+# Configuração local com chaves — gerado pelo GitHub Actions
+# em produção, ou copiado manualmente de config.example.js
+# para desenvolvimento local. NUNCA commitar este ficheiro.
+js/config.js
