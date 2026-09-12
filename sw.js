@@ -5,7 +5,7 @@
 // VERSÃO: incrementar a cada deploy.
 // ============================================================
 
-const VERSAO       = '2.1.1.a';
+const VERSAO       = '2.1.1.b';
 const CACHE_SHELL  = 'rmz-shell-v'  + VERSAO;   // HTML/CSS/JS do shell
 const CACHE_VIEWS  = 'rmz-views-v'  + VERSAO;   // HTML/JS das views (lazy)
 const CACHE_ASSETS = 'rmz-assets-v' + VERSAO;   // Fontes, imagens, CDN
@@ -24,6 +24,7 @@ const SHELL_ASSETS = [
   './views/inicio/view.html',
   './views/inicio/view.js',
   './views/inicio/view.css',
+  './js/config.js',
   './js/api.js',
   './js/auth.js',
   './js/users.js',

@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="css/sidebar.css">
 
 <!-- Preload scripts críticos -->
+ <link rel="preload" href="js/config.js" as="script">
 <link rel="preload" href="js/api.js"    as="script">
 <link rel="preload" href="js/auth.js"   as="script">
 <link rel="preload" href="js/users.js"  as="script">
@@ -162,6 +163,7 @@
 <!-- ============================================================
      NÚCLEO DA APP — carregado antes do router
 ============================================================ -->
+<script defer src="js/config.js"></script>
 <script defer src="js/api.js"></script>
 <script defer src="js/auth.js"></script>
 <script defer src="js/users.js"></script>
