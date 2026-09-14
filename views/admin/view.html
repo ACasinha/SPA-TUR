@@ -49,7 +49,20 @@
         <input type="text" id="userNome" placeholder="Nome e Sobrenome"></div>
       <div class="form-group"><label>Email *</label>
         <input type="email" id="userEmail" placeholder="utilizador@exemplo.pt"></div>
-      <div class="role-info" style="display:block;margin-bottom:12px">
+      <div class="form-group">
+  <label class="checkbox-label">
+    <input type="checkbox" id="userDefinirPasswordAgora"
+           onchange="window.__admin&&window.__admin.onTogglePasswordAgora()">
+    <span>Definir a password agora, em vez de enviar convite por e-mail</span>
+  </label>
+</div>
+
+<div class="form-group" id="passwordGroupNovo" style="display:none">
+  <label>Password *</label>
+  <input type="password" id="userPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+</div>
+
+<div class="role-info" id="infoConvitePorEmail" style="display:block">
   Será enviado um e-mail para o endereço indicado com um link seguro para o utilizador definir a sua própria password.
 </div>
       <div class="form-group"><label>Role *</label>
