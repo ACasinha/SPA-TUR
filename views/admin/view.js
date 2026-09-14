@@ -127,11 +127,17 @@
   criarUtilizador(dados)
     .then(function(resp){
       if(btn){btn.disabled=false;btn.textContent='Guardar';}
-      if(resp.sucesso){
-        mostrarToast('✓ '+(resp.avisoEmail||resp.mensagem), resp.avisoEmail?'info':'sucesso');
-        _fecharModal();_carregar();
+      if(!resp.sucesso){ mostrarToast('✗ '+resp.mensagem,'erro'); return; }
+
+      _fecharModal();_carregar();
+
+      if (resp.link) {
+        mostrarToast('✓ Utilizador criado.', 'sucesso');
+        _abrirModalLink(resp.link);
+      } else if (resp.avisoLink) {
+        mostrarToast(resp.avisoLink, 'info');
       } else {
-        mostrarToast('✗ '+resp.mensagem,'erro');
+        mostrarToast('✓ '+resp.mensagem, 'sucesso');
       }
     })
     .catch(function(err){
@@ -209,11 +215,14 @@ function guardarAlterarEmail() {
     .catch(function (err) { mostrarToast('Erro: ' + err.message, 'erro'); });
 }
 
-function reenviarConviteAtual() {
-  var email = (document.getElementById('editUserEmail') || {}).value || '';
-  if (!email) return;
-  reenviarConvite(email)
-    .then(function () { mostrarToast('✓ Convite reenviado para ' + email, 'sucesso'); })
+function gerarNovoLink() {
+  var uid = (document.getElementById('editUserUid') || {}).value || '';
+  if (!uid) return;
+  gerarLinkPassword(uid)
+    .then(function (resp) {
+      if (!resp.sucesso) { mostrarToast('Erro: ' + resp.mensagem, 'erro'); return; }
+      _abrirModalLink(resp.link);
+    })
     .catch(function (err) { mostrarToast('Erro: ' + err.message, 'erro'); });
 }
 
@@ -244,6 +253,44 @@ function confirmarApagar() {
   }
 }
 
+  var _linkPasswordAtual = '';
+
+function _abrirModalLink(link) {
+  _linkPasswordAtual = link;
+  document.getElementById('linkPasswordValor').value = link;
+  document.getElementById('linkPasswordCopiado').style.display = 'none';
+  var m = document.getElementById('modalLinkPassword');
+  if (m) m.classList.add('show');
+}
+
+function _fecharModalLink() {
+  var m = document.getElementById('modalLinkPassword');
+  if (m) m.classList.remove('show');
+  _linkPasswordAtual = '';
+}
+
+function _copiarLink() {
+  if (!_linkPasswordAtual) return;
+  var mostrarConfirmacao = function () {
+    var el = document.getElementById('linkPasswordCopiado');
+    if (el) el.style.display = 'block';
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(_linkPasswordAtual).then(mostrarConfirmacao).catch(function () {
+      _copiarFallback(mostrarConfirmacao);
+    });
+  } else {
+    _copiarFallback(mostrarConfirmacao);
+  }
+}
+
+function _copiarFallback(callback) {
+  var input = document.getElementById('linkPasswordValor');
+  if (!input) return;
+  input.select();
+  try { document.execCommand('copy'); callback(); } catch (e) {}
+}
+
   window.__admin={
   abrirNovo:abrirNovo,fecharModal:_fecharModal,guardar:guardar,
   abrirEditar:abrirEditar,fecharModalEditar:_fecharModalEditar,
@@ -251,7 +298,9 @@ function confirmarApagar() {
   onTogglePasswordAgora:onTogglePasswordAgora,
   abrirAlterarEmail:abrirAlterarEmail,fecharAlterarEmail:fecharAlterarEmail,
   guardarAlterarEmail:guardarAlterarEmail,
-  reenviarConvite:reenviarConviteAtual,
+  gerarNovoLink:gerarNovoLink,
+  fecharModalLink:_fecharModalLink,
+  copiarLink:_copiarLink,
   confirmarApagar:confirmarApagar
 };
   window.__views=window.__views||{};
