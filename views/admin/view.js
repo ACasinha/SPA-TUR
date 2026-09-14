@@ -91,42 +91,60 @@
   }
 
   function abrirNovo(){
-    ['userNome','userEmail','userPassword'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
-    var r=document.getElementById('userRole');if(r)r.value='utilizador';
-    ['userAcessoRegisto','userAcessoDashboard','userAcessoEditor','userAcessoInventario'].forEach(function(id){var e=document.getElementById(id);if(e)e.checked=false;});
-    var pg=document.getElementById('passwordGroup');if(pg)pg.style.display='block';
-    var mt=document.getElementById('modalTitulo');if(mt)mt.textContent='Novo Utilizador';
-    onRoleChange('userRole','roleInfoNovo','grupoAcessosNovo');
-    var m=document.getElementById('modalNovoUser');if(m)m.classList.add('show');
-  }
+  ['userNome','userEmail','userPassword'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  var chk=document.getElementById('userDefinirPasswordAgora'); if(chk) chk.checked=false;
+  var r=document.getElementById('userRole');if(r)r.value='utilizador';
+  ['userAcessoRegisto','userAcessoDashboard','userAcessoEditor','userAcessoInventario'].forEach(function(id){var e=document.getElementById(id);if(e)e.checked=false;});
+  onTogglePasswordAgora();
+  var mt=document.getElementById('modalTitulo');if(mt)mt.textContent='Novo Utilizador';
+  onRoleChange('userRole','roleInfoNovo','grupoAcessosNovo');
+  var m=document.getElementById('modalNovoUser');if(m)m.classList.add('show');
+}
 
   function _fecharModal(){var m=document.getElementById('modalNovoUser');if(m)m.classList.remove('show');}
 
   function guardar(){
-    var nome=(document.getElementById('userNome')||{}).value||'';
-    var email=(document.getElementById('userEmail')||{}).value||'';
-    var pass=(document.getElementById('userPassword')||{}).value||'';
-    var role=(document.getElementById('userRole')||{}).value||'utilizador';
-    var aR=role==='utilizador'&&((document.getElementById('userAcessoRegisto')||{}).checked||false);
-    var aD=role==='utilizador'&&((document.getElementById('userAcessoDashboard')||{}).checked||false);
-    var aE=role==='utilizador'&&((document.getElementById('userAcessoEditor')||{}).checked||false);
-    var aI=role==='utilizador'&&((document.getElementById('userAcessoInventario')||{}).checked||false);
-    if(!nome.trim()||!email.trim()||!pass){mostrarToast('Por favor preencha todos os campos.','erro');return;}
-    if(pass.length<6){mostrarToast('A password deve ter no mínimo 6 caracteres.','erro');return;}
-    if(role==='utilizador'&&!aR&&!aD&&!aE&&!aI){mostrarToast('Escolha pelo menos um acesso para este utilizador.','erro');return;}
-    var btn=document.getElementById('btnGuardarUser');
-    if(btn){btn.disabled=true;btn.textContent='⏳ A guardar...';}
-    criarUtilizador({email:email.trim(),password:pass,nome:nome.trim(),role:role,acessoRegisto:aR,acessoDashboard:aD,acessoEditor:aE,acessoInventario:aI})
-      .then(function(resp){
-        if(btn){btn.disabled=false;btn.textContent='Guardar';}
-        if(resp.sucesso){mostrarToast('✓ '+resp.mensagem,'sucesso');_fecharModal();_carregar();}
-        else{mostrarToast('✗ '+resp.mensagem,'erro');}
-      })
-      .catch(function(err){
-        if(btn){btn.disabled=false;btn.textContent='Guardar';}
-        mostrarToast('Erro: '+err.message,'erro');
-      });
-  }
+  var nome  = (document.getElementById('userNome')  || {}).value || '';
+  var email = (document.getElementById('userEmail') || {}).value || '';
+  var role  = (document.getElementById('userRole')  || {}).value || 'utilizador';
+  var definirAgora = (document.getElementById('userDefinirPasswordAgora') || {}).checked || false;
+  var pass  = definirAgora ? ((document.getElementById('userPassword') || {}).value || '') : '';
+  var aR=role==='utilizador'&&((document.getElementById('userAcessoRegisto')||{}).checked||false);
+  var aD=role==='utilizador'&&((document.getElementById('userAcessoDashboard')||{}).checked||false);
+  var aE=role==='utilizador'&&((document.getElementById('userAcessoEditor')||{}).checked||false);
+  var aI=role==='utilizador'&&((document.getElementById('userAcessoInventario')||{}).checked||false);
+
+  if(!nome.trim()||!email.trim()){mostrarToast('Por favor preencha nome e email.','erro');return;}
+  if(definirAgora && pass.length<6){mostrarToast('A password deve ter no mínimo 6 caracteres.','erro');return;}
+  if(role==='utilizador'&&!aR&&!aD&&!aE&&!aI){mostrarToast('Escolha pelo menos um acesso para este utilizador.','erro');return;}
+
+  var btn=document.getElementById('btnGuardarUser');
+  if(btn){btn.disabled=true;btn.textContent='⏳ A guardar...';}
+
+  var dados={email:email.trim(),nome:nome.trim(),role:role,acessoRegisto:aR,acessoDashboard:aD,acessoEditor:aE,acessoInventario:aI};
+  if(definirAgora) dados.password=pass;
+
+  criarUtilizador(dados)
+    .then(function(resp){
+      if(btn){btn.disabled=false;btn.textContent='Guardar';}
+      if(!resp.sucesso){ mostrarToast('✗ '+resp.mensagem,'erro'); return; }
+
+      _fecharModal();_carregar();
+
+      if (resp.link) {
+        mostrarToast('✓ Utilizador criado.', 'sucesso');
+        _abrirModalLink(resp.link);
+      } else if (resp.avisoLink) {
+        mostrarToast(resp.avisoLink, 'info');
+      } else {
+        mostrarToast('✓ '+resp.mensagem, 'sucesso');
+      }
+    })
+    .catch(function(err){
+      if(btn){btn.disabled=false;btn.textContent='Guardar';}
+      mostrarToast('Erro: '+err.message,'erro');
+    });
+}
 
   function abrirEditar(uid){
     listarUtilizadores().then(function(users){
@@ -169,7 +187,122 @@
       .catch(function(err){mostrarToast('Erro: '+err.message,'erro');});
   }
 
-  window.__admin={abrirNovo:abrirNovo,fecharModal:_fecharModal,guardar:guardar,abrirEditar:abrirEditar,fecharModalEditar:_fecharModalEditar,guardarEdicao:guardarEdicao,toggle:toggle,onRoleChange:onRoleChange};
+  function abrirAlterarEmail() {
+  var uid   = (document.getElementById('editUserUid')  || {}).value || '';
+  var email = (document.getElementById('editUserEmail')|| {}).value || '';
+  document.getElementById('alterarEmailUid').value = uid;
+  document.getElementById('alterarEmailNovo').value = email;
+  var m = document.getElementById('modalAlterarEmail');
+  if (m) m.classList.add('show');
+}
+
+function fecharAlterarEmail() {
+  var m = document.getElementById('modalAlterarEmail');
+  if (m) m.classList.remove('show');
+}
+
+function guardarAlterarEmail() {
+  var uid = (document.getElementById('alterarEmailUid') || {}).value || '';
+  var novoEmail = (document.getElementById('alterarEmailNovo') || {}).value || '';
+  if (!novoEmail.trim()) { mostrarToast('Indique o novo e-mail.', 'erro'); return; }
+  alterarEmailUtilizador(uid, novoEmail.trim())
+    .then(function (resp) {
+      mostrarToast('✓ ' + resp.mensagem, 'sucesso');
+      fecharAlterarEmail();
+      _fecharModalEditar();
+      _carregar();
+    })
+    .catch(function (err) { mostrarToast('Erro: ' + err.message, 'erro'); });
+}
+
+function gerarNovoLink() {
+  var uid = (document.getElementById('editUserUid') || {}).value || '';
+  if (!uid) return;
+  gerarLinkPassword(uid)
+    .then(function (resp) {
+      if (!resp.sucesso) { mostrarToast('Erro: ' + resp.mensagem, 'erro'); return; }
+      _abrirModalLink(resp.link);
+    })
+    .catch(function (err) { mostrarToast('Erro: ' + err.message, 'erro'); });
+}
+
+function confirmarApagar() {
+  var uid  = (document.getElementById('editUserUid')  || {}).value || '';
+  var nome = (document.getElementById('editUserNome') || {}).value || '';
+  if (!confirm('Eliminar definitivamente "' + nome + '"? Esta ação não pode ser desfeita.')) return;
+  if (!confirm('Confirma novamente: a conta e todo o histórico de acesso serão removidos permanentemente.')) return;
+  apagarUtilizador(uid)
+    .then(function (resp) {
+      mostrarToast('✓ ' + resp.mensagem, 'sucesso');
+      _fecharModalEditar();
+      _carregar();
+    })
+    .catch(function (err) { mostrarToast('Erro: ' + err.message, 'erro'); });
+}
+
+  function onTogglePasswordAgora(){
+  var chk     = document.getElementById('userDefinirPasswordAgora');
+  var grpPass = document.getElementById('passwordGroupNovo');
+  var info    = document.getElementById('infoConvitePorEmail');
+  var marcado = chk && chk.checked;
+  if (grpPass) grpPass.style.display = marcado ? '' : 'none';
+  if (info)    info.style.display    = marcado ? 'none' : 'block';
+  if (!marcado) {
+    var p = document.getElementById('userPassword');
+    if (p) p.value = '';
+  }
+}
+
+  var _linkPasswordAtual = '';
+
+function _abrirModalLink(link) {
+  _linkPasswordAtual = link;
+  document.getElementById('linkPasswordValor').value = link;
+  document.getElementById('linkPasswordCopiado').style.display = 'none';
+  var m = document.getElementById('modalLinkPassword');
+  if (m) m.classList.add('show');
+}
+
+function _fecharModalLink() {
+  var m = document.getElementById('modalLinkPassword');
+  if (m) m.classList.remove('show');
+  _linkPasswordAtual = '';
+}
+
+function _copiarLink() {
+  if (!_linkPasswordAtual) return;
+  var mostrarConfirmacao = function () {
+    var el = document.getElementById('linkPasswordCopiado');
+    if (el) el.style.display = 'block';
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(_linkPasswordAtual).then(mostrarConfirmacao).catch(function () {
+      _copiarFallback(mostrarConfirmacao);
+    });
+  } else {
+    _copiarFallback(mostrarConfirmacao);
+  }
+}
+
+function _copiarFallback(callback) {
+  var input = document.getElementById('linkPasswordValor');
+  if (!input) return;
+  input.select();
+  try { document.execCommand('copy'); callback(); } catch (e) {}
+}
+
+  window.__admin={
+  abrirNovo:abrirNovo,fecharModal:_fecharModal,guardar:guardar,
+  abrirEditar:abrirEditar,fecharModalEditar:_fecharModalEditar,
+  guardarEdicao:guardarEdicao,toggle:toggle,onRoleChange:onRoleChange,
+  onTogglePasswordAgora:onTogglePasswordAgora,
+  abrirAlterarEmail:abrirAlterarEmail,fecharAlterarEmail:fecharAlterarEmail,
+  guardarAlterarEmail:guardarAlterarEmail,
+  gerarNovoLink:gerarNovoLink,
+  fecharModalLink:_fecharModalLink,
+  copiarLink:_copiarLink,
+  confirmarApagar:confirmarApagar
+};
   window.__views=window.__views||{};
   window.__views.admin={mount:mount,unmount:unmount};
 })();

@@ -49,8 +49,22 @@
         <input type="text" id="userNome" placeholder="Nome e Sobrenome"></div>
       <div class="form-group"><label>Email *</label>
         <input type="email" id="userEmail" placeholder="utilizador@exemplo.pt"></div>
-      <div class="form-group" id="passwordGroup"><label>Password *</label>
-        <input type="password" id="userPassword" placeholder="Mínimo 6 caracteres"></div>
+      <div class="form-group">
+  <label class="checkbox-label">
+    <input type="checkbox" id="userDefinirPasswordAgora"
+           onchange="window.__admin&&window.__admin.onTogglePasswordAgora()">
+    <span>Definir a password agora, em vez de enviar convite por e-mail</span>
+  </label>
+</div>
+
+<div class="form-group" id="passwordGroupNovo" style="display:none">
+  <label>Password *</label>
+  <input type="password" id="userPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+</div>
+
+<div class="role-info" id="infoConvitePorEmail" style="display:block">
+  Será gerado um link seguro que poderá copiar e partilhar manualmente com o utilizador (ex: WhatsApp, SMS) para ele definir a sua própria password.
+</div>
       <div class="form-group"><label>Role *</label>
         <select id="userRole" onchange="window.__admin&&window.__admin.onRoleChange('userRole','roleInfoNovo','grupoAcessosNovo')">
           <option value="utilizador">Utilizador</option>
@@ -89,6 +103,20 @@
         <input type="text" id="editUserNome"></div>
       <div class="form-group"><label>Email</label>
         <input type="email" id="editUserEmail" disabled style="opacity:0.6"></div>
+      <div class="form-group" style="display:flex;gap:8px;flex-wrap:wrap">
+  <button type="button" class="btn-action btn-editar"
+          onclick="window.__admin&&window.__admin.abrirAlterarEmail()">
+    ✉️ Alterar e-mail
+  </button>
+  <button type="button" class="btn-action btn-ativar"
+        onclick="window.__admin&&window.__admin.gerarNovoLink()">
+  🔗 Gerar novo link
+</button>
+  <button type="button" class="btn-action" style="background:linear-gradient(135deg,#c0392b,#922b21)"
+          onclick="window.__admin&&window.__admin.confirmarApagar()">
+    🗑️ Eliminar definitivamente
+  </button>
+</div>
       <div class="form-group"><label>Role *</label>
         <select id="editUserRole" onchange="window.__admin&&window.__admin.onRoleChange('editUserRole','roleInfoEditar','grupoAcessosEditar')">
           <option value="utilizador">Utilizador</option>
@@ -113,6 +141,45 @@
     <div class="modal-actions">
       <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModalEditar()">Cancelar</button>
       <button class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.guardarEdicao()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalAlterarEmail">
+  <div class="modal-box">
+    <div class="modal-header"><h2>Alterar E-mail de Registo</h2></div>
+    <div class="modal-body">
+      <input type="hidden" id="alterarEmailUid">
+      <div class="form-group">
+        <label>Novo E-mail</label>
+        <input type="email" id="alterarEmailNovo" placeholder="novo@exemplo.pt">
+      </div>
+      <div class="role-info" style="display:block">
+        O utilizador terá de fazer login novamente com o novo e-mail. A sessão atual é terminada.
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharAlterarEmail()">Cancelar</button>
+      <button class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.guardarAlterarEmail()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalLinkPassword">
+  <div class="modal-box">
+    <div class="modal-header"><h2>🔗 Link de Definição de Password</h2></div>
+    <div class="modal-body">
+      <p style="margin-bottom:10px">Partilhe este link com o utilizador. É válido por tempo limitado e só pode ser usado uma vez.</p>
+      <div class="form-group">
+        <input type="text" id="linkPasswordValor" readonly onclick="this.select()">
+      </div>
+      <div id="linkPasswordCopiado" style="display:none;color:var(--verde);font-size:var(--text-sm);font-weight:600;margin-top:6px">
+        ✓ Copiado para a área de transferência.
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModalLink()">Fechar</button>
+      <button class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.copiarLink()">📋 Copiar Link</button>
     </div>
   </div>
 </div>

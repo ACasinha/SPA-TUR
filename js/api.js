@@ -104,6 +104,14 @@ function chamarAPI(action, payload) {
     });
 }
 
+function chamarAPIPublica(action, payload) {
+  return fetch(CLOUD_FUNCTION_URL, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ action: action, payload: payload || {} })
+  }).then(function (r) { return r.json(); });
+}
+
 // ============================================================
 // Funções de domínio — encapsulam as actions da Cloud Function
 // Usadas pela lógica de negócio (app.js, editor.js, etc.)

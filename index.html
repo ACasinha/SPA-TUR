@@ -68,6 +68,39 @@
 </div>
 
 <!-- ============================================================
+     OVERLAY DE DEFINIÇÃO DE PASSWORD (link seguro por e-mail)
+============================================================ -->
+<div class="login-overlay hidden" id="defPasswordOverlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="img/logo-small.png" alt="Logo Município de Reguengos de Monsaraz">
+    </div>
+    <div class="login-titulo">Definir Password</div>
+    <div class="login-sub" id="defPasswordEmail" style="text-transform:none;letter-spacing:0"></div>
+    <div class="login-erro" id="defPasswordErro"></div>
+
+    <div id="defPasswordEstado">A verificar o link...</div>
+
+    <div id="defPasswordForm" style="display:none">
+      <div class="login-field">
+        <label>Nova Password</label>
+        <input type="password" id="defPasswordNova" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <div class="login-field">
+        <label>Confirmar Password</label>
+        <input type="password" id="defPasswordConfirmar" placeholder="Repita a password" autocomplete="new-password">
+      </div>
+      <button class="btn-login" id="btnDefPassword">Guardar password</button>
+    </div>
+
+    <div id="defPasswordSucesso" style="display:none">
+      <p>✓ Password definida com sucesso.</p>
+      <button class="btn-login" onclick="irParaLogin()" style="margin-top:12px">Ir para o login →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
      BANNER PWA (topo — primeira abertura)
 ============================================================ -->
 <div class="install-banner" id="installBanner">
