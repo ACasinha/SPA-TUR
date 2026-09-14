@@ -63,7 +63,7 @@
 </div>
 
 <div class="role-info" id="infoConvitePorEmail" style="display:block">
-  Será enviado um e-mail para o endereço indicado com um link seguro para o utilizador definir a sua própria password.
+  Será gerado um link seguro que poderá copiar e partilhar manualmente com o utilizador (ex: WhatsApp, SMS) para ele definir a sua própria password.
 </div>
       <div class="form-group"><label>Role *</label>
         <select id="userRole" onchange="window.__admin&&window.__admin.onRoleChange('userRole','roleInfoNovo','grupoAcessosNovo')">
@@ -109,9 +109,9 @@
     ✉️ Alterar e-mail
   </button>
   <button type="button" class="btn-action btn-ativar"
-          onclick="window.__admin&&window.__admin.reenviarConvite()">
-    🔗 Reenviar convite
-  </button>
+        onclick="window.__admin&&window.__admin.gerarNovoLink()">
+  🔗 Gerar novo link
+</button>
   <button type="button" class="btn-action" style="background:linear-gradient(135deg,#c0392b,#922b21)"
           onclick="window.__admin&&window.__admin.confirmarApagar()">
     🗑️ Eliminar definitivamente
@@ -161,6 +161,25 @@
     <div class="modal-actions">
       <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharAlterarEmail()">Cancelar</button>
       <button class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.guardarAlterarEmail()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalLinkPassword">
+  <div class="modal-box">
+    <div class="modal-header"><h2>🔗 Link de Definição de Password</h2></div>
+    <div class="modal-body">
+      <p style="margin-bottom:10px">Partilhe este link com o utilizador. É válido por tempo limitado e só pode ser usado uma vez.</p>
+      <div class="form-group">
+        <input type="text" id="linkPasswordValor" readonly onclick="this.select()">
+      </div>
+      <div id="linkPasswordCopiado" style="display:none;color:var(--verde);font-size:var(--text-sm);font-weight:600;margin-top:6px">
+        ✓ Copiado para a área de transferência.
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModalLink()">Fechar</button>
+      <button class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.copiarLink()">📋 Copiar Link</button>
     </div>
   </div>
 </div>
