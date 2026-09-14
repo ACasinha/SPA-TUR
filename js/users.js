@@ -196,29 +196,23 @@ function atualizarUtilizador(uid, dados) {
 // chamarAPI delega em auth.js para obter o JWT.
 
 function criarUtilizador(dados) {
-  return _exigirAdmin()
-    .then(function () {
-      if (dados.role && ROLES_VALIDAS.indexOf(dados.role) === -1) {
-        throw new Error('Role inválida: ' + dados.role);
-      }
-      return chamarAPI('criarUtilizador', dados);
-    })
-    .then(function (resp) {
-      if (!resp || !resp.sucesso || !dados.email) return resp;
+  return _exigirAdmin().then(function () {
+    if (dados.role && ROLES_VALIDAS.indexOf(dados.role) === -1) {
+      throw new Error('Role inválida: ' + dados.role);
+    }
+    if (dados.password && dados.password.length < 6) {
+      throw new Error('A password deve ter no mínimo 6 caracteres.');
+    }
+    return chamarAPI('criarUtilizador', dados);
+  });
+}
 
-      var actionCodeSettings = {
-        url: window.location.origin + window.location.pathname,
-        handleCodeInApp: true
-      };
-
-      return firebaseAuth.sendPasswordResetEmail(dados.email, actionCodeSettings)
-        .then(function () { return resp; })
-        .catch(function (err) {
-          console.warn('[users] Utilizador criado mas falha ao enviar e-mail:', err);
-          resp.avisoEmail = 'Utilizador criado, mas o envio do e-mail falhou. Use "Reenviar convite".';
-          return resp;
-        });
-    });
+// ── Gerar (ou regenerar) link de definição de password ───────
+function gerarLinkPassword(uid) {
+  return _exigirAdmin().then(function () {
+    if (!uid) return Promise.reject(new Error('UID em falta.'));
+    return chamarAPI('gerarLinkPassword', { uid: uid });
+  });
 }
 
 // ── Activar / desactivar ──────────────────────────────────────
@@ -253,20 +247,6 @@ function alterarEmailUtilizador(uid, novoEmail) {
     novoEmail = (novoEmail || '').trim();
     if (!uid || !novoEmail) return Promise.reject(new Error('Dados em falta.'));
     return chamarAPI('alterarEmailUtilizador', { uid: uid, novoEmail: novoEmail });
-  });
-}
-
-// ── Reenviar convite (link de definição de password) ─────────
-// Não passa pela Cloud Function — sendPasswordResetEmail é
-// um método client-side do Firebase Auth, seguro para qualquer
-// email (rate-limited pela própria Firebase).
-function reenviarConvite(email) {
-  return _exigirAdmin().then(function () {
-    var actionCodeSettings = {
-      url: window.location.origin + window.location.pathname,
-      handleCodeInApp: true
-    };
-    return firebaseAuth.sendPasswordResetEmail(email, actionCodeSettings);
   });
 }
 
