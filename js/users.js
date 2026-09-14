@@ -196,23 +196,13 @@ function atualizarUtilizador(uid, dados) {
 // chamarAPI delega em auth.js para obter o JWT.
 
 function criarUtilizador(dados) {
-  return _exigirAdmin().then(function () {
-    if (dados.role && ROLES_VALIDAS.indexOf(dados.role) === -1) {
-      throw new Error('Role inválida: ' + dados.role);
-    }
-    if (dados.password && dados.password.length < 6) {
-      throw new Error('A password deve ter no mínimo 6 caracteres.');
-    }
-    return chamarAPI('criarUtilizador', dados);
-  });
-}
-
-// ── Gerar (ou regenerar) link de definição de password ───────
-function gerarLinkPassword(uid) {
-  return _exigirAdmin().then(function () {
-    if (!uid) return Promise.reject(new Error('UID em falta.'));
-    return chamarAPI('gerarLinkPassword', { uid: uid });
-  });
+  return _exigirAdmin()
+    .then(function () {
+      if (dados.role && ROLES_VALIDAS.indexOf(dados.role) === -1) {
+        throw new Error('Role inválida: ' + dados.role);
+      }
+      return chamarAPI('criarUtilizador', dados);
+    });
 }
 
 // ── Activar / desactivar ──────────────────────────────────────
@@ -231,23 +221,6 @@ function atualizarMeuNome(novoNome) {
   var user = firebaseAuth.currentUser;
   if (!user) return Promise.reject(new Error('Utilizador não autenticado.'));
   return atualizarUtilizador(user.uid, { nome: novoNome.trim() });
-}
-
-// ── Apagar utilizador — definitivo e irreversível ────────────
-function apagarUtilizador(uid) {
-  return _exigirAdmin().then(function () {
-    if (!uid) return Promise.reject(new Error('UID em falta.'));
-    return chamarAPI('apagarUtilizador', { uid: uid });
-  });
-}
-
-// ── Alterar e-mail de registo ─────────────────────────────────
-function alterarEmailUtilizador(uid, novoEmail) {
-  return _exigirAdmin().then(function () {
-    novoEmail = (novoEmail || '').trim();
-    if (!uid || !novoEmail) return Promise.reject(new Error('Dados em falta.'));
-    return chamarAPI('alterarEmailUtilizador', { uid: uid, novoEmail: novoEmail });
-  });
 }
 
 // ============================================================

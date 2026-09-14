@@ -20,12 +20,6 @@ var _erroLoginPendente = '';
 function inicializarLogin(opcoes) {
   _opcoesLogin = opcoes;
 
-  // Interceta links de "definir password" antes do fluxo normal de login
-  if (_temParametrosDefinirPassword()) {
-    _mostrarEcraDefinirPassword();
-    return;
-  }
-
   _mostrarLoadingOverlay();
 
   // Ocultar overlay de login enquanto o Firebase resolve sessão persistida
@@ -180,84 +174,6 @@ function _mostrarErroCampo(erroEl, mensagem) {
 function _fazerSignOut() {
   if (typeof limparCacheUtilizador === 'function') limparCacheUtilizador();
   firebaseAuth.signOut();
-}
-
-// ============================================================
-// DEFINIÇÃO DE PASSWORD — link seguro enviado por e-mail
-// ============================================================
-
-function _temParametrosDefinirPassword() {
-  var params = new URLSearchParams(window.location.search);
-  return !!params.get('definirPassword');
-}
-
-function _mostrarEcraDefinirPassword() {
-  _ocultarLoadingOverlay();
-  var loginOverlay = document.getElementById('loginOverlay');
-  if (loginOverlay) loginOverlay.classList.add('hidden');
-
-  var params = new URLSearchParams(window.location.search);
-  var token  = params.get('definirPassword');
-
-  var overlay = document.getElementById('defPasswordOverlay');
-  if (!overlay) return;
-  overlay.classList.remove('hidden');
-
-  var estadoEl = document.getElementById('defPasswordEstado');
-  var formEl   = document.getElementById('defPasswordForm');
-  var emailEl  = document.getElementById('defPasswordEmail');
-
-  chamarAPIPublica('verificarTokenDefinirPassword', { token: token })
-    .then(function (resp) {
-      if (!resp.sucesso) {
-        estadoEl.textContent = resp.mensagem;
-        estadoEl.classList.add('erro');
-        return;
-      }
-      emailEl.textContent = resp.email;
-      formEl.style.display   = '';
-      estadoEl.style.display = 'none';
-
-      document.getElementById('btnDefPassword').onclick = function () {
-        _confirmarDefinirPassword(token);
-      };
-    })
-    .catch(function () {
-      estadoEl.textContent = 'Erro ao verificar o link. Tente novamente mais tarde.';
-      estadoEl.classList.add('erro');
-    });
-}
-
-function _confirmarDefinirPassword(token) {
-  var pass1 = (document.getElementById('defPasswordNova')     || {}).value || '';
-  var pass2 = (document.getElementById('defPasswordConfirmar') || {}).value || '';
-  var erroEl = document.getElementById('defPasswordErro');
-  var btn    = document.getElementById('btnDefPassword');
-
-  if (pass1.length < 6) { _mostrarErroCampo(erroEl, 'A password deve ter no mínimo 6 caracteres.'); return; }
-  if (pass1 !== pass2)  { _mostrarErroCampo(erroEl, 'As passwords não coincidem.'); return; }
-
-  if (btn) { btn.disabled = true; btn.textContent = 'A guardar...'; }
-
-  chamarAPIPublica('definirPasswordComToken', { token: token, novaPassword: pass1 })
-    .then(function (resp) {
-      if (!resp.sucesso) {
-        if (btn) { btn.disabled = false; btn.textContent = 'Guardar password'; }
-        _mostrarErroCampo(erroEl, resp.mensagem);
-        return;
-      }
-      document.getElementById('defPasswordForm').style.display = 'none';
-      var sucesso = document.getElementById('defPasswordSucesso');
-      if (sucesso) sucesso.style.display = '';
-    })
-    .catch(function (err) {
-      if (btn) { btn.disabled = false; btn.textContent = 'Guardar password'; }
-      _mostrarErroCampo(erroEl, 'Erro: ' + err.message);
-    });
-}
-
-function irParaLogin() {
-  window.location.href = window.location.origin + window.location.pathname;
 }
 
 // ============================================================
