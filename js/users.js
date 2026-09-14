@@ -202,6 +202,22 @@ function criarUtilizador(dados) {
         throw new Error('Role inválida: ' + dados.role);
       }
       return chamarAPI('criarUtilizador', dados);
+    })
+    .then(function (resp) {
+      if (!resp || !resp.sucesso || !dados.email) return resp;
+
+      var actionCodeSettings = {
+        url: window.location.origin + window.location.pathname,
+        handleCodeInApp: true
+      };
+
+      return firebaseAuth.sendPasswordResetEmail(dados.email, actionCodeSettings)
+        .then(function () { return resp; })
+        .catch(function (err) {
+          console.warn('[users] Utilizador criado mas falha ao enviar e-mail:', err);
+          resp.avisoEmail = 'Utilizador criado, mas o envio do e-mail falhou. Use "Reenviar convite".';
+          return resp;
+        });
     });
 }
 
@@ -221,6 +237,37 @@ function atualizarMeuNome(novoNome) {
   var user = firebaseAuth.currentUser;
   if (!user) return Promise.reject(new Error('Utilizador não autenticado.'));
   return atualizarUtilizador(user.uid, { nome: novoNome.trim() });
+}
+
+// ── Apagar utilizador — definitivo e irreversível ────────────
+function apagarUtilizador(uid) {
+  return _exigirAdmin().then(function () {
+    if (!uid) return Promise.reject(new Error('UID em falta.'));
+    return chamarAPI('apagarUtilizador', { uid: uid });
+  });
+}
+
+// ── Alterar e-mail de registo ─────────────────────────────────
+function alterarEmailUtilizador(uid, novoEmail) {
+  return _exigirAdmin().then(function () {
+    novoEmail = (novoEmail || '').trim();
+    if (!uid || !novoEmail) return Promise.reject(new Error('Dados em falta.'));
+    return chamarAPI('alterarEmailUtilizador', { uid: uid, novoEmail: novoEmail });
+  });
+}
+
+// ── Reenviar convite (link de definição de password) ─────────
+// Não passa pela Cloud Function — sendPasswordResetEmail é
+// um método client-side do Firebase Auth, seguro para qualquer
+// email (rate-limited pela própria Firebase).
+function reenviarConvite(email) {
+  return _exigirAdmin().then(function () {
+    var actionCodeSettings = {
+      url: window.location.origin + window.location.pathname,
+      handleCodeInApp: true
+    };
+    return firebaseAuth.sendPasswordResetEmail(email, actionCodeSettings);
+  });
 }
 
 // ============================================================
