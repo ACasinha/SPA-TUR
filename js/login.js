@@ -188,7 +188,7 @@ function _fazerSignOut() {
 
 function _temParametrosDefinirPassword() {
   var params = new URLSearchParams(window.location.search);
-  return params.get('mode') === 'resetPassword' && !!params.get('oobCode');
+  return !!params.get('definirPassword');
 }
 
 function _mostrarEcraDefinirPassword() {
@@ -196,8 +196,8 @@ function _mostrarEcraDefinirPassword() {
   var loginOverlay = document.getElementById('loginOverlay');
   if (loginOverlay) loginOverlay.classList.add('hidden');
 
-  var params  = new URLSearchParams(window.location.search);
-  var oobCode = params.get('oobCode');
+  var params = new URLSearchParams(window.location.search);
+  var token  = params.get('definirPassword');
 
   var overlay = document.getElementById('defPasswordOverlay');
   if (!overlay) return;
@@ -207,41 +207,45 @@ function _mostrarEcraDefinirPassword() {
   var formEl   = document.getElementById('defPasswordForm');
   var emailEl  = document.getElementById('defPasswordEmail');
 
-  firebaseAuth.verifyPasswordResetCode(oobCode)
-    .then(function (email) {
-      emailEl.textContent = email;
-      formEl.style.display = '';
+  chamarAPIPublica('verificarTokenDefinirPassword', { token: token })
+    .then(function (resp) {
+      if (!resp.sucesso) {
+        estadoEl.textContent = resp.mensagem;
+        estadoEl.classList.add('erro');
+        return;
+      }
+      emailEl.textContent = resp.email;
+      formEl.style.display   = '';
       estadoEl.style.display = 'none';
 
       document.getElementById('btnDefPassword').onclick = function () {
-        _confirmarDefinirPassword(oobCode);
+        _confirmarDefinirPassword(token);
       };
     })
     .catch(function () {
-      estadoEl.textContent = 'Este link é inválido ou já expirou. Peça ao administrador para reenviar o convite.';
+      estadoEl.textContent = 'Erro ao verificar o link. Tente novamente mais tarde.';
       estadoEl.classList.add('erro');
     });
 }
 
-function _confirmarDefinirPassword(oobCode) {
+function _confirmarDefinirPassword(token) {
   var pass1 = (document.getElementById('defPasswordNova')     || {}).value || '';
   var pass2 = (document.getElementById('defPasswordConfirmar') || {}).value || '';
   var erroEl = document.getElementById('defPasswordErro');
   var btn    = document.getElementById('btnDefPassword');
 
-  if (pass1.length < 6) {
-    _mostrarErroCampo(erroEl, 'A password deve ter no mínimo 6 caracteres.');
-    return;
-  }
-  if (pass1 !== pass2) {
-    _mostrarErroCampo(erroEl, 'As passwords não coincidem.');
-    return;
-  }
+  if (pass1.length < 6) { _mostrarErroCampo(erroEl, 'A password deve ter no mínimo 6 caracteres.'); return; }
+  if (pass1 !== pass2)  { _mostrarErroCampo(erroEl, 'As passwords não coincidem.'); return; }
 
   if (btn) { btn.disabled = true; btn.textContent = 'A guardar...'; }
 
-  firebaseAuth.confirmPasswordReset(oobCode, pass1)
-    .then(function () {
+  chamarAPIPublica('definirPasswordComToken', { token: token, novaPassword: pass1 })
+    .then(function (resp) {
+      if (!resp.sucesso) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Guardar password'; }
+        _mostrarErroCampo(erroEl, resp.mensagem);
+        return;
+      }
       document.getElementById('defPasswordForm').style.display = 'none';
       var sucesso = document.getElementById('defPasswordSucesso');
       if (sucesso) sucesso.style.display = '';
