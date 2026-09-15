@@ -32,6 +32,22 @@ var REQUEST_TIMEOUT_MS = 20000;
 
 if (!firebase.apps.length) {
   firebase.initializeApp(FIREBASE_CONFIG);
+  // ── App Check (reCAPTCHA Enterprise) ──────────────────────────
+if (window.RECAPTCHA_ENTERPRISE_SITE_KEY) {
+  var appCheckProvider = new firebase.appCheck.ReCaptchaEnterpriseProvider(
+    window.RECAPTCHA_ENTERPRISE_SITE_KEY
+  );
+  firebase.appCheck().activate(appCheckProvider, true); // true = auto-refresh do token
+} else {
+  console.warn('[AppCheck] RECAPTCHA_ENTERPRISE_SITE_KEY em falta — App Check inactivo.');
+}
+
+function obterAppCheckToken() {
+  if (!window.RECAPTCHA_ENTERPRISE_SITE_KEY) return Promise.resolve(null);
+  return firebase.appCheck().getToken(false)
+    .then(function (r) { return r.token; })
+    .catch(function () { return null; });
+}
 }
 
 var firebaseAuth = firebase.auth();
@@ -55,61 +71,47 @@ firebaseAuth
 
 function chamarAPI(action, payload) {
   payload = payload || {};
-
   var controller = new AbortController();
   var timeoutId  = null;
+  function limparTimeout() { if (timeoutId !== null) { clearTimeout(timeoutId); timeoutId = null; } }
 
-  function limparTimeout() {
-    if (timeoutId !== null) {
-      clearTimeout(timeoutId);
-      timeoutId = null;
-    }
-  }
-
-  // obterIdToken está definido em auth.js e valida a sessão
-  // antes de devolver o JWT.
-  return obterIdToken()
-    .then(function (idToken) {
-      console.log('[API] →', action);
+  return Promise.all([obterIdToken(), obterAppCheckToken()])
+    .then(function (r) {
+      var idToken = r[0], appCheckToken = r[1];
       timeoutId = setTimeout(function () { controller.abort(); }, REQUEST_TIMEOUT_MS);
-
       return fetch(CLOUD_FUNCTION_URL, {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ action: action, payload: payload, idToken: idToken }),
-        signal:  controller.signal
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Firebase-AppCheck': appCheckToken || ''
+        },
+        body:   JSON.stringify({ action: action, payload: payload, idToken: idToken }),
+        signal: controller.signal
       });
     })
-    .then(function (response) {
-      limparTimeout();
-      console.log('[API] ← HTTP', response.status);
-      return response.json();
-    })
+    .then(function (response) { limparTimeout(); return response.json(); })
     .then(function (data) {
-      // 401 significa sessão revogada no servidor; notificar auth.js
-      if (data.codigo === 401) {
-        limparSessao();          // auth.js
-        throw new Error('Não autorizado. Faça login novamente.');
-      }
+      if (data.codigo === 401) { limparSessao(); throw new Error('Não autorizado. Faça login novamente.'); }
       return data;
     })
     .catch(function (err) {
       limparTimeout();
-      if (err.name === 'AbortError') {
-        throw new Error(
-          'Tempo limite excedido (' + REQUEST_TIMEOUT_MS / 1000 + 's). Verifique a ligação.'
-        );
-      }
+      if (err.name === 'AbortError') throw new Error('Tempo limite excedido (' + REQUEST_TIMEOUT_MS/1000 + 's).');
       throw err;
     });
 }
 
 function chamarAPIPublica(action, payload) {
-  return fetch(CLOUD_FUNCTION_URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ action: action, payload: payload || {} })
-  }).then(function (r) { return r.json(); });
+  return obterAppCheckToken().then(function (appCheckToken) {
+    return fetch(CLOUD_FUNCTION_URL, {
+      method:  'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Firebase-AppCheck': appCheckToken || ''
+      },
+      body: JSON.stringify({ action: action, payload: payload || {} })
+    }).then(function (r) { return r.json(); });
+  });
 }
 
 // ============================================================
