@@ -38,6 +38,7 @@ jobs:
           echo "};" >> js/config.js
           echo "" >> js/config.js
           echo "window.CLOUD_FUNCTION_URL = '${{ secrets.CLOUD_FUNCTION_URL }}';" >> js/config.js
+          echo "window.RECAPTCHA_ENTERPRISE_SITE_KEY = '${{ secrets.RECAPTCHA_ENTERPRISE_SITE_KEY }}';" >> js/config.js
 
       - name: Verificar config.js gerado
         run: cat js/config.js
