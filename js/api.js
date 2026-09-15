@@ -32,7 +32,9 @@ var REQUEST_TIMEOUT_MS = 20000;
 
 if (!firebase.apps.length) {
   firebase.initializeApp(FIREBASE_CONFIG);
-  // ── App Check (reCAPTCHA Enterprise) ──────────────────────────
+}
+
+// ── App Check (reCAPTCHA Enterprise) ──────────────────────────
 if (window.RECAPTCHA_ENTERPRISE_SITE_KEY) {
   var appCheckProvider = new firebase.appCheck.ReCaptchaEnterpriseProvider(
     window.RECAPTCHA_ENTERPRISE_SITE_KEY
@@ -47,7 +49,6 @@ function obterAppCheckToken() {
   return firebase.appCheck().getToken(false)
     .then(function (r) { return r.token; })
     .catch(function () { return null; });
-}
 }
 
 var firebaseAuth = firebase.auth();
