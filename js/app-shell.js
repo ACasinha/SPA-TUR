@@ -151,28 +151,14 @@ window.spaResetHeader = function() {
  * mostrarToast(msg, tipo)
  * Toast global — pode ser chamado de qualquer view.
  */
-window.mostrarToast(msg, tipo) {
+window.mostrarToast = function(msg, tipo) {
   var t = document.getElementById('toast');
   if (!t) return;
-
-  var div = document.createElement('div');
-  div.innerHTML = msg;
-  div.querySelectorAll('*').forEach(function (el) {
-    if (el.tagName !== 'SPAN' || !el.classList.contains('material-symbols-rounded')) {
-      el.replaceWith(document.createTextNode(el.textContent));
-      return;
-    }
-    Array.from(el.attributes).forEach(function (attr) {
-      if (attr.name !== 'class' && attr.name !== 'style') el.removeAttribute(attr.name);
-    });
-  });
-
-  t.innerHTML = '';
-  while (div.firstChild) t.appendChild(div.firstChild);
-
-  t.className = 'toast ' + tipo + ' show';
-  setTimeout(function () { t.classList.remove('show'); }, 3800);
-}
+  t.innerHTML = msg;
+  t.className   = 'toast ' + (tipo || 'info') + ' show';
+  clearTimeout(t._rmzTimer);
+  t._rmzTimer = setTimeout(function() { t.classList.remove('show'); }, 3800);
+};
 
 /**
  * fazerLogout — chamado pelo menu de navegação
