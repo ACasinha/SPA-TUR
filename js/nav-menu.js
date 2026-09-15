@@ -101,7 +101,6 @@
       '</span>' +
       '<span class="nav-menu-btn-label">Menu</span>';
     headerNav.appendChild(btn);
-    console.log('btn criado', document.getElementById('navMenuBtn'));
 
     // Painel dropdown
     var painel = document.createElement('div');
@@ -183,8 +182,6 @@
       if (e.key === 'Escape' && _menuAberto) fecharMenu();
     });
 
-    console.log('construirMenuNav');
-console.log(document.getElementById('headerRight'));
   }
 
   function _separador() {
