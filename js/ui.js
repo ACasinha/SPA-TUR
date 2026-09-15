@@ -789,18 +789,23 @@ function mostrarToast(msg, tipo) {
   var t = document.getElementById('toast');
   if (!t) return;
 
-  // Isto força o navegador a converter qualquer texto "escapado" de volta para HTML real
-  var parser = new DOMParser();
-  var doc = parser.parseFromString(msg, 'text/html');
-  
-  // Limpa o conteúdo antigo e coloca o HTML interpretado corretamente
+  var div = document.createElement('div');
+  div.innerHTML = msg;
+  div.querySelectorAll('*').forEach(function (el) {
+    if (el.tagName !== 'SPAN' || !el.classList.contains('material-symbols-rounded')) {
+      el.replaceWith(document.createTextNode(el.textContent));
+      return;
+    }
+    Array.from(el.attributes).forEach(function (attr) {
+      if (attr.name !== 'class' && attr.name !== 'style') el.removeAttribute(attr.name);
+    });
+  });
+
   t.innerHTML = '';
-  while (doc.body.firstChild) {
-    t.appendChild(doc.body.firstChild);
-  }
-  
+  while (div.firstChild) t.appendChild(div.firstChild);
+
   t.className = 'toast ' + tipo + ' show';
-  setTimeout(function() { t.classList.remove('show'); }, 3800);
+  setTimeout(function () { t.classList.remove('show'); }, 3800);
 }
 
 // ============================================================
