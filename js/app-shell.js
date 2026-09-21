@@ -82,7 +82,7 @@ function _activarShell(perfil) {
 
   // Inicializar o router com o perfil do utilizador
   routerDefinirPerfil(perfil);
-  routerInit(perfil);
+  setTimeout(function() { routerInit(perfil); }, 0);
 }
 
 function _desactivarShell() {
