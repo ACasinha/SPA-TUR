@@ -308,7 +308,7 @@
     var divVersao = document.createElement('div');
     divVersao.className = 'bottom-sheet-versao';
     divVersao.innerHTML =
-      '<span>Versão <strong class="app-versao" id="sheetVersao">v1</strong></span>';
+      '<span class="app-versao" id="sheetVersao">v1</span>';
     lista.appendChild(divVersao);
 
     // Separador
