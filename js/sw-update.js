@@ -15,8 +15,14 @@ var _swRegistration = null;
 // VERSÃO — pedida ao SW via postMessage
 // ============================================================
 
+function _actualizarTextoVersao(versaoTexto) {
+  var elementos = document.querySelectorAll('.app-versao, #rodapeVersao, #sidebarVersao, #sheetVersao, #sobreVersao');
+  elementos.forEach(function(el) {
+    el.textContent = versaoTexto;
+  });
+}
+
 function mostrarVersao() {
-  var el = document.getElementById('.app-versao, #rodapeVersao, #sidebarVersao, #sheetVersao, #sobreVersao');
 
   // Caminho 1: SW já activo — pedir versão via postMessage
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
@@ -94,12 +100,21 @@ if ('serviceWorker' in navigator) {
 // VERIFICAR ATUALIZAÇÃO
 // ============================================================
 
+function _botoesUpdate() {
+  return document.querySelectorAll('.btn-verificar-update, #btnVerificarUpdate, #btnSidebarUpdate, #btnSheetUpdate');
+}
+
 function verificarAtualizacao() {
-  var btn = document.getElementById('btnVerificarUpdate');
-  if (!btn) return;
-  btn.disabled  = true;
-  // Alterado para innerHTML para renderizar a tag <span>
-  btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">hourglass_empty</span> A verificar...';
+  var botoes = _botoesUpdate();
+  botoes.forEach(function(btn) {
+    btn.disabled  = true;
+    var labelEl = btn.querySelector('.sidebar-item-label, .bottom-nav-label, span:last-child');
+    if (labelEl) {
+      labelEl.textContent = 'A verificar...';
+    } else {
+      btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">hourglass_empty</span> A verificar...';
+    }
+  });
 
   if (!_swRegistration) {
     mostrarToast('<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">error</span> Service Worker não disponível.', 'info');

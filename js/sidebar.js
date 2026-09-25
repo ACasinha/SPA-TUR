@@ -285,7 +285,7 @@
     var divVersao = document.createElement('div');
     divVersao.className = 'sidebar-versao';
     divVersao.innerHTML =
-      '<span class="sidebar-versao-txt app-versao" id="rodapeVersao">v...</span>';
+      '<span class="sidebar-versao-txt app-versao" id="rodapeVersao">v1</span>';
     bottom.appendChild(divVersao);
 
     // Separador
