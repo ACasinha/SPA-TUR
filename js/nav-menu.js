@@ -245,25 +245,6 @@
       });
     }
 
-    // Link para a view "Sobre" (menor destaque, dentro de Mais)
-    var aSobre = document.createElement('a');
-    aSobre.href = '/sobre';
-    aSobre.className = 'bottom-sheet-item';
-    aSobre.setAttribute('data-rota', '/sobre');
-    aSobre.innerHTML =
-      '<span class="material-symbols-rounded">info</span>' +
-      '<span>Sobre</span>';
-    aSobre.addEventListener('click', function(e) {
-      e.preventDefault();
-      fecharGaveta();
-      if (typeof routerNavegar === 'function') {
-        routerNavegar('/sobre');
-      } else {
-        window.location.hash = '/sobre';
-      }
-    });
-    lista.appendChild(aSobre);
-
     var sep = document.createElement('div');
     sep.className = 'bottom-sheet-sep';
     lista.appendChild(sep);

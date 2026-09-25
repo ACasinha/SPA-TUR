@@ -49,13 +49,6 @@ var ROTAS = {
     deps:      [],
     acesso:    function(p) { return p.role === 'administrador'; },
     semAcesso: 'Apenas administradores podem aceder a esta área.'
-  },
-  '/sobre': {
-    view:      'sobre',
-    titulo:    'Sobre',
-    deps:      [],
-    acesso:    function(p) { return true; },
-    semAcesso: ''
   }
 };
 
