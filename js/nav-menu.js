@@ -1,259 +1,368 @@
 // ============================================================
-// nav-menu.js — Menu de navegação contextual (versão SPA)
+// nav-menu.js — Barra de Navegação Inferior com Ícones (Mobile <1024px)
+// e Gaveta "Mais" (Bottom Sheet)
 // Registo Diário de Nacionalidades — Município de Reguengos de Monsaraz
-//
-// Diferenças face à versão multi-página:
-//   • Navegação via routerNavegar() em vez de window.location
-//   • Marca item activo por caminho SPA (/, /dashboard, etc.)
-//   • data-rota em cada <a> para o router actualizar o estado activo
 // ============================================================
 
 'use strict';
 
 (function() {
 
-  var _menuAberto = false;
+  var _sheetAberta = false;
+  var _perfilActual = null;
 
   var MENU_ITEMS = [
-  {
-    id:    'nav-inicio',
-    label: '<span class="material-symbols-rounded">home</span><span class="nav-text-wrapper">Início</span>',
-    rota:  '/',
-    visible: function(p) { return true; }
-  },
-  {
-    id:    'nav-app',
-    label: '<span class="material-symbols-rounded">list_alt</span><span class="nav-text-wrapper">Registo Diário</span>',
-    rota:  '/registo',
-    visible: function(p) {
-      return p.role === 'administrador' || p.acessoRegisto === true;
+    {
+      id:      'nav-inicio',
+      label:   'Início',
+      icone:   'home',
+      rota:    '/',
+      visible: function(p) { return true; }
+    },
+    {
+      id:      'nav-app',
+      label:   'Registo',
+      icone:   'list_alt',
+      rota:    '/registo',
+      visible: function(p) {
+        return p && (p.role === 'administrador' || p.acessoRegisto === true);
+      }
+    },
+    {
+      id:      'nav-dashboard',
+      label:   'Dashboard',
+      icone:   'analytics',
+      rota:    '/dashboard',
+      visible: function(p) {
+        return p && (p.role === 'administrador' || p.acessoDashboard === true);
+      }
+    },
+    {
+      id:      'nav-editor',
+      label:   'Editor',
+      icone:   'edit_document',
+      rota:    '/editor',
+      visible: function(p) {
+        return p && (p.role === 'administrador' || p.acessoEditor === true);
+      }
+    },
+    {
+      id:      'nav-inventario',
+      label:   'Inventário',
+      icone:   'inventory_2',
+      rota:    '/inventario',
+      visible: function(p) {
+        return p && (p.role === 'administrador' || p.acessoInventario === true);
+      }
+    },
+    {
+      id:      'nav-admin',
+      label:   'Utilizadores',
+      icone:   'admin_panel_settings',
+      rota:    '/admin',
+      visible: function(p) {
+        return p && p.role === 'administrador';
+      }
     }
-  },
-  {
-    id:    'nav-dashboard',
-    label: '<span class="material-symbols-rounded">analytics</span><span class="nav-text-wrapper">Dashboard</span>',
-    rota:  '/dashboard',
-    visible: function(p) {
-      return p.role === 'administrador'
-          || p.acessoDashboard === true;
-    }
-  },
-  {
-    id:    'nav-editor',
-    label: '<span class="material-symbols-rounded">edit_document</span><span class="nav-text-wrapper">Editor Mensal</span>',
-    rota:  '/editor',
-    visible: function(p) {
-      return p.role === 'administrador' || p.acessoEditor === true;
-    }
-  },
-  {
-    id:    'nav-inventario',
-    label: '<span class="material-symbols-rounded">inventory_2</span><span class="nav-text-wrapper">Inventário de Material</span>',
-    rota:  '/inventario',
-    visible: function(p) {
-      return p.role === 'administrador' || p.acessoInventario === true;
-    }
-  },
-  {
-    id:    'nav-admin',
-    label: '<span class="material-symbols-rounded">admin_panel_settings</span><span class="nav-text-wrapper">Gestão de Utilizadores</span>',
-    rota:  '/admin',
-    visible: function(p) {
-      return p.role === 'administrador';
-    }
-  }
-];
+  ];
 
-  // ── Rota actual ───────────────────────────────────────────
+  // ── Obter rota actual da SPA ──────────────────────────────
   function rotaActual() {
+    var hash = window.location.hash.replace(/^#/, '');
+    if (hash) return hash.replace(/\/+$/, '') || '/';
     var path = window.location.pathname.replace(/\/+$/, '') || '/';
     return path;
   }
 
-  // ── Construir e injectar o menu ───────────────────────────
+  // ── Construir e injectar a navegação ──────────────────────
   function construirMenu(perfil) {
-    var rota          = rotaActual();
+    _perfilActual = perfil || {};
+    var rota = rotaActual();
+
+    // 1. Limpar elementos anteriores
+    _destruirElementos();
+
+    // 2. Limpar o contentor headerNav do antigo hamburger
+    var headerNav = document.getElementById('headerNav');
+    if (headerNav) {
+      headerNav.innerHTML = '';
+    }
+
+    // 3. Filtrar itens visíveis para o utilizador
     var itemsVisiveis = MENU_ITEMS.filter(function(item) {
-      return item.visible(perfil);
+      return item.visible(_perfilActual);
     });
 
-    // Destruir menu anterior
-    var btnAntigo    = document.getElementById('navMenuBtn');
-    var painelAntigo = document.getElementById('navMenuPainel');
-    if (btnAntigo)    btnAntigo.parentNode.removeChild(btnAntigo);
-    if (painelAntigo) painelAntigo.parentNode.removeChild(painelAntigo);
-    _menuAberto = false;
+    // Em mobile, a barra acomoda até 4 itens diretos + botão "Mais" (total 5 abas)
+    // Se o utilizador tiver 4 ou menos itens, todos aparecem na barra + "Mais" para conta/logout
+    var maxDiretos = 4;
+    var itensBarra = [];
+    var itensGaveta = [];
 
-    var headerNav = document.getElementById('headerNav');
+    if (itemsVisiveis.length <= maxDiretos) {
+      itensBarra = itemsVisiveis;
+    } else {
+      itensBarra = itemsVisiveis.slice(0, maxDiretos);
+      itensGaveta = itemsVisiveis.slice(maxDiretos);
+    }
 
-    if (!headerNav) return;
+    // 4. Criar a barra de navegação inferior (<nav class="bottom-nav">)
+    var nav = document.createElement('nav');
+    nav.id = 'bottomNav';
+    nav.className = 'bottom-nav';
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', 'Navegação principal inferior');
 
-    // Botão hamburger
-    var btn = document.createElement('button');
-    btn.id        = 'navMenuBtn';
-    btn.className = 'nav-menu-btn';
-    btn.setAttribute('aria-label', 'Menu de navegação');
-    btn.setAttribute('aria-expanded', 'false');
-    btn.setAttribute('aria-haspopup', 'true');
-    btn.innerHTML =
-      '<span class="nav-menu-icon">' +
-        '<span></span><span></span><span></span>' +
-      '</span>' +
-      '<span class="nav-menu-btn-label">Menu</span>';
-    headerNav.appendChild(btn);
+    itensBarra.forEach(function(item) {
+      var eActivo = (item.rota === rota);
+      var btn = document.createElement('a');
+      btn.href = item.rota;
+      btn.className = 'bottom-nav-item' + (eActivo ? ' activo' : '');
+      btn.setAttribute('data-rota', item.rota);
+      btn.id = item.id;
+      if (eActivo) btn.setAttribute('aria-current', 'page');
 
-    // Painel dropdown
-    var painel = document.createElement('div');
-    painel.id        = 'navMenuPainel';
-    painel.className = 'nav-menu-painel';
-    painel.setAttribute('role', 'navigation');
-    painel.setAttribute('aria-label', 'Navegação principal');
+      btn.innerHTML =
+        '<span class="bottom-nav-icon material-symbols-rounded">' + item.icone + '</span>' +
+        '<span class="bottom-nav-label">' + _escapar(item.label) + '</span>';
 
-    // Cabeçalho do painel
-    var cab = document.createElement('div');
-    cab.className = 'nav-menu-cab';
-    cab.innerHTML =
-      '<span class="nav-menu-cab-nome">' +
-        (perfil.nome || perfil.email || '—') +
-      '</span>' +
-      '<span class="nav-menu-cab-role">' + _labelRole(perfil) + '</span>';
-    painel.appendChild(cab);
-
-    painel.appendChild(_separador());
-
-    // Itens de navegação
-    itemsVisiveis.forEach(function(item) {
-      var eActivo = item.rota === rota;
-      var a       = document.createElement('a');
-
-      // href real para acessibilidade e ctrl+clique
-      a.href      = item.rota;
-      // data-rota usado pelo router para marcar activo sem recarregar
-      a.setAttribute('data-rota', item.rota);
-      a.className = 'nav-menu-item' + (eActivo ? ' activo' : '');
-      a.id        = item.id;
-      a.innerHTML = '<span class="nav-menu-item-label">' + item.label + '</span>';
-
-      if (eActivo) {
-        a.setAttribute('aria-current', 'page');
-      }
-
-      // Navegação SPA — interceptar clique normal
-      a.addEventListener('click', function(e) {
+      btn.addEventListener('click', function(e) {
         e.preventDefault();
-        fecharMenu();
+        fecharGaveta();
         if (typeof routerNavegar === 'function') {
           routerNavegar(item.rota);
         } else {
-          window.location.href = item.rota;
+          window.location.hash = item.rota;
         }
       });
 
-      painel.appendChild(a);
+      nav.appendChild(btn);
     });
 
-    painel.appendChild(_separador());
+    // 5. Botão "Mais" / Perfil na barra inferior
+    var btnMais = document.createElement('button');
+    btnMais.type = 'button';
+    btnMais.id = 'bottomNavMais';
+    btnMais.className = 'bottom-nav-item';
+    btnMais.setAttribute('aria-label', 'Mais opções e utilizador');
+    btnMais.setAttribute('aria-expanded', 'false');
 
-    // Botão sair
+    // Verificar se a rota actual está dentro dos itens da gaveta
+    var rotaNaGaveta = itensGaveta.some(function(it) { return it.rota === rota; });
+    if (rotaNaGaveta) {
+      btnMais.classList.add('activo');
+      btnMais.setAttribute('aria-current', 'page');
+    }
+
+    btnMais.innerHTML =
+      '<span class="bottom-nav-icon material-symbols-rounded">more_horiz</span>' +
+      '<span class="bottom-nav-label">Mais</span>';
+
+    btnMais.addEventListener('click', function(e) {
+      e.stopPropagation();
+      _sheetAberta ? fecharGaveta() : abrirGaveta();
+    });
+
+    nav.appendChild(btnMais);
+
+    // Inserir barra no app-shell ou body
+    var shell = document.getElementById('app-shell') || document.body;
+    shell.appendChild(nav);
+
+    // 6. Construir a Bottom Sheet (Gaveta "Mais")
+    _construirBottomSheet(itensGaveta, _perfilActual);
+
+    // 7. Atualizar estados ativos
+    actualizarNavActivo(rota);
+  }
+
+  // ── Construir a Bottom Sheet (Gaveta) ─────────────────────
+  function _construirBottomSheet(itensExtras, perfil) {
+    var overlay = document.createElement('div');
+    overlay.id = 'bottomSheetOverlay';
+    overlay.className = 'bottom-sheet-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+
+    var sheet = document.createElement('div');
+    sheet.className = 'bottom-sheet';
+    sheet.setAttribute('role', 'dialog');
+    sheet.setAttribute('aria-modal', 'true');
+    sheet.setAttribute('aria-label', 'Opções adicionais');
+
+    // Handle de arrasto
+    var handle = document.createElement('div');
+    handle.className = 'bottom-sheet-handle';
+    sheet.appendChild(handle);
+
+    // Cabeçalho com perfil do utilizador
+    var header = document.createElement('div');
+    header.className = 'bottom-sheet-header';
+
+    var nome = (perfil && (perfil.nome || perfil.email)) || 'Utilizador';
+    var sigla = nome.charAt(0).toUpperCase();
+    var role = _labelRole(perfil);
+
+    header.innerHTML =
+      '<div class="bottom-sheet-user">' +
+        '<div class="bottom-sheet-avatar">' + _escapar(sigla) + '</div>' +
+        '<div class="bottom-sheet-user-info">' +
+          '<span class="bottom-sheet-user-nome">' + _escapar(nome) + '</span>' +
+          '<span class="bottom-sheet-user-role">' + _escapar(role) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<button class="bottom-sheet-btn-fechar" id="btnFecharBottomSheet" aria-label="Fechar">' +
+        '<span class="material-symbols-rounded">close</span>' +
+      '</button>';
+
+    sheet.appendChild(header);
+
+    // Lista de ações
+    var lista = document.createElement('div');
+    lista.className = 'bottom-sheet-list';
+
+    // Itens extras de navegação (ex: Inventário, Gestão de Utilizadores)
+    if (itensExtras && itensExtras.length > 0) {
+      itensExtras.forEach(function(item) {
+        var a = document.createElement('a');
+        a.href = item.rota;
+        a.className = 'bottom-sheet-item';
+        a.setAttribute('data-rota', item.rota);
+        a.innerHTML =
+          '<span class="material-symbols-rounded">' + item.icone + '</span>' +
+          '<span>' + _escapar(item.label) + '</span>';
+
+        a.addEventListener('click', function(e) {
+          e.preventDefault();
+          fecharGaveta();
+          if (typeof routerNavegar === 'function') {
+            routerNavegar(item.rota);
+          } else {
+            window.location.hash = item.rota;
+          }
+        });
+
+        lista.appendChild(a);
+      });
+
+      var sep = document.createElement('div');
+      sep.className = 'bottom-sheet-sep';
+      lista.appendChild(sep);
+    }
+
+    // Alternar Tema (Dark / Light)
+    var btnTema = document.createElement('button');
+    btnTema.type = 'button';
+    btnTema.className = 'bottom-sheet-item';
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    btnTema.innerHTML =
+      '<span class="material-symbols-rounded" id="sheetThemeIcon">' + (isDark ? 'light_mode' : 'dark_mode') + '</span>' +
+      '<span id="sheetThemeText">' + (isDark ? 'Modo Claro' : 'Modo Escuro') + '</span>';
+
+    btnTema.addEventListener('click', function() {
+      var currentTheme = document.documentElement.getAttribute('data-theme');
+      var newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+
+      var iconEl = document.getElementById('sheetThemeIcon');
+      var textEl = document.getElementById('sheetThemeText');
+      if (iconEl) iconEl.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
+      if (textEl) textEl.textContent = newTheme === 'dark' ? 'Modo Claro' : 'Modo Escuro';
+
+      // Sincronizar botão do rodapé se existir
+      var rodapeIcon = document.getElementById('theme-icon');
+      if (rodapeIcon) rodapeIcon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
+    });
+
+    lista.appendChild(btnTema);
+
+    // Separador
+    var sep2 = document.createElement('div');
+    sep2.className = 'bottom-sheet-sep';
+    lista.appendChild(sep2);
+
+    // Botão Sair / Logout
     var btnSair = document.createElement('button');
-    btnSair.className = 'nav-menu-item nav-menu-sair';
-    btnSair.innerHTML = '<span class="nav-menu-item-label"><span class="material-symbols-rounded">logout</span><span class="nav-text-wrapper">Terminar sessão</span></span>';
+    btnSair.type = 'button';
+    btnSair.className = 'bottom-sheet-item bottom-sheet-sair';
+    btnSair.innerHTML =
+      '<span class="material-symbols-rounded">logout</span>' +
+      '<span>Terminar sessão</span>';
+
     btnSair.addEventListener('click', function() {
-      fecharMenu();
+      fecharGaveta();
       if (typeof logout === 'function') logout();
     });
-    painel.appendChild(btnSair);
 
-    document.body.appendChild(painel);
+    lista.appendChild(btnSair);
+    sheet.appendChild(lista);
+    overlay.appendChild(sheet);
 
-    // Eventos do botão hamburger
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      _menuAberto ? fecharMenu() : abrirMenu();
+    // Fechar ao clicar no backdrop ou botão fechar
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) fecharGaveta();
     });
 
-    document.addEventListener('click', function(e) {
-      if (_menuAberto && !painel.contains(e.target) && e.target !== btn) {
-        fecharMenu();
-      }
-    });
+    var btnFechar = header.querySelector('#btnFecharBottomSheet');
+    if (btnFechar) {
+      btnFechar.addEventListener('click', fecharGaveta);
+    }
 
+    document.body.appendChild(overlay);
+
+    // Fechar com a tecla Escape
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && _menuAberto) fecharMenu();
+      if (e.key === 'Escape' && _sheetAberta) fecharGaveta();
     });
-
   }
 
-  function _separador() {
-    var sep = document.createElement('div');
-    sep.className = 'nav-menu-sep';
-    return sep;
+  // ── Controlo da gaveta "Mais" ──────────────────────────────
+  function abrirGaveta() {
+    var overlay = document.getElementById('bottomSheetOverlay');
+    var btnMais = document.getElementById('bottomNavMais');
+    if (!overlay) return;
+
+    _sheetAberta = true;
+    overlay.classList.add('visivel');
+    overlay.setAttribute('aria-hidden', 'false');
+    if (btnMais) btnMais.setAttribute('aria-expanded', 'true');
   }
 
-  function abrirMenu() {
-    var btn    = document.getElementById('navMenuBtn');
-    var painel = document.getElementById('navMenuPainel');
-    if (!btn || !painel) return;
+  function fecharGaveta() {
+    var overlay = document.getElementById('bottomSheetOverlay');
+    var btnMais = document.getElementById('bottomNavMais');
+    if (!overlay) return;
 
-    _menuAberto = true;
-    btn.classList.add('aberto');
-    btn.setAttribute('aria-expanded', 'true');
-    
-    // 1. Força o display a block primeiro para o browser saber que ele existe
-    painel.style.display = 'block';
-    
-    // 2. Agora o getBoundingClientRect() já consegue ler o botão
-    _posicionarPainel();
-
-    // 3. Aplica a classe de animação/visibilidade
-    painel.classList.add('visivel');
-
-    var primeiro = painel.querySelector('.nav-menu-item:not(.activo)');
-    if (primeiro) setTimeout(function() { primeiro.focus(); }, 50);
+    _sheetAberta = false;
+    overlay.classList.remove('visivel');
+    overlay.setAttribute('aria-hidden', 'true');
+    if (btnMais) btnMais.setAttribute('aria-expanded', 'false');
   }
 
-  function fecharMenu() {
-    var btn    = document.getElementById('navMenuBtn');
-    var painel = document.getElementById('navMenuPainel');
-    if (!btn || !painel) return;
-    
-    _menuAberto = false;
-    btn.classList.remove('aberto');
-    btn.setAttribute('aria-expanded', 'false');
-    
-    // 1. Remove a classe visual
-    painel.classList.remove('visivel');
-    
-    // 2. Esconde o elemento do fluxo de cliques completamente
-    painel.style.display = 'none';
-    
-    // 3. Atira o menu para fora do ecrã (garantia absoluta contra bugs de renderização)
-    painel.style.top = '-9999px';
-    painel.style.right = '-9999px';
+  // ── Destruir elementos anteriores ─────────────────────────
+  function _destruirElementos() {
+    var navAntiga = document.getElementById('bottomNav');
+    if (navAntiga && navAntiga.parentNode) {
+      navAntiga.parentNode.removeChild(navAntiga);
+    }
+
+    var sheetAntiga = document.getElementById('bottomSheetOverlay');
+    if (sheetAntiga && sheetAntiga.parentNode) {
+      sheetAntiga.parentNode.removeChild(sheetAntiga);
+    }
+
+    _sheetAberta = false;
   }
 
-  function _posicionarPainel() {
-    var btn    = document.getElementById('navMenuBtn');
-    var painel = document.getElementById('navMenuPainel');
-    if (!btn || !painel) return;
-    var r = btn.getBoundingClientRect();
-    painel.style.top   = (r.bottom + 6) + 'px';
-    painel.style.right = (window.innerWidth - r.right) + 'px';
-  }
+  // ── Actualizar estado activo na navegação ─────────────────
+  function actualizarNavActivo(caminho) {
+    caminho = caminho || rotaActual();
 
-  window.addEventListener('resize', function() {
-    if (_menuAberto) _posicionarPainel();
-  });
-
-  // Actualizar estado activo quando o router muda de rota
-  // (o router chama _actualizarNavActivo, que já lida com data-rota)
-  window.addEventListener('popstate', function() {
-    var rota   = rotaActual();
-    var painel = document.getElementById('navMenuPainel');
-    if (!painel) return;
-    painel.querySelectorAll('.nav-menu-item[data-rota]').forEach(function(el) {
-      var r      = el.getAttribute('data-rota');
-      var activo = r === rota;
+    // 1. Itens da barra inferior
+    var bottomItems = document.querySelectorAll('.bottom-nav-item[data-rota]');
+    bottomItems.forEach(function(el) {
+      var r = el.getAttribute('data-rota');
+      var activo = (r === caminho);
       el.classList.toggle('activo', activo);
       if (activo) {
         el.setAttribute('aria-current', 'page');
@@ -261,9 +370,42 @@
         el.removeAttribute('aria-current');
       }
     });
+
+    // 2. Itens da gaveta "Mais"
+    var sheetItems = document.querySelectorAll('.bottom-sheet-item[data-rota]');
+    var rotaNaGaveta = false;
+    sheetItems.forEach(function(el) {
+      var r = el.getAttribute('data-rota');
+      var activo = (r === caminho);
+      el.classList.toggle('activo', activo);
+      if (activo) {
+        el.setAttribute('aria-current', 'page');
+        rotaNaGaveta = true;
+      } else {
+        el.removeAttribute('aria-current');
+      }
+    });
+
+    // 3. Se a rota activa for uma das que está dentro da gaveta, o botão "Mais" fica activo
+    var btnMais = document.getElementById('bottomNavMais');
+    if (btnMais) {
+      btnMais.classList.toggle('activo', rotaNaGaveta);
+      if (rotaNaGaveta) {
+        btnMais.setAttribute('aria-current', 'page');
+      } else {
+        btnMais.removeAttribute('aria-current');
+      }
+    }
+  }
+
+  // Listener para popstate
+  window.addEventListener('popstate', function() {
+    actualizarNavActivo(rotaActual());
   });
 
+  // ── Utilitários ───────────────────────────────────────────
   function _labelRole(perfil) {
+    if (!perfil) return 'Utilizador';
     if (perfil.role === 'administrador') return 'Administrador';
     var extras = [];
     if (perfil.acessoRegisto)     extras.push('Registo');
@@ -274,7 +416,17 @@
     return 'Utilizador';
   }
 
-  window.construirMenuNav = construirMenu;
-  window.fecharMenuNav    = fecharMenu;
+  function _escapar(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // ── API Pública ───────────────────────────────────────────
+  window.construirMenuNav   = construirMenu;
+  window.fecharMenuNav      = fecharGaveta;
+  window.actualizarNavActivo = actualizarNavActivo;
 
 })();
