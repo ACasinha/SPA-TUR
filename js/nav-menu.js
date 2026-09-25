@@ -243,11 +243,30 @@
 
         lista.appendChild(a);
       });
-
-      var sep = document.createElement('div');
-      sep.className = 'bottom-sheet-sep';
-      lista.appendChild(sep);
     }
+
+    // Link para a view "Sobre" (menor destaque, dentro de Mais)
+    var aSobre = document.createElement('a');
+    aSobre.href = '/sobre';
+    aSobre.className = 'bottom-sheet-item';
+    aSobre.setAttribute('data-rota', '/sobre');
+    aSobre.innerHTML =
+      '<span class="material-symbols-rounded">info</span>' +
+      '<span>Sobre</span>';
+    aSobre.addEventListener('click', function(e) {
+      e.preventDefault();
+      fecharGaveta();
+      if (typeof routerNavegar === 'function') {
+        routerNavegar('/sobre');
+      } else {
+        window.location.hash = '/sobre';
+      }
+    });
+    lista.appendChild(aSobre);
+
+    var sep = document.createElement('div');
+    sep.className = 'bottom-sheet-sep';
+    lista.appendChild(sep);
 
     // Alternar Tema (Dark / Light)
     var btnTema = document.createElement('button');
@@ -269,12 +288,48 @@
       if (iconEl) iconEl.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
       if (textEl) textEl.textContent = newTheme === 'dark' ? 'Modo Claro' : 'Modo Escuro';
 
-      // Sincronizar botão do rodapé se existir
-      var rodapeIcon = document.getElementById('theme-icon');
-      if (rodapeIcon) rodapeIcon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
+      // Sincronizar botão do rodapé ou sidebar se existir
+      var sidebarIcon = document.getElementById('sidebarThemeIcon');
+      if (sidebarIcon) sidebarIcon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
+      var sidebarTxt = document.getElementById('sidebarThemeText');
+      if (sidebarTxt) sidebarTxt.textContent = newTheme === 'dark' ? 'Modo Claro' : 'Modo Escuro';
     });
-
     lista.appendChild(btnTema);
+
+    // Botão Verificar atualização
+    var btnUpdate = document.createElement('button');
+    btnUpdate.type = 'button';
+    btnUpdate.className = 'bottom-sheet-item btn-verificar-update';
+    btnUpdate.id = 'btnSheetUpdate';
+    btnUpdate.innerHTML =
+      '<span class="material-symbols-rounded">cached</span>' +
+      '<span>Verificar atualização</span>';
+    btnUpdate.addEventListener('click', function() {
+      if (typeof verificarAtualizacao === 'function') verificarAtualizacao();
+    });
+    lista.appendChild(btnUpdate);
+
+    // Botão Instalar app
+    var btnInstalar = document.createElement('button');
+    btnInstalar.type = 'button';
+    btnInstalar.className = 'bottom-sheet-item btn-instalar-app';
+    btnInstalar.id = 'btnSheetInstalar';
+    btnInstalar.style.display = 'none';
+    btnInstalar.innerHTML =
+      '<span class="material-symbols-rounded">install_mobile</span>' +
+      '<span>Instalar app</span>';
+    btnInstalar.addEventListener('click', function() {
+      if (typeof instalarApp === 'function') instalarApp();
+    });
+    lista.appendChild(btnInstalar);
+
+    // Versão da aplicação
+    var divVersao = document.createElement('div');
+    divVersao.className = 'bottom-sheet-versao';
+    divVersao.innerHTML =
+      '<span class="material-symbols-rounded">verified</span>' +
+      '<span>Versão <strong class="app-versao" id="sheetVersao">v...</strong></span>';
+    lista.appendChild(divVersao);
 
     // Separador
     var sep2 = document.createElement('div');
@@ -326,6 +381,9 @@
     overlay.classList.add('visivel');
     overlay.setAttribute('aria-hidden', 'false');
     if (btnMais) btnMais.setAttribute('aria-expanded', 'true');
+
+    if (typeof mostrarVersao === 'function') mostrarVersao();
+    if (typeof verificarVisibilidadeInstalacao === 'function') verificarVisibilidadeInstalacao();
   }
 
   function fecharGaveta() {
