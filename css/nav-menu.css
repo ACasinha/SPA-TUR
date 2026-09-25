@@ -1,219 +1,299 @@
 /* ============================================================
-   nav-menu.css — Menu de navegação contextual (header)
-   Partilhado por todas as páginas
-   Importar em cada stylesheet ou via <link> em cada HTML
+   nav-menu.css — Barra de Navegação Inferior (Mobile / <1024px)
+   e Gaveta "Mais" (Bottom Sheet)
+   Registo Diário de Nacionalidades — Município de Reguengos de Monsaraz
 ============================================================ */
 
-/* ── Botão hamburger ──────────────────────────────────────── */
-.nav-menu-btn {
+/* ── Barra de Navegação Inferior ────────────────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(60px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--elementos, #FFFFFF);
+  border-top: 1px solid var(--border, #E8E0D5);
+  box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.07);
   display: flex;
   align-items: center;
+  justify-content: space-around;
+  z-index: 1000;
+  transition: transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Ocultar em desktop (onde a sidebar trata da navegação) */
+@media (min-width: 1024px) {
+  .bottom-nav {
+    display: none !important;
+  }
+}
+
+/* Item individual da barra inferior */
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  width: auto;
-  height: auto;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  color: var(--terra-dark);
+  height: 60px;
+  padding: 4px 2px;
+  color: var(--subtexto, #5A5A5A);
+  text-decoration: none;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  flex-shrink: 0;
-  transition: background 0.2s;
-  padding: 5px 10px;
-  margin-top: 3px;
-  gap: 6px;
-  white-space: nowrap;
-  min-height: 30px;
-  font-size: var(--text-xs, 0.72rem);
-  font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s ease, transform 0.1s ease;
+  min-width: 0;
+  user-select: none;
 }
 
-.nav-menu-btn:hover {
-  background: rgba(0, 0, 0, 0.08);
-}
-
-.nav-menu-btn:focus-visible {
-  outline: 2px solid rgba(0, 0, 0, 0.04);
-  outline-offset: 2px;
-}
-
-.nav-menu-btn-label {
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  color: inherit;
-  line-height: 1;
-}
-
-/* Ícone de 3 linhas */
-.nav-menu-icon {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 14px;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.nav-menu-icon span {
-  display: block;
-  width: 100%;
-  height: 2px;
-  background: var(--terra-dark);
-  border-radius: 2px;
-  transition: transform 0.22s ease, opacity 0.22s ease, width 0.22s ease;
-  transform-origin: center;
-}
-
-/* Estado aberto — X animado */
-.nav-menu-btn.aberto .nav-menu-icon span:nth-child(1) {
-  transform: translateY(6px) rotate(45deg);
-}
-.nav-menu-btn.aberto .nav-menu-icon span:nth-child(2) {
-  opacity: 0;
-  width: 0;
-}
-.nav-menu-btn.aberto .nav-menu-icon span:nth-child(3) {
-  transform: translateY(-6px) rotate(-45deg);
-}
-
-/* ── Painel dropdown ─────────────────────────────────────── */
-.nav-menu-painel {
-  position: fixed;
-  z-index: 2000;
-  min-width: 230px;
-  max-width: min(280px, calc(100vw - 24px));
-  background: #fff;
-  border-radius: var(--radius-lg, 14px);
-  box-shadow:
-    0 4px 6px rgba(0, 0, 0, 0.06),
-    0 12px 40px rgba(0, 0, 0, 0.14),
-    0 0 0 1px rgba(0, 0, 0, 0.06);
-  padding: 6px;
-  opacity: 0;
-  transform: scale(0.94) translateY(-6px);
-  transform-origin: top right;
-  pointer-events: none;
-  transition:
-    opacity 0.18s ease,
-    transform 0.18s ease;
-}
-
-.nav-menu-painel.visivel {
-  opacity: 1;
-  transform: scale(1) translateY(0);
-  pointer-events: auto;
-}
-
-/* ── Cabeçalho do painel ──────────────────────────────────── */
-.nav-menu-cab {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 12px 8px;
-}
-
-.nav-menu-cab-nome {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--cinza-escuro, #2C2C2C);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
-}
-
-.nav-menu-cab-role {
-  font-size: 0.68rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
+.bottom-nav-item:hover {
   color: var(--terra, #8B4A2B);
 }
 
-/* ── Separador ───────────────────────────────────────────── */
-.nav-menu-sep {
-  height: 1px;
-  background: rgba(0, 0, 0, 0.07);
-  margin: 4px 0;
+.bottom-nav-item:active {
+  opacity: 0.7;
+  transform: scale(0.96);
 }
 
-/* ── Item de menu ────────────────────────────────────────── */
-.nav-menu-item {
+.bottom-nav-item:focus-visible {
+  outline: 2px solid var(--terra);
+  outline-offset: -2px;
+}
+
+/* Ícone */
+.bottom-nav-icon {
+  font-size: 22px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, font-variation-settings 0.15s ease;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Rótulo de texto */
+.bottom-nav-label {
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  line-height: 1.2;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  transition: color 0.15s ease, font-weight 0.15s ease;
+}
+
+/* Item activo */
+.bottom-nav-item.activo {
+  color: var(--terra, #8B4A2B);
+}
+
+.bottom-nav-item.activo .bottom-nav-icon {
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+  transform: translateY(-1px);
+}
+
+.bottom-nav-item.activo .bottom-nav-label {
+  font-weight: 700;
+  color: var(--terra, #8B4A2B);
+}
+
+/* ── Overlay e Gaveta "Mais" (Bottom Sheet) ──────────────────── */
+.bottom-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.bottom-sheet-overlay.visivel {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.bottom-sheet {
+  background: var(--elementos, #FFFFFF);
+  border-top-left-radius: var(--radius-xl, 24px);
+  border-top-right-radius: var(--radius-xl, 24px);
+  padding: 12px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
+  border-top: 1px solid var(--border, #E8E0D5);
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.bottom-sheet-overlay.visivel .bottom-sheet {
+  transform: translateY(0);
+}
+
+/* Pega de arrasto superior */
+.bottom-sheet-handle {
+  width: 42px;
+  height: 4px;
+  background: var(--border, #E8E0D5);
+  border-radius: 4px;
+  margin: 0 auto 16px;
+}
+
+/* Cabeçalho do perfil na gaveta */
+.bottom-sheet-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border, #E8E0D5);
+  margin-bottom: 12px;
+}
+
+.bottom-sheet-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.bottom-sheet-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--terra-pale, #F5EBE0);
+  color: var(--terra, #8B4A2B);
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border, #E8E0D5);
+}
+
+.bottom-sheet-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.bottom-sheet-user-nome {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--texto, #2C2C2C);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bottom-sheet-user-role {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--terra, #8B4A2B);
+  margin-top: 1px;
+}
+
+.bottom-sheet-btn-fechar {
+  background: rgba(0, 0, 0, 0.04);
+  border: none;
+  color: var(--subtexto, #5A5A5A);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.bottom-sheet-btn-fechar:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--texto, #2C2C2C);
+}
+
+/* Lista de navegação na gaveta */
+.bottom-sheet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bottom-sheet-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   width: 100%;
-  padding: 9px 12px;
+  padding: 10px 14px;
   border-radius: var(--radius-sm, 8px);
   border: none;
   background: transparent;
-  color: var(--cinza-escuro, #2C2C2C);
-  font-size: 0.83rem;
+  color: var(--texto, #2C2C2C);
+  font-size: 0.88rem;
   font-family: inherit;
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
   text-align: left;
-  transition: background 0.12s ease, color 0.12s ease;
-  line-height: 1.35;
-  min-height: 38px;
+  transition: background 0.15s ease, color 0.15s ease;
+  min-height: 42px;
 }
 
-.nav-menu-item:hover,
-.nav-menu-item:focus-visible {
-  background: rgba(139, 74, 43, 0.07);
+.bottom-sheet-item:hover,
+.bottom-sheet-item:focus-visible {
+  background: rgba(139, 74, 43, 0.08);
   color: var(--terra, #8B4A2B);
   outline: none;
 }
 
-.nav-menu-item:active {
-  background: rgba(139, 74, 43, 0.13);
-}
-
-/* Item da página actual */
-.nav-menu-item.activo {
-  background: rgba(139, 74, 43, 0.09);
+.bottom-sheet-item.activo {
+  background: rgba(139, 74, 43, 0.1);
   color: var(--terra, #8B4A2B);
   font-weight: 700;
-  pointer-events: auto;
-  cursor: default;
 }
 
-.nav-menu-item.activo:hover {
-  background: rgba(139, 74, 43, 0.09);
-}
-
-/* Badge "Aqui" */
-.nav-menu-item-badge {
-  font-size: 0.63rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  background: rgba(139, 74, 43, 0.12);
-  color: var(--terra, #8B4A2B);
-  border-radius: 20px;
-  padding: 2px 7px;
+.bottom-sheet-item .material-symbols-rounded {
+  font-size: 20px;
+  color: inherit;
   flex-shrink: 0;
-  white-space: nowrap;
 }
 
-/* Botão sair */
-.nav-menu-sair {
+.bottom-sheet-sep {
+  height: 1px;
+  background: var(--border, #E8E0D5);
+  margin: 8px 0;
+}
+
+/* Botão sair e alternar tema */
+.bottom-sheet-sair {
   color: var(--vermelho, #c0392b) !important;
 }
 
-.nav-menu-sair:hover,
-.nav-menu-sair:focus-visible {
-  background: rgba(192, 57, 43, 0.07) !important;
+.bottom-sheet-sair:hover,
+.bottom-sheet-sair:focus-visible {
+  background: rgba(192, 57, 43, 0.08) !important;
   color: var(--vermelho, #c0392b) !important;
 }
 
-/* ── Responsividade mobile ───────────────────────────────── */
-@media (max-width: 480px) {
-  .nav-menu-painel {
-    /* Em mobile, o painel estica quase até à largura total */
-    min-width: calc(100vw - 24px);
-    right: 12px !important;
+/* Ajuste de margem inferior para o conteúdo da página no mobile */
+@media (max-width: 1023px) {
+  body {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
