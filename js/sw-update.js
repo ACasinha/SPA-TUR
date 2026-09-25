@@ -28,7 +28,7 @@ function mostrarVersao() {
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     var canal = new MessageChannel();
     canal.port1.onmessage = function(e) {
-      if (e.data && e.data.type === 'VERSION' && el) {
+      if (e.data && e.data.type === 'VERSION') {
         el.textContent = 'v' + e.data.versao;
       }
     };
@@ -45,7 +45,7 @@ function mostrarVersao() {
     .then(function(r) { return r.text(); })
     .then(function(txt) {
       var match = txt.match(/const\s+VERSAO\s*=\s*['"]([^'"]+)['"]/);
-      if (match && el) {
+      if (match) {
         el.textContent = 'v' + match[1];
       }
     })
