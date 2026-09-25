@@ -311,13 +311,18 @@ function _removerRecursosView(nomeView) {
 // ============================================================
 
 function _actualizarNavActivo(caminho) {
-  // Header mobile (nav-menu.js)
-  document.querySelectorAll('.nav-menu-item[data-rota]').forEach(function(el) {
-    var r = el.getAttribute('data-rota');
-    el.classList.toggle('activo', r === caminho);
-    if (r === caminho) { el.setAttribute('aria-current', 'page'); }
-    else               { el.removeAttribute('aria-current'); }
-  });
+  // Barra inferior mobile (nav-menu.js)
+  if (typeof window.actualizarNavActivo === 'function') {
+    window.actualizarNavActivo(caminho);
+  } else {
+    document.querySelectorAll('.bottom-nav-item[data-rota]').forEach(function(el) {
+      var r = el.getAttribute('data-rota');
+      var activo = (r === caminho);
+      el.classList.toggle('activo', activo);
+      if (activo) { el.setAttribute('aria-current', 'page'); }
+      else        { el.removeAttribute('aria-current'); }
+    });
+  }
 
   // Sidebar desktop (sidebar.js)
   document.querySelectorAll('.sidebar-item[data-rota]').forEach(function(el) {
