@@ -280,6 +280,21 @@
   margin: 8px 0;
 }
 
+.bottom-sheet-versao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 0.78rem;
+  color: var(--subtexto, #5A5A5A);
+}
+
+.bottom-sheet-versao strong {
+  color: var(--texto, #2C2C2C);
+  font-weight: 700;
+  font-family: monospace;
+}
+
 /* Botão sair e alternar tema */
 .bottom-sheet-sair {
   color: var(--vermelho, #c0392b) !important;
