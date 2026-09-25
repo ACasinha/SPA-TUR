@@ -31,11 +31,22 @@ window.addEventListener('beforeinstallprompt', function(e) {
   verificarVisibilidadeInstalacao();
 });
 
+function _ocultarBotoesInstalar() {
+  document.querySelectorAll('.btn-instalar-app, #btnInstalarRodape, #btnSidebarInstalar, #btnSheetInstalar').forEach(function(el) {
+    el.style.display = 'none';
+  });
+}
+
+function _mostrarBotoesInstalar() {
+  document.querySelectorAll('.btn-instalar-app, #btnInstalarRodape, #btnSidebarInstalar, #btnSheetInstalar').forEach(function(el) {
+    el.style.display = '';
+  });
+}
+
 window.addEventListener('appinstalled', function() {
   _deferredPrompt = null;
   dispensarBanner();
-  var btnRodape = document.getElementById('btnInstalarRodape');
-  if (btnRodape) btnRodape.style.display = 'none';
+  _ocultarBotoesInstalar();
   if (typeof mostrarToast === 'function') {
     mostrarToast('✓ App instalada com sucesso!', 'sucesso');
   }
@@ -57,8 +68,7 @@ function instalarApp() {
     console.log('[PWA] Resposta:', choice.outcome);
     _deferredPrompt = null;
     dispensarBanner();
-    var btnRodape = document.getElementById('btnInstalarRodape');
-    if (btnRodape) btnRodape.style.display = 'none';
+    _ocultarBotoesInstalar();
   });
 }
 
@@ -68,32 +78,36 @@ function instalarApp() {
 
 // Centraliza a verificação de visibilidade e reatribui os cliques aos botões que entram/saem do DOM
 function verificarVisibilidadeInstalacao() {
-  // 1. Determina se estamos estritamente na rota raiz (ou index.html)
   var path = window.location.pathname;
   var naRaiz = path === '/' || path.endsWith('/index.html') || window.location.hash === '#/' || window.location.hash === '';
-
   var jaInstalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 
-  // Se já estiver instalada ou NÃO estiver na página raiz, esconde tudo forçadamente
-  if (jaInstalada || !naRaiz) {
+  // Se já estiver instalada, esconde tudo forçadamente
+  if (jaInstalada) {
     var b = document.getElementById('installBanner');
     if (b) b.classList.remove('visivel');
-    var btnRodape = document.getElementById('btnInstalarRodape');
-    if (btnRodape) btnRodape.style.display = 'none';
+    _ocultarBotoesInstalar();
     return;
   }
 
-  // 2. Se estiver na raiz e houver um prompt disponível, gere a exibição
+  // Se não estiver na raiz, banner de topo não aparece
+  if (!naRaiz) {
+    var b2 = document.getElementById('installBanner');
+    if (b2) b2.classList.remove('visivel');
+  }
+
+  // Se houver um prompt disponível, exibe os botões de menu e/ou banner
   if (_deferredPrompt) {
-    // Banner topo
-    if (!bannerFoiDispensado()) {
+    // Banner topo apenas na raiz
+    if (naRaiz && !bannerFoiDispensado()) {
       var banner = document.getElementById('installBanner');
       if (banner) banner.classList.add('visivel');
     }
 
-    // Botão no rodapé
-    var rodape = document.getElementById('btnInstalarRodape');
-    if (rodape) rodape.style.display = '';
+    // Botões no menu inferior (Mais) e no menu lateral
+    _mostrarBotoesInstalar();
+  } else {
+    _ocultarBotoesInstalar();
   }
 
   // 3. Vincular (ou revincular) os eventos de clique aos botões presentes no DOM atual
@@ -104,7 +118,6 @@ function verificarVisibilidadeInstalacao() {
 function rebindEventosPWA() {
   var btnInstalar = document.getElementById('btnInstalar');
   if (btnInstalar) {
-    // Remove o listener antigo para não duplicar execuções e adiciona o novo
     btnInstalar.removeEventListener('click', executarInstalacao);
     btnInstalar.addEventListener('click', executarInstalacao);
   }
@@ -115,11 +128,10 @@ function rebindEventosPWA() {
     btnFechar.addEventListener('click', executarDispensar);
   }
 
-  var btnRodape = document.getElementById('btnInstalarRodape');
-  if (btnRodape) {
-    btnRodape.removeEventListener('click', executarInstalacao);
-    btnRodape.addEventListener('click', executarInstalacao);
-  }
+  document.querySelectorAll('.btn-instalar-app, #btnInstalarRodape, #btnSidebarInstalar, #btnSheetInstalar').forEach(function(el) {
+    el.removeEventListener('click', executarInstalacao);
+    el.addEventListener('click', executarInstalacao);
+  });
 }
 
 // Funções intermédias de encapsulamento para o addEventListener/removeEventListener
