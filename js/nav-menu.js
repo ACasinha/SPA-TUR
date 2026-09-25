@@ -308,7 +308,6 @@
     var divVersao = document.createElement('div');
     divVersao.className = 'bottom-sheet-versao';
     divVersao.innerHTML =
-      '<span class="material-symbols-rounded">verified</span>' +
       '<span>Versão <strong class="app-versao" id="sheetVersao">v...</strong></span>';
     lista.appendChild(divVersao);
 

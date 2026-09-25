@@ -16,7 +16,7 @@ var _swRegistration = null;
 // ============================================================
 
 function mostrarVersao() {
-  var el = document.getElementById('rodapeVersao');
+  var el = document.getElementById('.app-versao, #rodapeVersao, #sidebarVersao, #sheetVersao, #sobreVersao');
 
   // Caminho 1: SW já activo — pedir versão via postMessage
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {

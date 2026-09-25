@@ -143,36 +143,6 @@
     <!-- View activa renderizada aqui pelo router.js -->
   </main>
 
-  <!-- RODAPÉ GLOBAL — persistente entre views -->
-  <footer class="rodape" id="appFooter">
-    <div class="rodape-logo">
-      <img src="img/logo-turismo.png" alt="Serviços de Turismo">
-    </div>
-    <div class="rodape-texto">
-      <span class="rodape-dev">
-        Desenvolvido pelos Serviços de Turismo do Município de Reguengos de Monsaraz
-      </span>
-      <div class="rodape-pwa">
-        <span class="rodape-versao" id="rodapeVersao">v1</span>
-        <button class="btn-rodape" id="btnVerificarUpdate"
-                onclick="verificarAtualizacao()" title="Verificar atualização">
-          <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">cached</span> Verificar atualização
-        </button>
-        <button class="btn-rodape btn-rodape-pdf" id="btnRodapePdf" style="display:none" onclick="mostrarModalPDF()" title="Gerar formulário PDF">
-          <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">file_save</span> Gerar PDF
-        </button>
-        <button class="btn-rodape btn-rodape-instalar"
-                id="btnInstalarRodape" style="display:none"
-                onclick="instalarApp()" title="Instalar app">
-          <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">install_desktop</span> Instalar app
-        </button>
-        <button class="btn-rodape" id="theme-toggle">
-          <span id="theme-icon" class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">dark_mode</span>Alterar Tema
-        </button>
-      </div>
-    </div>
-  </footer>
-
 </div><!-- /app-shell -->
 
 <!-- TOAST GLOBAL — fora do shell para sobrepor qualquer view -->

@@ -222,25 +222,6 @@
     sep.className = 'sidebar-sep';
     bottom.appendChild(sep);
 
-    // Link para a view institucional "Sobre" (menor destaque)
-    var linkSobre = document.createElement('a');
-    linkSobre.href = '/sobre';
-    linkSobre.id = 'sb-sobre';
-    linkSobre.className = 'sidebar-item sidebar-item-secundario';
-    linkSobre.setAttribute('data-rota', '/sobre');
-    linkSobre.setAttribute('data-tooltip', 'Sobre');
-    linkSobre.innerHTML =
-      '<span class="sidebar-item-icon material-symbols-rounded">info</span>' +
-      '<span class="sidebar-item-label">Sobre</span>';
-    linkSobre.addEventListener('click', function(e) {
-      e.preventDefault();
-      if (typeof routerNavegar === 'function') {
-        routerNavegar('/sobre');
-      } else {
-        window.location.hash = '/sobre';
-      }
-    });
-    bottom.appendChild(linkSobre);
 
     // Botão Verificar atualização
     var btnUpdate = document.createElement('button');
