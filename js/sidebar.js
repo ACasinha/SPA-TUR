@@ -222,6 +222,96 @@
     sep.className = 'sidebar-sep';
     bottom.appendChild(sep);
 
+    // Link para a view institucional "Sobre" (menor destaque)
+    var linkSobre = document.createElement('a');
+    linkSobre.href = '/sobre';
+    linkSobre.id = 'sb-sobre';
+    linkSobre.className = 'sidebar-item sidebar-item-secundario';
+    linkSobre.setAttribute('data-rota', '/sobre');
+    linkSobre.setAttribute('data-tooltip', 'Sobre');
+    linkSobre.innerHTML =
+      '<span class="sidebar-item-icon material-symbols-rounded">info</span>' +
+      '<span class="sidebar-item-label">Sobre</span>';
+    linkSobre.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (typeof routerNavegar === 'function') {
+        routerNavegar('/sobre');
+      } else {
+        window.location.hash = '/sobre';
+      }
+    });
+    bottom.appendChild(linkSobre);
+
+    // Botão Verificar atualização
+    var btnUpdate = document.createElement('button');
+    btnUpdate.type = 'button';
+    btnUpdate.id = 'btnSidebarUpdate';
+    btnUpdate.className = 'sidebar-item sidebar-action-btn btn-verificar-update';
+    btnUpdate.setAttribute('data-tooltip', 'Verificar atualização');
+    btnUpdate.innerHTML =
+      '<span class="sidebar-item-icon material-symbols-rounded">cached</span>' +
+      '<span class="sidebar-item-label">Verificar atualização</span>';
+    btnUpdate.addEventListener('click', function() {
+      if (typeof verificarAtualizacao === 'function') verificarAtualizacao();
+    });
+    bottom.appendChild(btnUpdate);
+
+    // Botão Instalar app (visível se instalável)
+    var btnInstalar = document.createElement('button');
+    btnInstalar.type = 'button';
+    btnInstalar.id = 'btnSidebarInstalar';
+    btnInstalar.className = 'sidebar-item sidebar-action-btn btn-instalar-app';
+    btnInstalar.style.display = 'none';
+    btnInstalar.setAttribute('data-tooltip', 'Instalar app');
+    btnInstalar.innerHTML =
+      '<span class="sidebar-item-icon material-symbols-rounded">install_desktop</span>' +
+      '<span class="sidebar-item-label">Instalar app</span>';
+    btnInstalar.addEventListener('click', function() {
+      if (typeof instalarApp === 'function') instalarApp();
+    });
+    bottom.appendChild(btnInstalar);
+
+    // Botão Alternar Tema
+    var btnTema = document.createElement('button');
+    btnTema.type = 'button';
+    btnTema.id = 'btnSidebarTema';
+    btnTema.className = 'sidebar-item sidebar-action-btn';
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    btnTema.setAttribute('data-tooltip', isDark ? 'Modo Claro' : 'Modo Escuro');
+    btnTema.innerHTML =
+      '<span class="sidebar-item-icon material-symbols-rounded" id="sidebarThemeIcon">' + (isDark ? 'light_mode' : 'dark_mode') + '</span>' +
+      '<span class="sidebar-item-label" id="sidebarThemeText">' + (isDark ? 'Modo Claro' : 'Modo Escuro') + '</span>';
+    btnTema.addEventListener('click', function() {
+      var current = document.documentElement.getAttribute('data-theme');
+      var novo = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', novo);
+      localStorage.setItem('theme', novo);
+
+      var iconEl = document.getElementById('sidebarThemeIcon');
+      var textEl = document.getElementById('sidebarThemeText');
+      if (iconEl) iconEl.textContent = novo === 'dark' ? 'light_mode' : 'dark_mode';
+      if (textEl) textEl.textContent = novo === 'dark' ? 'Modo Claro' : 'Modo Escuro';
+      btnTema.setAttribute('data-tooltip', novo === 'dark' ? 'Modo Claro' : 'Modo Escuro');
+
+      var sheetIcon = document.getElementById('sheetThemeIcon');
+      if (sheetIcon) sheetIcon.textContent = novo === 'dark' ? 'light_mode' : 'dark_mode';
+      var sheetTxt = document.getElementById('sheetThemeText');
+      if (sheetTxt) sheetTxt.textContent = novo === 'dark' ? 'Modo Claro' : 'Modo Escuro';
+    });
+    bottom.appendChild(btnTema);
+
+    // Versão da aplicação
+    var divVersao = document.createElement('div');
+    divVersao.className = 'sidebar-versao';
+    divVersao.innerHTML =
+      '<span class="sidebar-versao-txt app-versao" id="sidebarVersao">v...</span>';
+    bottom.appendChild(divVersao);
+
+    // Separador
+    var sepUser = document.createElement('div');
+    sepUser.className = 'sidebar-sep';
+    bottom.appendChild(sepUser);
+
     // Utilizador
     bottom.appendChild(_criarUser());
 
@@ -266,6 +356,10 @@
 
     // Actualizar item activo
     _actualizarActivo(_rotaActual);
+
+    // Inicializar dados de versão e visibilidade da instalação
+    if (typeof mostrarVersao === 'function') mostrarVersao();
+    if (typeof verificarVisibilidadeInstalacao === 'function') verificarVisibilidadeInstalacao();
   }
 
   // ============================================================
