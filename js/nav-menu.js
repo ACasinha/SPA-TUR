@@ -277,19 +277,6 @@
     });
     lista.appendChild(btnTema);
 
-    // Botão Verificar atualização
-    var btnUpdate = document.createElement('button');
-    btnUpdate.type = 'button';
-    btnUpdate.className = 'bottom-sheet-item btn-verificar-update';
-    btnUpdate.id = 'btnSheetUpdate';
-    btnUpdate.innerHTML =
-      '<span class="material-symbols-rounded">cached</span>' +
-      '<span>Verificar atualização</span>';
-    btnUpdate.addEventListener('click', function() {
-      if (typeof verificarAtualizacao === 'function') verificarAtualizacao();
-    });
-    lista.appendChild(btnUpdate);
-
     // Botão Instalar app
     var btnInstalar = document.createElement('button');
     btnInstalar.type = 'button';
@@ -303,6 +290,19 @@
       if (typeof instalarApp === 'function') instalarApp();
     });
     lista.appendChild(btnInstalar);
+
+    // Botão Verificar atualização
+    var btnUpdate = document.createElement('button');
+    btnUpdate.type = 'button';
+    btnUpdate.className = 'bottom-sheet-item btn-verificar-update';
+    btnUpdate.id = 'btnSheetUpdate';
+    btnUpdate.innerHTML =
+      '<span class="material-symbols-rounded">cached</span>' +
+      '<span>Verificar atualização</span>';
+    btnUpdate.addEventListener('click', function() {
+      if (typeof verificarAtualizacao === 'function') verificarAtualizacao();
+    });
+    lista.appendChild(btnUpdate);
 
     // Versão da aplicação
     var divVersao = document.createElement('div');

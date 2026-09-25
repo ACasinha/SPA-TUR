@@ -222,36 +222,6 @@
     sep.className = 'sidebar-sep';
     bottom.appendChild(sep);
 
-
-    // Botão Verificar atualização
-    var btnUpdate = document.createElement('button');
-    btnUpdate.type = 'button';
-    btnUpdate.id = 'btnSidebarUpdate';
-    btnUpdate.className = 'sidebar-item sidebar-action-btn btn-verificar-update';
-    btnUpdate.setAttribute('data-tooltip', 'Verificar atualização');
-    btnUpdate.innerHTML =
-      '<span class="sidebar-item-icon material-symbols-rounded">cached</span>' +
-      '<span class="sidebar-item-label">Verificar atualização</span>';
-    btnUpdate.addEventListener('click', function() {
-      if (typeof verificarAtualizacao === 'function') verificarAtualizacao();
-    });
-    bottom.appendChild(btnUpdate);
-
-    // Botão Instalar app (visível se instalável)
-    var btnInstalar = document.createElement('button');
-    btnInstalar.type = 'button';
-    btnInstalar.id = 'btnSidebarInstalar';
-    btnInstalar.className = 'sidebar-item sidebar-action-btn btn-instalar-app';
-    btnInstalar.style.display = 'none';
-    btnInstalar.setAttribute('data-tooltip', 'Instalar app');
-    btnInstalar.innerHTML =
-      '<span class="sidebar-item-icon material-symbols-rounded">install_desktop</span>' +
-      '<span class="sidebar-item-label">Instalar app</span>';
-    btnInstalar.addEventListener('click', function() {
-      if (typeof instalarApp === 'function') instalarApp();
-    });
-    bottom.appendChild(btnInstalar);
-
     // Botão Alternar Tema
     var btnTema = document.createElement('button');
     btnTema.type = 'button';
@@ -280,6 +250,36 @@
       if (sheetTxt) sheetTxt.textContent = novo === 'dark' ? 'Modo Claro' : 'Modo Escuro';
     });
     bottom.appendChild(btnTema);
+
+    // Botão Instalar app (visível se instalável)
+    var btnInstalar = document.createElement('button');
+    btnInstalar.type = 'button';
+    btnInstalar.id = 'btnSidebarInstalar';
+    btnInstalar.className = 'sidebar-item sidebar-action-btn btn-instalar-app';
+    btnInstalar.style.display = 'none';
+    btnInstalar.setAttribute('data-tooltip', 'Instalar app');
+    btnInstalar.innerHTML =
+      '<span class="sidebar-item-icon material-symbols-rounded">install_desktop</span>' +
+      '<span class="sidebar-item-label">Instalar app</span>';
+    btnInstalar.addEventListener('click', function() {
+      if (typeof instalarApp === 'function') instalarApp();
+    });
+    bottom.appendChild(btnInstalar);
+
+    // Botão Verificar atualização
+    var btnUpdate = document.createElement('button');
+    btnUpdate.type = 'button';
+    btnUpdate.id = 'btnSidebarUpdate';
+    btnUpdate.className = 'sidebar-item sidebar-action-btn btn-verificar-update';
+    btnUpdate.setAttribute('data-tooltip', 'Verificar atualização');
+    btnUpdate.innerHTML =
+      '<span class="sidebar-item-icon material-symbols-rounded">cached</span>' +
+      '<span class="sidebar-item-label">Verificar atualização</span>';
+    btnUpdate.addEventListener('click', function() {
+      if (typeof verificarAtualizacao === 'function') verificarAtualizacao();
+    });
+    bottom.appendChild(btnUpdate);
+
 
     // Versão da aplicação
     var divVersao = document.createElement('div');
