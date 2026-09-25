@@ -418,6 +418,57 @@
   margin-top: 1px;
 }
 
+.sidebar-action-btn {
+  border: none;
+  background: transparent;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--sidebar-text-dim);
+}
+
+.sidebar-action-btn:hover {
+  color: white;
+}
+
+.sidebar-item-secundario {
+  color: var(--sidebar-text-dim);
+  font-size: 0.85rem;
+}
+
+.sidebar-item-secundario:hover {
+  color: white;
+}
+
+.sidebar-versao {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  color: var(--sidebar-text-dim);
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 22px;
+}
+
+.sidebar-versao-txt {
+  font-family: monospace;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.sidebar.colapsada .sidebar-versao {
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  min-height: 0;
+  pointer-events: none;
+}
+
 /* Botão sair */
 .sidebar-sair {
   display: flex;
