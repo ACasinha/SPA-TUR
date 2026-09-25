@@ -23,13 +23,12 @@ function _actualizarTextoVersao(versaoTexto) {
 }
 
 function mostrarVersao() {
-
   // Caminho 1: SW já activo — pedir versão via postMessage
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     var canal = new MessageChannel();
     canal.port1.onmessage = function(e) {
       if (e.data && e.data.type === 'VERSION') {
-        el.textContent = 'v' + e.data.versao;
+        _actualizarTextoVersao('v' + e.data.versao);
       }
     };
     navigator.serviceWorker.controller.postMessage(
@@ -46,7 +45,7 @@ function mostrarVersao() {
     .then(function(txt) {
       var match = txt.match(/const\s+VERSAO\s*=\s*['"]([^'"]+)['"]/);
       if (match) {
-        el.textContent = 'v' + match[1];
+        _actualizarTextoVersao('v' + match[1]);
       }
     })
     .catch(function() {});
@@ -118,8 +117,15 @@ function verificarAtualizacao() {
 
   if (!_swRegistration) {
     mostrarToast('<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">error</span> Service Worker não disponível.', 'info');
-    btn.disabled  = false;
-    btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">cached</span> Verificar atualização';
+    botoes.forEach(function(btn) {
+      btn.disabled  = false;
+      var labelEl = btn.querySelector('.sidebar-item-label, .bottom-nav-label, span:last-child');
+      if (labelEl) {
+        labelEl.textContent = 'Verificar atualização';
+      } else {
+        btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">cached</span> Verificar atualização';
+      }
+    });
     return;
   }
 
@@ -127,21 +133,42 @@ function verificarAtualizacao() {
     .then(function() {
       var temNovo = _swRegistration.waiting || _swRegistration.installing;
       if (temNovo) {
-        btn.innerHTML   = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check_circle</span> Atualizar agora';
-        btn.disabled    = false;
-        btn.onclick     = function() { aplicarAtualizacao(); };
+        botoes.forEach(function(btn) {
+          btn.disabled = false;
+          var labelEl = btn.querySelector('.sidebar-item-label, .bottom-nav-label, span:last-child');
+          if (labelEl) {
+            labelEl.textContent = 'Atualizar agora';
+          } else {
+            btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check_circle</span> Atualizar agora';
+          }
+          btn.onclick = function() { aplicarAtualizacao(); };
+        });
         mostrarToast('<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check_circle</span> Nova versão disponível. Clique em "Atualizar agora".', 'info');
       } else {
         mostrarVersao();
         mostrarToast('<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check_circle</span> A app está atualizada.', 'sucesso');
-        btn.disabled    = false;
-        btn.innerHTML   = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">cached</span> Verificar atualização';
+        botoes.forEach(function(btn) {
+          btn.disabled = false;
+          var labelEl = btn.querySelector('.sidebar-item-label, .bottom-nav-label, span:last-child');
+          if (labelEl) {
+            labelEl.textContent = 'Verificar atualização';
+          } else {
+            btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">cached</span> Verificar atualização';
+          }
+        });
       }
     })
     .catch(function(err) {
       mostrarToast('<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">error</span> Erro ao verificar: ' + err.message, 'erro');
-      btn.disabled    = false;
-      btn.innerHTML   = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">cached</span> Verificar atualização';
+      botoes.forEach(function(btn) {
+        btn.disabled = false;
+        var labelEl = btn.querySelector('.sidebar-item-label, .bottom-nav-label, span:last-child');
+        if (labelEl) {
+          labelEl.textContent = 'Verificar atualização';
+        } else {
+          btn.innerHTML = '<span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">cached</span> Verificar atualização';
+        }
+      });
     });
 }
 
