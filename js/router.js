@@ -139,8 +139,16 @@ function _navegar(caminho, pushState) {
       var outlet = document.getElementById(OUTLET_ID);
       outlet.innerHTML = _htmlCache[rota.view] || '';
 
-      _scrollParaTopo();
-
+      // Views voltam para o topo
+      if (outlet) {
+        if (outlet.scrollTo) outlet.scrollTo(0, 0);
+        else outlet.scrollTop = 0;
+      }
+      var shellMain = document.querySelector('.shell-main');
+      if (shellMain) {
+        if (shellMain.scrollTo) shellMain.scrollTo(0, 0);
+        else shellMain.scrollTop = 0;
+      }
       _viewActual = modulo;
       _rotaActual = { caminho: caminho, rota: rota };
       _actualizarNavActivo(caminho);
@@ -378,11 +386,3 @@ function routerDefinirPerfil(perfil) { _perfilUtiliz = perfil; }
 window.routerInit          = routerInit;
 window.routerNavegar       = routerNavegar;
 window.routerDefinirPerfil = routerDefinirPerfil;
-
-function _scrollParaTopo() {
-  var html = document.documentElement;
-  var anterior = html.style.scrollBehavior;
-  html.style.scrollBehavior = 'auto';   // ignora o smooth do CSS
-  window.scrollTo(0, 0);
-  html.style.scrollBehavior = anterior;
-}
