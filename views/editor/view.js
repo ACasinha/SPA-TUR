@@ -22,6 +22,7 @@
   var _diaModalActivo   = null;
   var _modoModalExtras  = null;
   var _listeners        = [];
+  var _vistaExtras = 'lista';
 
   // Resoluções parciais de extras (por secção, antes de confirmar tudo)
   // { operadores: 'servidor'|'offline'|null, sugestoes: ..., observacoes: ... }
@@ -94,6 +95,8 @@
     _dadosExtras = {}; _alteracoesExtras = {};
     _diaModalActivo = null; _modoModalExtras = null;
     _resolucaoExtras = null; _tabConflitoAtiva = 'paises';
+
+    _vistaExtras = 'lista';
 
     window.__editor = null;
     spaResetHeader();
@@ -176,6 +179,8 @@
 
       _construirGrelha(local, ano, mesNum, numDias);
       _construirTabelaExtras(ano, mesNum, numDias);
+      _renderCalendarioExtras();
+      _aplicarVistaExtras();
       _atualizarBadgeConflitos();
     })
     .catch(function(err) {
@@ -692,11 +697,94 @@
   }
 
   function _actualizarLinhaExtras(dataFmt) {
-    var tr = document.querySelector('#extrasTableBody tr[data-data="' + dataFmt + '"]');
-    if (!tr) return;
+  var tr = document.querySelector('#extrasTableBody tr[data-data="' + dataFmt + '"]');
+  if (tr) {
     var tdChips = tr.querySelector('.extras-td-chips');
     if (tdChips) tdChips.innerHTML = _chipsExtras(dataFmt);
   }
+  _renderCalendarioExtras();
+}
+
+  // ============================================================
+// VISTA CALENDÁRIO — extras
+// ============================================================
+
+function definirVistaExtras(vista) {
+  _vistaExtras = vista === 'calendario' ? 'calendario' : 'lista';
+  _aplicarVistaExtras();
+}
+
+function _aplicarVistaExtras() {
+  var lista = document.getElementById('extrasVistaLista');
+  var cal   = document.getElementById('extrasVistaCalendario');
+  if (lista) lista.style.display = _vistaExtras === 'lista' ? '' : 'none';
+  if (cal)   cal.style.display   = _vistaExtras === 'calendario' ? '' : 'none';
+  document.querySelectorAll('.extras-vista-btn').forEach(function(b) {
+    b.classList.toggle('ativa', b.getAttribute('data-vista') === _vistaExtras);
+  });
+}
+
+function _dadosExtrasDia(dataFmt) {
+  var ext = _dadosExtras[dataFmt]      || {};
+  var alt = _alteracoesExtras[dataFmt] || {};
+  return {
+    ops:  alt.operadores  !== undefined ? alt.operadores  : (ext.operadores  || []),
+    sugs: alt.sugestoes   !== undefined ? alt.sugestoes   : (ext.sugestoes   || []),
+    obs:  alt.observacoes !== undefined ? alt.observacoes : (ext.observacoes || '')
+  };
+}
+
+function _renderCalendarioExtras() {
+  var cont = document.getElementById('extrasVistaCalendario');
+  if (!cont || !_mesAtual) return;
+
+  var p       = _mesAtual.split('-');
+  var ano     = parseInt(p[0], 10);
+  var mesNum  = parseInt(p[1], 10);
+  var numDias = new Date(ano, mesNum, 0).getDate();
+  // Semana a começar à segunda: getDay() 0=Dom → 6
+  var offset  = (new Date(ano, mesNum - 1, 1).getDay() + 6) % 7;
+  var hoje    = new Date();
+  var cab     = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+
+  var html = '<div class="extras-cal">';
+  cab.forEach(function(d) { html += '<div class="extras-cal-cab">' + d + '</div>'; });
+
+  for (var i = 0; i < offset; i++) html += '<div class="extras-cal-vazio"></div>';
+
+  for (var d = 1; d <= numDias; d++) {
+    var dataFmt = String(d).padStart(2, '0') + '/' + String(mesNum).padStart(2, '0') + '/' + ano;
+    var dow     = new Date(ano, mesNum - 1, d).getDay();
+    var eFDS    = dow === 0 || dow === 6;
+    var eHoje   = ano === hoje.getFullYear() && mesNum === hoje.getMonth() + 1 && d === hoje.getDate();
+    var x       = _dadosExtrasDia(dataFmt);
+    var conf    = _conflitosDoMes[dataFmt] && _temConflitoExtras(dataFmt);
+    var alt     = !!_alteracoesExtras[dataFmt];
+    var temDados = x.ops.length || x.sugs.length || x.obs;
+
+    var badges = '';
+    if (x.ops.length)  badges += '<span class="extras-chip chip-op" title="Operadores">Op ' + x.ops.length + '</span>';
+    if (x.sugs.length) badges += '<span class="extras-chip chip-sug" title="Sugestões">Sug ' + x.sugs.length + '</span>';
+    if (x.obs)         badges += '<span class="extras-chip chip-obs" title="' + _esc(x.obs.slice(0, 120)) + '">Obs</span>';
+    if (conf)          badges += '<span class="extras-chip chip-conflito">⚠️</span>';
+    if (alt)           badges += '<span class="extras-chip chip-alt">✏️</span>';
+
+    html += '<button type="button" class="extras-cal-dia' +
+              (eFDS ? ' fds' : '') + (eHoje ? ' hoje' : '') + (temDados ? ' com-dados' : '') +
+              '" data-data="' + dataFmt + '" aria-label="Editar dia ' + d + '">' +
+              '<span class="extras-cal-num">' + d + '</span>' +
+              '<span class="extras-cal-badges">' + badges + '</span>' +
+            '</button>';
+  }
+  html += '</div>';
+  cont.innerHTML = html;
+
+  cont.querySelectorAll('.extras-cal-dia').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      abrirModalExtras(this.dataset.data, 'editar');
+    });
+  });
+}
 
   // ============================================================
   // MODAL EXTRAS
@@ -1528,7 +1616,8 @@
     activarTabConflito:     activarTabConflito,
     resolverConflito:       resolverConflito,
     resolverExtrasSecao:    resolverExtrasSecao,
-    activarModoFusao:       activarModoFusao
+    activarModoFusao:       activarModoFusao,
+    definirVistaExtras: definirVistaExtras
   };
 
   // ============================================================
@@ -1539,7 +1628,7 @@
   window.__views.editor = {
     mount:       mount,
     beforeLeave: beforeLeave,
-    unmount:     unmount
+    unmount:     unmount,
   };
 
 })();
