@@ -578,16 +578,6 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
 /* ============================================================
    MODAL PDF
 ============================================================ */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: var(--z-modal);
-  background: rgba(0,0,0,0.55);
-  display: none; align-items: center; justify-content: center;
-  padding: clamp(16px,4vw,32px);
-  backdrop-filter: blur(3px);
-  animation: fadeIn var(--transition-base) ease;
-  overflow-y: auto;
-}
-.modal-overlay.show { display: flex; }
 .modal-pdf-caixa {
   background: var(--background); border-radius: var(--radius-lg);
   padding: var(--spacing-xl); width: 100%; max-width: 480px;
