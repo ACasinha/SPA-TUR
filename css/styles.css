@@ -493,6 +493,12 @@ input[type="number"] {
 .toast.erro    { background:#c0392b; }
 .toast.info    { background:var(--azul); }
 
+@media (max-width: 1023px) {
+  .toast {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 /* ============================================================
    BOTÕES — guardar / limpar / ações
 ============================================================ */
