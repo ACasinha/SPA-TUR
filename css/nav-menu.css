@@ -18,7 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  z-index: 1000;
+  z-index: var(--z-nav);
   transition: transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
