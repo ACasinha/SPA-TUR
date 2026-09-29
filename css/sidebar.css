@@ -32,10 +32,6 @@
   #app-shell {
     flex-direction: row;
     align-items: stretch;
-    height: 100%;
-    height: -webkit-fill-available;
-    height: 100dvh;
-    overflow: hidden;
   }
 
   /* Header global oculto em desktop */
@@ -45,14 +41,11 @@
 
   /* Outlet ocupa o espaço restante */
   .spa-outlet {
-    flex: 1 1 0%;
+    flex: 1;
     min-width: 0;           /* evita overflow em conteúdo largo */
-    min-height: 0;
-    overflow-y: auto;
     overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-    padding-bottom: 32px;
+    /* Altura total menos o footer */
+    min-height: 100vh;
   }
 
   /* Footer mantém-se mas fica restrito ao outlet */
@@ -70,13 +63,9 @@
 .shell-main {
   display: flex;
   flex-direction: column;
-  flex: 1 1 0%;
+  flex: 1;
   min-width: 0;
-  height: 100%;
-  height: -webkit-fill-available;
-  height: 100dvh;
-  overflow: hidden;
-  position: relative;
+  min-height: 100vh;
 }
 
 /* ============================================================
@@ -91,26 +80,19 @@
     display: flex;
     flex-direction: column;
     width: var(--sidebar-w);
-    height: 100%;
-    height: -webkit-fill-available;
-    height: 100dvh;
+    min-height: 100vh;
     background: var(--sidebar-bg);
     flex-shrink: 0;
-    position: relative;
+    position: sticky;
     top: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior-y: contain;
-    -webkit-overflow-scrolling: touch;
+    height: 100vh;
+    overflow: hidden;
     transition: width var(--sidebar-transition);
     z-index: 200;
     border-right: 1px solid var(--sidebar-border);
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
 
     /* Scrollbar discreta para o caso de muitos itens */
+    overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: rgba(255,255,255,0.1) transparent;
   }
@@ -463,22 +445,20 @@
 .sidebar-versao {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 2px 12px;
-  font-size: 0.65rem;
+  padding: 4px 12px;
+  font-size: 0.72rem;
   color: var(--sidebar-text-dim);
-  opacity: 0.75;
+  opacity: 0.85;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 18px;
+  min-height: 22px;
 }
 
 .sidebar-versao-txt {
   font-family: monospace;
   font-weight: 600;
-  letter-spacing: 0.4px;
-  font-size: 0.65rem;
+  letter-spacing: 0.5px;
 }
 
 .sidebar.colapsada .sidebar-versao {
