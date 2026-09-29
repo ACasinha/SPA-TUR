@@ -535,6 +535,12 @@ input[type="number"] {
 }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 
+.btn-modal {
+  padding: 10px 20px; border-radius: var(--radius-sm);
+  font-size: var(--text-sm); font-weight: 600;
+  min-height: 40px; cursor: pointer;
+  transition: all var(--transition-base); border: none;
+}
 .btn-modal-cancelar {
   background: white; color: var(--cinza);
   border: 1.5px solid var(--cinza-claro); border-radius: var(--radius-sm);
