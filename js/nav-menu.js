@@ -181,7 +181,7 @@
     var overlay = document.createElement('div');
     overlay.id = 'bottomSheetOverlay';
     overlay.className = 'bottom-sheet-overlay';
-    overlay.setAttribute('aria-hidden', 'true');
+    overlay.inert = true;
 
     var sheet = document.createElement('div');
     sheet.className = 'bottom-sheet';
@@ -358,9 +358,12 @@
     if (!overlay) return;
 
     _sheetAberta = true;
+    overlay.inert = false;
     overlay.classList.add('visivel');
-    overlay.setAttribute('aria-hidden', 'false');
     if (btnMais) btnMais.setAttribute('aria-expanded', 'true');
+
+    var btnFechar = document.getElementById('btnFecharBottomSheet');
+    if (btnFechar) btnFechar.focus();
 
     if (typeof mostrarVersao === 'function') mostrarVersao();
     if (typeof verificarVisibilidadeInstalacao === 'function') verificarVisibilidadeInstalacao();
@@ -370,6 +373,11 @@
     var overlay = document.getElementById('bottomSheetOverlay');
     var btnMais = document.getElementById('bottomNavMais');
     if (!overlay) return;
+
+    if (overlay.contains(document.activeElement)) {
+    if (btnMais) btnMais.focus();
+    else document.activeElement.blur();
+  }
 
     _sheetAberta = false;
     overlay.classList.remove('visivel');
