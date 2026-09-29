@@ -381,7 +381,7 @@
 
     _sheetAberta = false;
     overlay.classList.remove('visivel');
-    overlay.setAttribute('aria-hidden', 'true');
+    overlay.setAttribute('aria-expanded', 'true');
     if (btnMais) btnMais.setAttribute('aria-expanded', 'false');
   }
 
