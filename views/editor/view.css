@@ -955,7 +955,7 @@
 .modal-extras-linha .modal-extras-sug-texto { flex: 3; min-width: 0; }
 .modal-extras-linha .modal-extras-sug-nac   { flex: 2; min-width: 0; }
 
-.modal-extras-op-nome input {
+.modal-op-cartao-header input {
   border: 1.5px solid var(--cinza-claro);
   border-radius: var(--radius-sm);
   padding: 8px 10px;
@@ -966,7 +966,7 @@
   -webkit-appearance: none;
   transition: border-color var(--transition-base);
 }
-.modal-extras-op-nome input:focus {
+.modal-op-cartao-header input:focus {
   outline: none;
   border-color: var(--terra-light);
   box-shadow: 0 0 0 2px rgba(61,90,62,0.10);
