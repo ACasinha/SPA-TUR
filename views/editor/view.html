@@ -94,14 +94,24 @@
       <div class="secao-card-header">
         <h2>Operadores, Sugestões e Observações</h2>
         <div class="secao-meta">
-          <button type="button" class="btn-extras-adicionar"
-                  onclick="window.__editor&&window.__editor.abrirModalExtras(null,'adicionar')">
-            <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span>Adicionar registo
-          </button>
-          <span class="secao-toggle-icone" style="cursor:default">—</span>
-        </div>
+  <div class="extras-vista-toggle" role="group" aria-label="Tipo de vista">
+    <button type="button" class="extras-vista-btn ativa" data-vista="lista"
+            onclick="window.__editor&&window.__editor.definirVistaExtras('lista')">
+      <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle">table_rows</span> Lista
+    </button>
+    <button type="button" class="extras-vista-btn" data-vista="calendario"
+            onclick="window.__editor&&window.__editor.definirVistaExtras('calendario')">
+      <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle">calendar_month</span> Calendário
+    </button>
+  </div>
+  <button type="button" class="btn-extras-adicionar"
+          onclick="window.__editor&&window.__editor.abrirModalExtras(null,'adicionar')">
+    <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span>Adicionar registo
+  </button>
+</div>
       </div>
       <div class="secao-card-corpo">
+        <div id="extrasVistaLista">
         <div class="table-scroll">
           <table class="extras-table">
             <thead>
@@ -114,6 +124,8 @@
             <tbody id="extrasTableBody"></tbody>
           </table>
         </div>
+        </div>
+        <div id="extrasVistaCalendario" style="display:none"></div>
       </div>
     </div>
 
