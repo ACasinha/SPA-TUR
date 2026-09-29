@@ -15,10 +15,16 @@
 ============================================================ */
 
 .spa-outlet {
-  /* Permite que cada view gerencie o seu próprio scroll/padding */
   display: block;
-  min-height: calc(100vh - 80px); /* 80px ≈ altura do header */
+  flex: 1 1 0%;
+  min-height: 0;
+  width: 100%;
   position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Animação de entrada da view — aplicada ao outlet pelo router */
@@ -201,11 +207,16 @@ body {
   background: var(--background);
 }
 
-/* Garantir que o footer fica sempre no fundo */
+/* Shell principal fixo à viewport */
 #app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100%;
+  height: -webkit-fill-available;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
 }
 
 .spa-outlet {
