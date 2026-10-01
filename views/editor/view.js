@@ -148,7 +148,10 @@
 
     _localAtual = local; _mesAtual = mes;
     _dadosMes = {}; _alteracoes = {}; _totalAlteracoes = 0;
+    _conflitosDoMes = {}; _alteracoesExtras = {};
+    _atualizarBadgesTabs();
     _atualizarBarraAlteracoes();
+    
 
     var cardExtras = document.getElementById('secaoExtras');
     if (cardExtras) cardExtras.style.display = 'none';
@@ -521,6 +524,7 @@
     }
     if (btnG)  btnG.disabled = _totalAlteracoes === 0;
     if (aviso) aviso.classList.toggle('visivel', _totalAlteracoes > 0);
+    _atualizarBadgesTabs();
   }
 
   // ============================================================
@@ -633,6 +637,36 @@
   _stickyAgendarActualizacao(); // esconde/mostra o thead clone
 }
 
+  function _temConflitoPaises(dataFmt) {
+  var c = _conflitosDoMes[dataFmt];
+  if (!c) return false;
+  var pS = (c.payloadExistente || {}).paises || {};
+  var pN = (c.payloadNovo      || {}).paises || {};
+  return Object.keys(Object.assign({}, pS, pN))
+    .some(function(p) { return (pS[p] || 0) !== (pN[p] || 0); });
+}
+
+function _setBadgeTab(id, n, icone, titulo) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = n > 0 ? '' : 'none';
+  el.textContent   = icone + ' ' + n;
+  el.title         = n + ' ' + titulo;
+}
+
+function _atualizarBadgesTabs() {
+  var cPaises = 0, cExtras = 0;
+  Object.keys(_conflitosDoMes).forEach(function(d) {
+    var extras = _temConflitoExtras(d);
+    if (extras) cExtras++;
+    if (_temConflitoPaises(d) || !extras) cPaises++;
+  });
+  _setBadgeTab('edBadgeContagemConflito', cPaises,          '⚠',  'conflito(s) pendente(s)');
+  _setBadgeTab('edBadgeContagemAlt',      _totalAlteracoes, '✏️', 'alteração(ões) por guardar');
+  _setBadgeTab('edBadgeExtrasConflito',   cExtras,          '⚠',  'conflito(s) pendente(s)');
+  _setBadgeTab('edBadgeExtrasAlt',        Object.keys(_alteracoesExtras).length, '✏️', 'dia(s) por guardar');
+}
+
   function toggleSecaoGrelha() {
     var card  = document.getElementById('secaoGrelha');
     var icone = document.getElementById('secaoToggleIcone');
@@ -723,6 +757,7 @@
     if (tdChips) tdChips.innerHTML = _chipsExtras(dataFmt);
   }
   _renderCalendarioExtras();
+  _atualizarBadgesTabs();
 }
 
   // ============================================================
@@ -1504,6 +1539,7 @@ function _renderCalendarioExtras() {
     var badge = document.getElementById('conflitosAvisoBadge');
     if (aviso) aviso.style.display = n > 0 ? '' : 'none';
     if (badge) badge.textContent = n;
+    _atualizarBadgesTabs();
   }
 
   // ============================================================
