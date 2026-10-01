@@ -1541,3 +1541,43 @@
   /* No telemóvel mostra só os badges essenciais, sem texto longo */
   .extras-cal-badges .extras-chip { font-size: 0.55rem; padding: 1px 4px; }
 }
+
+/* ── Tabs do editor ─────────────────────────────────────── */
+.ed-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: var(--gap);
+  border-bottom: 2px solid var(--cinza-claro);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ed-tabs::-webkit-scrollbar { display: none; }
+
+.ed-tab {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  font-size: var(--text-sm); font-weight: 600;
+  color: var(--cinza);
+  cursor: pointer; white-space: nowrap;
+  min-height: 44px;
+  transition: color var(--transition-fast), background var(--transition-fast),
+              border-color var(--transition-fast);
+}
+.ed-tab .material-symbols-rounded { font-size: 18px; }
+.ed-tab:hover { background: rgba(61,90,62,0.07); color: var(--verde); }
+.ed-tab.ativa {
+  color: var(--verde-dark);
+  border-bottom-color: var(--verde);
+  font-weight: 700;
+}
+
+.ed-tab-panel { animation: fadeIn 0.18s ease; }
+
+@media (max-width: 480px) {
+  .ed-tab { padding: 9px 12px; font-size: 0.75rem; }
+}
