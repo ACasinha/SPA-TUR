@@ -17,9 +17,8 @@
    BARRA DE TABS
 ============================================================ */
 .tabs-wrapper {
-  position: sticky;
-  top: clamp(60px,10vw,80px);
-  z-index: 50;
+  position: static;
+  z-index: 1;
   padding: 10px 0 0;
   margin-bottom: 0;
 }
