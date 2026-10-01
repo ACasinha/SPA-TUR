@@ -22,7 +22,7 @@
   var _diaModalActivo   = null;
   var _modoModalExtras  = null;
   var _listeners        = [];
-  var _vistaExtras = 'lista';
+  var _vistaExtras = 'calendario';
   var _tabActiva = 'contagem';
 
   // Resoluções parciais de extras (por secção, antes de confirmar tudo)
@@ -97,7 +97,7 @@
     _diaModalActivo = null; _modoModalExtras = null;
     _resolucaoExtras = null; _tabConflitoAtiva = 'paises';
 
-    _vistaExtras = 'lista';
+    _vistaExtras = 'calendario';
     _tabActiva = 'contagem';
 
     window.__editor = null;
