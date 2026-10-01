@@ -76,7 +76,7 @@
   }
 
   function beforeLeave() {
-    if (_totalAlteracoes > 0) {
+    if (_totalPendentes > 0) {
       return confirm('Tem alterações por guardar. Tem a certeza que quer sair?');
     }
     return true;
@@ -110,7 +110,7 @@
   }
 
   function _onBeforeUnload(e) {
-    if (_totalAlteracoes > 0) {
+    if (_totalPendentes > 0) {
       e.preventDefault();
       e.returnValue = 'Tem alterações por guardar.';
       return e.returnValue;
@@ -142,7 +142,7 @@
       if (im) im.focus();
       return;
     }
-    if (_totalAlteracoes > 0) {
+    if (_totalPendentes > 0) {
       if (!confirm('Tem alterações por guardar. Se continuar serão perdidas. Continuar?')) return;
     }
 
@@ -509,46 +509,55 @@
     return n;
   }
 
+  function _totalPendentes() {
+  return _totalAlteracoes + Object.keys(_alteracoesExtras).length;
+}
+
   function _atualizarBarraAlteracoes() {
-    var badge = document.getElementById('alteracoesBadge');
-    var btnG  = document.getElementById('btnGuardarTudo');
-    var aviso = document.getElementById('secaoAlteracoesAviso');
-    if (badge) {
-      if (_totalAlteracoes > 0) {
-        badge.classList.add('visivel');
-        badge.textContent = '✏️ ' + _totalAlteracoes +
-          (_totalAlteracoes === 1 ? ' alteração' : ' alterações') + ' por guardar';
-      } else {
-        badge.classList.remove('visivel');
-      }
+  var badge = document.getElementById('alteracoesBadge');
+  var btnG  = document.getElementById('btnGuardarTudo');
+  var aviso = document.getElementById('secaoAlteracoesAviso');
+  var n     = _totalPendentes();
+  if (badge) {
+    if (n > 0) {
+      badge.classList.add('visivel');
+      badge.textContent = '✏️ ' + n + (n === 1 ? ' alteração' : ' alterações') + ' por guardar';
+    } else {
+      badge.classList.remove('visivel');
     }
-    if (btnG)  btnG.disabled = _totalAlteracoes === 0;
-    if (aviso) aviso.classList.toggle('visivel', _totalAlteracoes > 0);
-    _atualizarBadgesTabs();
   }
+  if (btnG)  btnG.disabled = n === 0;
+  if (aviso) aviso.classList.toggle('visivel', _totalAlteracoes > 0);
+  _atualizarBadgesTabs();
+}
 
   // ============================================================
   // GUARDAR
   // ============================================================
 
   function confirmarGuardar() {
-    if (_totalAlteracoes === 0) { mostrarToast('Não há alterações para guardar.', 'info'); return; }
-    var diasAlterados = Object.keys(_alteracoes).length;
-    var el = document.getElementById('modalResumoTexto');
-    if (el) el.textContent =
-      '📍 Local: '  + _localAtual + '\n' +
-      '📅 Mês: '    + _formatarMes(_mesAtual) + '\n' +
-      '📊 Dias com alterações: ' + diasAlterados + '\n' +
-      '✏️ Células alteradas: '   + _totalAlteracoes;
-    var m = document.getElementById('modalGuardar');
-    if (m) m.classList.add('show');
-  }
+  if (_totalPendentes() === 0) { mostrarToast('Não há alterações para guardar.', 'info'); return; }
+  var el = document.getElementById('modalResumoTexto');
+  if (el) el.textContent =
+    '📍 Local: '  + _localAtual + '\n' +
+    '📅 Mês: '    + _formatarMes(_mesAtual) + '\n' +
+    '📊 Dias com células alteradas: ' + Object.keys(_alteracoes).length + '\n' +
+    '✏️ Células alteradas: '          + _totalAlteracoes + '\n' +
+    '📝 Dias com operadores/sugestões/observações: ' + Object.keys(_alteracoesExtras).length;
+  var m = document.getElementById('modalGuardar');
+  if (m) m.classList.add('show');
+}
 
   function fecharModalGuardar() { _fecharModal('modalGuardar'); }
 
   function executarGuardar() {
   fecharModalGuardar();
-  var datas = Object.keys(_alteracoes);
+
+  // União dos dias com alterações na grelha e/ou nos extras
+  var mapa = {};
+  Object.keys(_alteracoes).forEach(function(d)       { mapa[d] = true; });
+  Object.keys(_alteracoesExtras).forEach(function(d) { mapa[d] = true; });
+  var datas = Object.keys(mapa);
   if (!datas.length) return;
 
   var btnG = document.getElementById('btnGuardarTudo');
@@ -567,33 +576,43 @@
       if (v > 0) finais[p] = v; else delete finais[p];
     });
 
-    // Preservar extras já guardados — a grelha só edita países.
-    var ext = _dadosExtras[data] || {};
+    // Extras: pendentes têm prioridade sobre os já guardados
+    var ext = _dadosExtras[data]      || {};
+    var alt = _alteracoesExtras[data] || {};
     return {
       data:        data,
       paises:      finais,
-      operadores:  ext.operadores  || [],
-      sugestoes:   ext.sugestoes   || [],
-      observacoes: ext.observacoes || ''
+      operadores:  alt.operadores  !== undefined ? alt.operadores  : (ext.operadores  || []),
+      sugestoes:   alt.sugestoes   !== undefined ? alt.sugestoes   : (ext.sugestoes   || []),
+      observacoes: alt.observacoes !== undefined ? alt.observacoes : (ext.observacoes || '')
     };
   });
 
   chamarAPI('guardarRegistosLote', { local: _localAtual, registos: registos })
     .then(function(resp) {
-      if (btnG) { btnG.disabled = false; btnG.textContent = '💾 Guardar alterações'; }
+      if (btnG) btnG.textContent = '💾 Guardar alterações';
 
       if (resp.sucesso) {
-        datas.forEach(function(data) {
+        var datasExtras = Object.keys(_alteracoesExtras);
+
+        // Países
+        Object.keys(_alteracoes).forEach(function(data) {
           if (!_dadosMes[data]) _dadosMes[data] = {};
-          Object.keys(_alteracoes[data] || {}).forEach(function(p) {
+          Object.keys(_alteracoes[data]).forEach(function(p) {
             _dadosMes[data][p] = _alteracoes[data][p];
           });
         });
-        _alteracoes = {}; _totalAlteracoes = 0;
+        // Extras
+        datasExtras.forEach(function(data) {
+          _dadosExtras[data] = Object.assign({}, _dadosExtras[data] || {}, _alteracoesExtras[data]);
+        });
+
+        _alteracoes = {}; _totalAlteracoes = 0; _alteracoesExtras = {};
         _atualizarBarraAlteracoes();
         document.querySelectorAll('.cel-input.alterada').forEach(function(el) {
           el.classList.remove('alterada');
         });
+        datasExtras.forEach(_actualizarLinhaExtras);
         mostrarToast('✓ ' + resp.mensagem, 'sucesso');
       } else {
         mostrarToast('⚠️ Erro: ' + resp.mensagem, 'erro');
@@ -601,27 +620,32 @@
       }
     })
     .catch(function(err) {
-      if (btnG) { btnG.disabled = false; btnG.textContent = '💾 Guardar alterações'; }
+      if (btnG) btnG.textContent = '💾 Guardar alterações';
+      _atualizarBarraAlteracoes();
       mostrarToast('Erro ao guardar: ' + err.message, 'erro');
     });
 }
 
   function descartarAlteracoes() {
-    if (_totalAlteracoes === 0) return;
-    if (!confirm('Tem a certeza que quer descartar todas as alterações não guardadas?')) return;
-    document.querySelectorAll('.cel-input.alterada').forEach(function(inp) {
-      var original = (_dadosMes[inp.dataset.data] && _dadosMes[inp.dataset.data][inp.dataset.pais]) || 0;
-      inp.value = original > 0 ? String(original) : '';
-      inp.classList.remove('alterada');
-      inp.classList.toggle('tem-valor', original > 0);
-      _recalcularTotalLinha(inp.dataset.pais);
-      _recalcularTotalDia(inp.dataset.data);
-    });
-    _alteracoes = {}; _totalAlteracoes = 0;
-    _recalcularTotalGeral();
-    _atualizarBarraAlteracoes();
-    mostrarToast('Alterações descartadas.', 'info');
-  }
+  if (_totalPendentes() === 0) return;
+  if (!confirm('Tem a certeza que quer descartar todas as alterações não guardadas?')) return;
+
+  document.querySelectorAll('.cel-input.alterada').forEach(function(inp) {
+    var original = (_dadosMes[inp.dataset.data] && _dadosMes[inp.dataset.data][inp.dataset.pais]) || 0;
+    inp.value = original > 0 ? String(original) : '';
+    inp.classList.remove('alterada');
+    inp.classList.toggle('tem-valor', original > 0);
+    _recalcularTotalLinha(inp.dataset.pais);
+    _recalcularTotalDia(inp.dataset.data);
+  });
+
+  var datasExtras = Object.keys(_alteracoesExtras);
+  _alteracoes = {}; _totalAlteracoes = 0; _alteracoesExtras = {};
+  datasExtras.forEach(_actualizarLinhaExtras);
+  _recalcularTotalGeral();
+  _atualizarBarraAlteracoes();
+  mostrarToast('Alterações descartadas.', 'info');
+}
 
   function activarTab(tab) {
   _tabActiva = tab;
@@ -1081,39 +1105,18 @@ function _renderCalendarioExtras() {
     var obsC = obs !== (orig.observacoes || '');
 
     if (!opsC && !sugC && !obsC) {
-      fecharModalExtras();
-      mostrarToast('Sem alterações a guardar.', 'info');
-      return;
+    // Voltou ao valor guardado → remove a alteração pendente, se existir
+    delete _alteracoesExtras[data];
+    } else {
+    _alteracoesExtras[data] = { operadores: ops, sugestoes: sugs, observacoes: obs };
     }
 
-    var btn = document.querySelector('#modalExtras .btn-modal-confirmar');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A guardar...'; }
+    fecharModalExtras();
+    _actualizarLinhaExtras(data);
+    _atualizarBarraAlteracoes();
+    mostrarToast('Alteração pendente. Clique em "Guardar alterações" para gravar.', 'info');
+    }
 
-    chamarAPI('guardarRegisto', {
-      data:        data,
-      local:       _localAtual,
-      paises:      _dadosMes[data] || {},
-      operadores:  opsC ? ops  : (orig.operadores  || []),
-      sugestoes:   sugC ? sugs : (orig.sugestoes   || []),
-      observacoes: obsC ? obs  : (orig.observacoes || '')
-    })
-    .then(function(resp) {
-      if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar'; }
-      if (!resp.sucesso) { mostrarToast('Erro: ' + resp.mensagem, 'erro'); return; }
-      if (!_dadosExtras[data]) _dadosExtras[data] = {};
-      if (opsC) _dadosExtras[data].operadores  = ops;
-      if (sugC) _dadosExtras[data].sugestoes   = sugs;
-      if (obsC) _dadosExtras[data].observacoes = obs;
-      delete _alteracoesExtras[data];
-      fecharModalExtras();
-      mostrarToast('✓ Registo guardado com sucesso.', 'sucesso');
-      _actualizarLinhaExtras(data);
-    })
-    .catch(function(err) {
-      if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar'; }
-      mostrarToast('Erro: ' + err.message, 'erro');
-    });
-  }
 
   // ============================================================
   // CONFLITOS — ASSINALAR NA GRELHA
