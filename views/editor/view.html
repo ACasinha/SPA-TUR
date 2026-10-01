@@ -49,6 +49,21 @@
       <div>A carregar dados do mês...</div>
     </div>
 
+    <!-- TABS -->
+    <div class="ed-tabs" role="tablist">
+      <button type="button" class="ed-tab ativa" data-tab="contagem" role="tab"
+              onclick="window.__editor&&window.__editor.activarTab('contagem')">
+        <span class="material-symbols-rounded">table_chart</span>Contagem de Visitantes
+      </button>
+      <button type="button" class="ed-tab" data-tab="extras" role="tab"
+              onclick="window.__editor&&window.__editor.activarTab('extras')">
+        <span class="material-symbols-rounded">identity_platform</span>Operadores, Sugestões e Observações
+      </button>
+    </div>
+
+    <!-- PAINEL 1: CONTAGEM -->
+    <div class="ed-tab-panel" id="edPainelContagem" role="tabpanel">
+
     <div class="secao-card" id="estadoVazioCard">
       <div class="grelha-vazia">
         <span class="grelha-vazia-icone">📋</span>
@@ -123,6 +138,8 @@
         </div>
         <div id="extrasVistaCalendario" style="display:none"></div>
       </div>
+    </div>
+
     </div>
 
   </div><!-- /areaPrincipal -->
