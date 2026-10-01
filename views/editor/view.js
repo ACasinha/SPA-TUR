@@ -23,6 +23,7 @@
   var _modoModalExtras  = null;
   var _listeners        = [];
   var _vistaExtras = 'lista';
+  var _tabActiva = 'contagem';
 
   // Resoluções parciais de extras (por secção, antes de confirmar tudo)
   // { operadores: 'servidor'|'offline'|null, sugestoes: ..., observacoes: ... }
@@ -97,6 +98,7 @@
     _resolucaoExtras = null; _tabConflitoAtiva = 'paises';
 
     _vistaExtras = 'lista';
+    _tabActiva = 'contagem';
 
     window.__editor = null;
     spaResetHeader();
@@ -150,6 +152,8 @@
 
     var cardExtras = document.getElementById('secaoExtras');
     if (cardExtras) cardExtras.style.display = 'none';
+    var vaziaExtras = document.getElementById('estadoVazioExtras');
+    if (vaziaExtras) vaziaExtras.style.display = '';
 
     _mostrarLoading(true);
 
@@ -615,6 +619,20 @@
     mostrarToast('Alterações descartadas.', 'info');
   }
 
+  function activarTab(tab) {
+  _tabActiva = tab;
+  document.querySelectorAll('.ed-tab').forEach(function(b) {
+    var a = b.getAttribute('data-tab') === tab;
+    b.classList.toggle('ativa', a);
+    b.setAttribute('aria-selected', a ? 'true' : 'false');
+  });
+  var pC = document.getElementById('edPainelContagem');
+  var pE = document.getElementById('edPainelExtras');
+  if (pC) pC.style.display = tab === 'contagem' ? '' : 'none';
+  if (pE) pE.style.display = tab === 'extras'   ? '' : 'none';
+  _stickyAgendarActualizacao(); // esconde/mostra o thead clone
+}
+
   function toggleSecaoGrelha() {
     var card  = document.getElementById('secaoGrelha');
     var icone = document.getElementById('secaoToggleIcone');
@@ -631,6 +649,8 @@
   function _construirTabelaExtras(ano, mesNum, numDias) {
     var card = document.getElementById('secaoExtras');
     if (card) card.style.display = '';
+    var vaziaExtras = document.getElementById('estadoVazioExtras');
+    if (vaziaExtras) vaziaExtras.style.display = 'none';
     var tbody = document.getElementById('extrasTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
@@ -1617,7 +1637,8 @@ function _renderCalendarioExtras() {
     resolverConflito:       resolverConflito,
     resolverExtrasSecao:    resolverExtrasSecao,
     activarModoFusao:       activarModoFusao,
-    definirVistaExtras: definirVistaExtras
+    definirVistaExtras: definirVistaExtras,
+    activarTab: activarTab
   };
 
   // ============================================================
