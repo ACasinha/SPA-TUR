@@ -52,13 +52,17 @@
     <!-- TABS -->
     <div class="ed-tabs" role="tablist">
       <button type="button" class="ed-tab ativa" data-tab="contagem" role="tab"
-              onclick="window.__editor&&window.__editor.activarTab('contagem')">
-        <span class="material-symbols-rounded">table_chart</span>Contagem de Visitantes
-      </button>
-      <button type="button" class="ed-tab" data-tab="extras" role="tab"
-              onclick="window.__editor&&window.__editor.activarTab('extras')">
-        <span class="material-symbols-rounded">identity_platform</span>Operadores, Sugestões e Observações
-      </button>
+        onclick="window.__editor&&window.__editor.activarTab('contagem')">
+  <span class="material-symbols-rounded">table_chart</span>Contagem de Visitantes
+  <span class="ed-tab-badge conflito" id="edBadgeContagemConflito" style="display:none"></span>
+  <span class="ed-tab-badge alt" id="edBadgeContagemAlt" style="display:none"></span>
+</button>
+<button type="button" class="ed-tab" data-tab="extras" role="tab"
+        onclick="window.__editor&&window.__editor.activarTab('extras')">
+  <span class="material-symbols-rounded">identity_platform</span>Operadores, Sugestões e Observações
+  <span class="ed-tab-badge conflito" id="edBadgeExtrasConflito" style="display:none"></span>
+  <span class="ed-tab-badge alt" id="edBadgeExtrasAlt" style="display:none"></span>
+</button>
     </div>
 
     <!-- PAINEL 1: CONTAGEM -->
@@ -104,8 +108,18 @@
         <div class="grelha-wrapper" id="grelhaWrapper"></div>
       </div>
     </div>
+    </div>
 
-    <div class="secao-card" id="secaoExtras" style="display:none">
+      <!-- PAINEL 2: EXTRAS — estado vazio + secaoExtras -->
+    <div class="ed-tab-panel" id="edPainelExtras" role="tabpanel" style="display:none">
+      <div class="secao-card" id="estadoVazioExtras">
+      <div class="grelha-vazia">
+        <span class="grelha-vazia-icone">📋</span>
+        <div class="grelha-vazia-titulo">Nenhuma grelha carregada</div>
+        <div>Escolha um local e um mês e clique em <strong>Carregar dados</strong> para começar.</div>
+      </div>
+    </div>
+      <div class="secao-card" id="secaoExtras" style="display:none">
       <div class="secao-card-header">
         <h2>Operadores, Sugestões e Observações</h2>
         <div class="secao-meta">
