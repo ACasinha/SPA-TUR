@@ -1577,6 +1577,13 @@
 }
 
 .ed-tab-panel { animation: fadeIn 0.18s ease; }
+.ed-tab-badge {
+  font-size: 0.65rem; font-weight: 700;
+  border-radius: 20px; padding: 1px 8px;
+  white-space: nowrap;
+}
+.ed-tab-badge.conflito { background: rgba(243,156,18,0.18); color: #8a6510; }
+.ed-tab-badge.alt      { background: rgba(139,74,43,0.12);  color: var(--terra); }
 
 @media (max-width: 480px) {
   .ed-tab { padding: 9px 12px; font-size: 0.75rem; }
