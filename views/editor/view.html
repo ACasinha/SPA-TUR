@@ -52,16 +52,12 @@
     <!-- TABS -->
     <div class="ed-tabs" role="tablist">
       <button type="button" class="ed-tab ativa" data-tab="contagem" role="tab"
-        onclick="window.__editor&&window.__editor.activarTab('contagem')">
-      <span class="material-symbols-rounded">table_chart</span>Contagem de Visitantes
-      <span class="ed-tab-badge conflito" id="edBadgeContagemConflito" style="display:none"></span>
-      <span class="ed-tab-badge alt" id="edBadgeContagemAlt" style="display:none"></span>
+              onclick="window.__editor&&window.__editor.activarTab('contagem')">
+        <span class="material-symbols-rounded">table_chart</span>Contagem de Visitantes
       </button>
       <button type="button" class="ed-tab" data-tab="extras" role="tab"
-        onclick="window.__editor&&window.__editor.activarTab('extras')">
-      <span class="material-symbols-rounded">identity_platform</span>Operadores, Sugestões e Observações
-      <span class="ed-tab-badge conflito" id="edBadgeExtrasConflito" style="display:none"></span>
-      <span class="ed-tab-badge alt" id="edBadgeExtrasAlt" style="display:none"></span>
+              onclick="window.__editor&&window.__editor.activarTab('extras')">
+        <span class="material-symbols-rounded">identity_platform</span>Operadores, Sugestões e Observações
       </button>
     </div>
 
@@ -126,38 +122,22 @@
 </div>
       </div>
       <div class="secao-card-corpo">
-
-  <div class="extras-vista-toggle" role="group" aria-label="Tipo de vista">
-    <button type="button" class="extras-vista-btn ativa" data-vista="calendario"
-            onclick="window.__editor&&window.__editor.activarVistaExtras('calendario')">
-      <span class="material-symbols-rounded">calendar_month</span>Calendário
-    </button>
-    <button type="button" class="extras-vista-btn" data-vista="lista"
-            onclick="window.__editor&&window.__editor.activarVistaExtras('lista')">
-      <span class="material-symbols-rounded">view_list</span>Lista
-    </button>
-  </div>
-
-  <!-- Vista Calendário (default) -->
-  <div id="extrasVistaCalendario" class="extras-cal-wrap"></div>
-
-  <!-- Vista Lista (secundária) -->
-  <div id="extrasVistaLista" style="display:none">
-    <div class="table-scroll">
-      <table class="extras-table">
-        <thead>
-          <tr>
-            <th class="extras-th-data">Dia</th>
-            <th class="extras-th-chips">Dados registados</th>
-            <th class="extras-th-acao"></th>
-          </tr>
-        </thead>
-        <tbody id="extrasTableBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-</div>
+        <div id="extrasVistaLista">
+        <div class="table-scroll">
+          <table class="extras-table">
+            <thead>
+              <tr>
+                <th class="extras-th-data">Dia</th>
+                <th class="extras-th-chips">Dados registados</th>
+                <th class="extras-th-acao"></th>
+              </tr>
+            </thead>
+            <tbody id="extrasTableBody"></tbody>
+          </table>
+        </div>
+        </div>
+        <div id="extrasVistaCalendario" style="display:none"></div>
+      </div>
     </div>
 
     </div>
