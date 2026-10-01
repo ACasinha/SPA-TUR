@@ -59,10 +59,11 @@
   function actualizar() {
     if (!_clone || !_wrapper || !_theadOrig) return;
 
-    // Altura do header global (pode variar com resize)
-    var headerH = _headerGlobal
-      ? Math.round(_headerGlobal.getBoundingClientRect().bottom)
-      : 0;
+     // Altura do header global (pode variar com resize ou ser oculto em desktop)
+    var headerH = 0;
+    if (_headerGlobal && _headerGlobal.offsetParent !== null) {
+      headerH = Math.max(0, Math.round(_headerGlobal.getBoundingClientRect().bottom));
+    }
 
     var wrapperRect = _wrapper.getBoundingClientRect();
     var theadRect   = _theadOrig.getBoundingClientRect();
@@ -70,7 +71,7 @@
     // Mostrar clone quando o thead original sobe acima do header
     // e o wrapper ainda tem conteúdo visível abaixo
     var deveEstarAtivo = theadRect.bottom <= headerH + 2
-                      && wrapperRect.bottom > headerH + 60;
+                      && wrapperRect.bottom > headerH + 50;
 
     // Actualizar visibilidade
     if (deveEstarAtivo !== _ativo) {
@@ -168,6 +169,7 @@
 
   // ── Event listeners globais ───────────────────────────────
   function ligarEventos() {
+    document.addEventListener('scroll', agendarActualizacao, { capture: true, passive: true });
     window.addEventListener('scroll', agendarActualizacao, { passive: true });
     window.addEventListener('resize', agendarActualizacao, { passive: true });
   }
