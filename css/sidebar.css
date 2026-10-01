@@ -32,6 +32,9 @@
   #app-shell {
     flex-direction: row;
     align-items: stretch;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
   }
 
   /* Header global oculto em desktop */
@@ -44,8 +47,9 @@
     flex: 1;
     min-width: 0;           /* evita overflow em conteúdo largo */
     overflow-x: hidden;
-    /* Altura total menos o footer */
-    min-height: 100vh;
+    overflow-y: visible;
+    min-height: auto;
+    padding-bottom: 24px;
   }
 
   /* Footer mantém-se mas fica restrito ao outlet */
@@ -65,7 +69,12 @@
   flex-direction: column;
   flex: 1;
   min-width: 0;
-  min-height: 100vh;
+  height: 100%;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 /* ============================================================
@@ -80,13 +89,16 @@
     display: flex;
     flex-direction: column;
     width: var(--sidebar-w);
-    min-height: 100vh;
+    height: 100%;
+    height: 100dvh;
     background: var(--sidebar-bg);
     flex-shrink: 0;
-    position: sticky;
+    position: relative;
     top: 0;
-    height: 100vh;
-    overflow: hidden;
+    touch-action: pan-y;
+    overscroll-behavior-y: contain;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
     transition: width var(--sidebar-transition);
     z-index: 200;
     border-right: 1px solid var(--sidebar-border);
