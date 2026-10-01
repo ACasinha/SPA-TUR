@@ -384,5 +384,9 @@ function _scrollParaTopo() {
   var anterior = html.style.scrollBehavior;
   html.style.scrollBehavior = 'auto';   // ignora o smooth do CSS
   window.scrollTo(0, 0);
+  var outlet = document.getElementById(OUTLET_ID);
+  if (outlet) outlet.scrollTop = 0;
+  var shellMain = document.querySelector('.shell-main');
+  if (shellMain) shellMain.scrollTop = 0;
   html.style.scrollBehavior = anterior;
 }
