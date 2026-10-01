@@ -1578,7 +1578,7 @@ function _renderCalendarioExtras() {
     div.appendChild(tbl);
     document.body.appendChild(div);
     _stickyClone = div;
-    
+
     // Sincronizar larguras das células do thead clone com as originais
     var thOriginais = theadOrig.querySelectorAll('th');
     var thClonados  = tbl.querySelectorAll('th');
@@ -1588,7 +1588,8 @@ function _renderCalendarioExtras() {
       thClonados[i].style.minWidth = wPx + 'px';
       thClonados[i].style.maxWidth = wPx + 'px';
       thClonados[i].style.boxSizing = 'border-box';
-    
+    }
+
     _stickyActualizar();
   }
 
@@ -1611,6 +1612,7 @@ function _renderCalendarioExtras() {
     if (header && header.offsetParent !== null) {
       headerH = Math.max(0, Math.round(header.getBoundingClientRect().bottom));
     }
+
     var wrapperRect = wrapper.getBoundingClientRect();
     var theadRect   = theadOrig.getBoundingClientRect();
     var deveAtivo   = theadRect.bottom <= headerH + 2
