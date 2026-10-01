@@ -71,8 +71,17 @@
     });
 
     _al(window, 'beforeunload', _onBeforeUnload);
-    _al(window, 'scroll', _stickyAgendarActualizacao, { passive: true });
     _al(window, 'resize', _stickyAgendarActualizacao, { passive: true });
+
+    // Escutar scroll em fase de captura para apanhar scrolls dentro do #spa-outlet e .shell-main
+    _al(document, 'scroll', _stickyAgendarActualizacao, { capture: true, passive: true });
+    _al(window, 'scroll', _stickyAgendarActualizacao, { passive: true });
+
+    var outletEl = document.getElementById('spa-outlet');
+    if (outletEl) _al(outletEl, 'scroll', _stickyAgendarActualizacao, { passive: true });
+
+    var shellMainEl = document.querySelector('.shell-main');
+    if (shellMainEl) _al(shellMainEl, 'scroll', _stickyAgendarActualizacao, { passive: true });
   }
 
   function beforeLeave() {
@@ -1569,12 +1578,23 @@ function _renderCalendarioExtras() {
     div.appendChild(tbl);
     document.body.appendChild(div);
     _stickyClone = div;
+    
+    // Sincronizar larguras das células do thead clone com as originais
+    var thOriginais = theadOrig.querySelectorAll('th');
+    var thClonados  = tbl.querySelectorAll('th');
+    for (var i = 0; i < thOriginais.length && i < thClonados.length; i++) {
+      var wPx = thOriginais[i].getBoundingClientRect().width;
+      thClonados[i].style.width = wPx + 'px';
+      thClonados[i].style.minWidth = wPx + 'px';
+      thClonados[i].style.maxWidth = wPx + 'px';
+      thClonados[i].style.boxSizing = 'border-box';
+    
     _stickyActualizar();
   }
 
   function _stickyDestruirClone() {
     var old = document.getElementById('grelhaTheadClone');
-    if (old) old.parentNode.removeChild(old);
+    if (old && old.parentNode) old.parentNode.removeChild(old);
     _stickyClone = null;
     _stickyAtivo = false;
   }
@@ -1587,11 +1607,14 @@ function _renderCalendarioExtras() {
     var header    = document.querySelector('.header');
     if (!wrapper || !tabela || !theadOrig) return;
 
-    var headerH     = header ? Math.round(header.getBoundingClientRect().bottom) : 0;
+    var headerH = 0;
+    if (header && header.offsetParent !== null) {
+      headerH = Math.max(0, Math.round(header.getBoundingClientRect().bottom));
+    }
     var wrapperRect = wrapper.getBoundingClientRect();
     var theadRect   = theadOrig.getBoundingClientRect();
     var deveAtivo   = theadRect.bottom <= headerH + 2
-                   && wrapperRect.bottom > headerH + 60;
+                   && wrapperRect.bottom > headerH + 50;
 
     if (deveAtivo !== _stickyAtivo) {
       _stickyClone.style.display = deveAtivo ? 'block' : 'none';
