@@ -19,6 +19,12 @@
   align-items: center;
   justify-content: space-around;
   z-index: var(--z-nav);
+  touch-action: none;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   transition: transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -44,6 +50,7 @@
   border: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   transition: color 0.15s ease, transform 0.1s ease;
   min-width: 0;
   user-select: none;
