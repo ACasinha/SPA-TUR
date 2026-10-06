@@ -20,6 +20,12 @@ var ROTAS = {
     acesso:    function(p) { return p.role === 'administrador' || p.acessoRegisto === true; },
     semAcesso: 'Esta conta não tem acesso ao registo diário.'
   },
+  '/vendas': {
+   view: 'vendas', titulo: 'Vendas e Inventário',
+   deps: ['https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'],
+   acesso: function(p) { return p.role === 'administrador' || p.acessoVendas === true; },
+   semAcesso: 'Não tem permissão para aceder a vendas e inventário.'
+  },
   '/dashboard': {
     view:      'dashboard',
     titulo:    'Dashboard',
