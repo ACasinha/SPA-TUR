@@ -35,9 +35,9 @@
     return d.toLocaleDateString('pt-PT')+' '+d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
   }
 
-  function _badgeRole(role,aR,aD,aE,aI){
+  function _badgeRole(role,aR,aD,aE,aI,aV){
     if(role==='administrador')return '<span class="badge-role badge-admin">Admin</span>';
-    var ex='';if(aR)ex+=' 📋';if(aD)ex+=' 📊';if(aE)ex+=' ✏️';if(aI)ex+=' 📦';
+    var ex='';if(aR)ex+=' 📋';if(aD)ex+=' 📊';if(aE)ex+=' ✏️';if(aI)ex+=' 📦';if(aV)ex+=' 🛒';
     return '<span class="badge-role badge-user'+(ex?' badge-user-extra':'')+'">Utilizador'+ex+'</span>';
   }
 
@@ -56,7 +56,7 @@
         users.forEach(function(u){
           var tr=document.createElement('tr');
           var nome=_e(u.nome||'—'),email=_e(u.email||'—'),uid=u.uid;
-          var bRole=_badgeRole(u.role,u.acessoRegisto,u.acessoDashboard,u.acessoEditor,u.acessoInventario);
+          var bRole=_badgeRole(u.role,u.acessoRegisto,u.acessoDashboard,u.acessoEditor,u.acessoInventario,u.acessoVendas);
           var bEst='<span class="estado-pill"><span class="badge-status '+(u.ativo?'ativo':'inativo')+'"></span>'+(u.ativo?'Ativo':'Inativo')+'</span>';
           var ul=_fmt(u.ultimoLoginEm);
           var bEd='<button class="btn-action btn-editar" onclick="window.__admin&&window.__admin.abrirEditar(\''+uid+'\')">✏️ Editar</button>';
@@ -94,7 +94,7 @@
   ['userNome','userEmail','userPassword'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
   var chk=document.getElementById('userDefinirPasswordAgora'); if(chk) chk.checked=false;
   var r=document.getElementById('userRole');if(r)r.value='utilizador';
-  ['userAcessoRegisto','userAcessoDashboard','userAcessoEditor','userAcessoInventario'].forEach(function(id){var e=document.getElementById(id);if(e)e.checked=false;});
+  ['userAcessoRegisto','userAcessoDashboard','userAcessoEditor','userAcessoInventario','userAcessoVendas'].forEach(function(id){var e=document.getElementById(id);if(e)e.checked=false;});
   onTogglePasswordAgora();
   var mt=document.getElementById('modalTitulo');if(mt)mt.textContent='Novo Utilizador';
   onRoleChange('userRole','roleInfoNovo','grupoAcessosNovo');
@@ -113,15 +113,16 @@
   var aD=role==='utilizador'&&((document.getElementById('userAcessoDashboard')||{}).checked||false);
   var aE=role==='utilizador'&&((document.getElementById('userAcessoEditor')||{}).checked||false);
   var aI=role==='utilizador'&&((document.getElementById('userAcessoInventario')||{}).checked||false);
+  var aV=role==='utilizador'&&((document.getElementById('userAcessoVendas')||{}).checked||false);
 
   if(!nome.trim()||!email.trim()){mostrarToast('Por favor preencha nome e email.','erro');return;}
   if(definirAgora && pass.length<6){mostrarToast('A password deve ter no mínimo 6 caracteres.','erro');return;}
-  if(role==='utilizador'&&!aR&&!aD&&!aE&&!aI){mostrarToast('Escolha pelo menos um acesso para este utilizador.','erro');return;}
+  if(role==='utilizador'&&!aR&&!aD&&!aE&&!aI&&!aV){mostrarToast('Escolha pelo menos um acesso para este utilizador.','erro');return;}
 
   var btn=document.getElementById('btnGuardarUser');
   if(btn){btn.disabled=true;btn.textContent='⏳ A guardar...';}
 
-  var dados={email:email.trim(),nome:nome.trim(),role:role,acessoRegisto:aR,acessoDashboard:aD,acessoEditor:aE,acessoInventario:aI};
+  var dados={email:email.trim(),nome:nome.trim(),role:role,acessoRegisto:aR,acessoDashboard:aD,acessoEditor:aE,acessoInventario:aI,acessoVendas:aV};
   if(definirAgora) dados.password=pass;
 
   criarUtilizador(dados)
@@ -158,6 +159,7 @@
       document.getElementById('editAcessoDashboard').checked=!!u.acessoDashboard;
       document.getElementById('editAcessoEditor').checked=!!u.acessoEditor;
       document.getElementById('editAcessoInventario').checked=!!u.acessoInventario;
+      document.getElementById('editAcessoVendas').checked=!!u.acessoVendas;
       onRoleChange('editUserRole','roleInfoEditar','grupoAcessosEditar');
       var m=document.getElementById('modalEditarUser');if(m)m.classList.add('show');
     }).catch(function(err){mostrarToast('Erro: '+err.message,'erro');});
@@ -173,9 +175,10 @@
     var aD=role==='utilizador'&&((document.getElementById('editAcessoDashboard')||{}).checked||false);
     var aE=role==='utilizador'&&((document.getElementById('editAcessoEditor')||{}).checked||false);
     var aI=role==='utilizador'&&((document.getElementById('editAcessoInventario')||{}).checked||false);
+    var aV=role==='utilizador'&&((document.getElementById('editAcessoVendas')||{}).checked||false);
     if(!nome.trim()){mostrarToast('O nome não pode estar vazio.','erro');return;}
-    if(role==='utilizador'&&!aR&&!aD&&!aE&&!aI){mostrarToast('Escolha pelo menos um acesso para este utilizador.','erro');return;}
-    atualizarUtilizador(uid,{nome:nome.trim(),role:role,acessoRegisto:aR,acessoDashboard:aD,acessoEditor:aE,acessoInventario:aI})
+    if(role==='utilizador'&&!aR&&!aD&&!aE&&!aI&&!aV){mostrarToast('Escolha pelo menos um acesso para este utilizador.','erro');return;}
+    atualizarUtilizador(uid,{nome:nome.trim(),role:role,acessoRegisto:aR,acessoDashboard:aD,acessoEditor:aE,acessoInventario:aI,acessoVendas:aV})
       .then(function(resp){mostrarToast('✓ '+resp.mensagem,'sucesso');_fecharModalEditar();_carregar();})
       .catch(function(err){mostrarToast('Erro: '+err.message,'erro');});
   }
