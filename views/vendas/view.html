@@ -1,0 +1,172 @@
+<!-- views/vendas/view.html — Vendas Diárias e Inventário Mensal -->
+<div class="vendas-container">
+
+  <div class="vd-painel">
+    <div class="field-group">
+      <label for="vdLocal"><span class="material-symbols-rounded vd-ico">location_on</span>Local</label>
+      <select id="vdLocal"></select>
+    </div>
+    <div class="field-group">
+      <label for="vdMes"><span class="material-symbols-rounded vd-ico">calendar_month</span>Mês</label>
+      <input type="month" id="vdMes">
+    </div>
+    <button type="button" class="vd-btn-carregar" id="vdBtnCarregar">
+      <span class="material-symbols-rounded vd-ico">search</span>Carregar
+    </button>
+  </div>
+
+  <div class="vd-tabs" role="tablist">
+    <button type="button" class="vd-tab ativa" data-tab="vendas" role="tab">
+      <span class="material-symbols-rounded">point_of_sale</span>Vendas diárias</button>
+    <button type="button" class="vd-tab" data-tab="inventario" role="tab">
+      <span class="material-symbols-rounded">inventory</span>Inventário mensal</button>
+    <button type="button" class="vd-tab" data-tab="config" id="vdTabConfig" role="tab" style="display:none">
+      <span class="material-symbols-rounded">settings</span>Configuração</button>
+  </div>
+
+  <!-- ===================== VENDAS ===================== -->
+  <div class="vd-panel" id="vdPainelVendas">
+    <div class="vd-vazio" id="vdVendasVazio">Escolha um local e um mês e clique em <strong>Carregar</strong>.</div>
+    <div id="vdVendasCorpo" style="display:none">
+
+      <div class="vd-acoes">
+        <button type="button" class="vd-btn-sec" id="vdBtnModeloVendasPdf"><span class="material-symbols-rounded vd-ico">picture_as_pdf</span>Modelo PDF</button>
+        <button type="button" class="vd-btn-sec" id="vdBtnModeloVendasXls"><span class="material-symbols-rounded vd-ico">table_view</span>Modelo Excel</button>
+        <button type="button" class="vd-btn-sec" id="vdBtnExportarVendas"><span class="material-symbols-rounded vd-ico">download</span>Exportar mês (Excel)</button>
+        <button type="button" class="vd-btn-sec vd-so-admin" id="vdBtnExportarTodosVendas" style="display:none"><span class="material-symbols-rounded vd-ico">download</span>Exportar todos os locais</button>
+      </div>
+
+      <div class="vd-card">
+        <div class="vd-card-header">
+          <h2 id="vdRegistoTitulo">Registo de vendas</h2>
+          <div id="vdDiaWrap" class="vd-dia-wrap" style="display:none">
+            <label for="vdDia">Dia</label>
+            <select id="vdDia"></select>
+          </div>
+        </div>
+        <div class="vd-aviso" id="vdRegistoAviso" style="display:none"></div>
+        <div class="table-scroll">
+          <table class="vd-tabela">
+            <thead><tr><th>Artigo</th><th class="vd-num">Preço</th><th class="vd-num">Quantidade</th><th class="vd-num">Subtotal</th></tr></thead>
+            <tbody id="vdRegistoBody"></tbody>
+          </table>
+        </div>
+        <div class="vd-total-bar">
+          <span>Total do dia</span>
+          <span><strong id="vdTotalQtd">0</strong> un. · <strong id="vdTotalDia">0,00 €</strong></span>
+        </div>
+        <div class="vd-form-acoes">
+          <button type="button" class="vd-btn-prim" id="vdBtnGuardarVendas"><span class="material-symbols-rounded vd-ico">save</span>Guardar vendas</button>
+        </div>
+      </div>
+
+      <div class="vd-card">
+        <div class="vd-card-header"><h2>Resumo do mês</h2></div>
+        <div class="table-scroll" id="vdResumoWrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== INVENTÁRIO ===================== -->
+  <div class="vd-panel" id="vdPainelInventario" style="display:none">
+    <div class="vd-vazio" id="vdInvVazio">Escolha um local e um mês e clique em <strong>Carregar</strong>.</div>
+    <div id="vdInvCorpo" style="display:none">
+
+      <div class="vd-acoes">
+        <button type="button" class="vd-btn-sec" id="vdBtnModeloInvPdf"><span class="material-symbols-rounded vd-ico">picture_as_pdf</span>Modelo PDF</button>
+        <button type="button" class="vd-btn-sec" id="vdBtnModeloInvXls"><span class="material-symbols-rounded vd-ico">table_view</span>Modelo Excel</button>
+        <button type="button" class="vd-btn-sec" id="vdBtnExportarInv"><span class="material-symbols-rounded vd-ico">download</span>Exportar mês (Excel)</button>
+        <button type="button" class="vd-btn-sec vd-so-admin" id="vdBtnExportarTodosInv" style="display:none"><span class="material-symbols-rounded vd-ico">download</span>Exportar todos os locais</button>
+      </div>
+
+      <div class="vd-card">
+        <div class="vd-card-header"><h2 id="vdInvTitulo">Inventário mensal</h2></div>
+        <div class="vd-aviso" id="vdInvAviso" style="display:none"></div>
+        <div class="table-scroll">
+          <table class="vd-tabela">
+            <thead><tr>
+              <th>Artigo</th><th class="vd-num">Anterior</th><th class="vd-num">Entradas</th>
+              <th class="vd-num">Vendas</th><th class="vd-num">Teórico</th>
+              <th class="vd-num">Contagem</th><th class="vd-num">Diferença</th>
+            </tr></thead>
+            <tbody id="vdInvBody"></tbody>
+          </table>
+        </div>
+        <div class="vd-form-acoes">
+          <button type="button" class="vd-btn-prim" id="vdBtnGuardarInv"><span class="material-symbols-rounded vd-ico">lock</span><span id="vdBtnGuardarInvTxt">Submeter e fechar inventário</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CONFIGURAÇÃO (admin) ===================== -->
+  <div class="vd-panel" id="vdPainelConfig" style="display:none">
+
+    <div class="vd-card">
+      <div class="vd-card-header"><h2>Locais com vendas</h2></div>
+      <div class="vd-card-corpo">
+        <p class="vd-nota">Escolha os locais onde se registam vendas e inventário.</p>
+        <div class="vd-check-grelha" id="vdCfgLocais"></div>
+        <button type="button" class="vd-btn-prim" id="vdBtnGuardarLocais"><span class="material-symbols-rounded vd-ico">save</span>Guardar locais</button>
+      </div>
+    </div>
+
+    <div class="vd-card">
+      <div class="vd-card-header">
+        <h2>Artigos</h2>
+        <button type="button" class="vd-btn-sec" id="vdBtnNovoArtigo"><span class="material-symbols-rounded vd-ico">add</span>Novo artigo</button>
+      </div>
+      <div class="table-scroll">
+        <table class="vd-tabela">
+          <thead><tr><th>Artigo</th><th class="vd-num">Preço</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="vdCfgArtigosBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="vd-card">
+      <div class="vd-card-header">
+        <h2>Listas de artigos</h2>
+        <button type="button" class="vd-btn-sec" id="vdBtnNovaLista"><span class="material-symbols-rounded vd-ico">add</span>Nova lista</button>
+      </div>
+      <div class="vd-card-corpo">
+        <p class="vd-nota">Cada lista agrupa artigos e aplica-se a um ou vários locais. Um local usa a união de todas as listas que o incluem.</p>
+        <div id="vdCfgListas" class="vd-listas"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL — Artigo -->
+<div class="modal-overlay" id="vdModalArtigo">
+  <div class="modal-box">
+    <div class="modal-header"><h2 id="vdModalArtigoTitulo">Novo artigo</h2></div>
+    <div class="modal-body">
+      <div class="field-group"><label for="vdArtNome">Nome</label><input type="text" id="vdArtNome" maxlength="80"></div>
+      <div class="field-group" style="margin-top:12px"><label for="vdArtPreco">Preço (€)</label><input type="text" id="vdArtPreco" inputmode="decimal" placeholder="0,00"></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-modal-cancelar" onclick="window.__vendas&&window.__vendas.fecharModais()">Cancelar</button>
+      <button type="button" class="btn-modal-confirmar" onclick="window.__vendas&&window.__vendas.guardarArtigo()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL — Lista -->
+<div class="modal-overlay" id="vdModalLista">
+  <div class="modal-box vd-modal-lista">
+    <div class="modal-header"><h2 id="vdModalListaTitulo">Nova lista</h2></div>
+    <div class="modal-body">
+      <div class="field-group"><label for="vdListaNome">Nome da lista</label><input type="text" id="vdListaNome" maxlength="80"></div>
+      <div class="vd-sub-titulo">Artigos</div>
+      <div class="vd-check-lista" id="vdListaArtigos"></div>
+      <div class="vd-sub-titulo">Aplica-se aos locais</div>
+      <div class="vd-check-lista" id="vdListaLocais"></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-modal-cancelar" onclick="window.__vendas&&window.__vendas.fecharModais()">Cancelar</button>
+      <button type="button" class="btn-modal-confirmar" onclick="window.__vendas&&window.__vendas.guardarLista()">Guardar</button>
+    </div>
+  </div>
+</div>
