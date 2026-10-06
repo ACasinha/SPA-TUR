@@ -95,6 +95,14 @@ function _temAcessoRegisto(perfil) {
       || perfil.acessoRegisto === true;
 }
 
+function _temAcessoVendas(perfil) { 
+  return perfil.role === 'administrador' 
+      || perfil.acessoVendas === true; }
+function verificarAcessoVendas() { 
+  return obterPerfilUtilizador().then(_temAcessoVendas).catch(function () { 
+    return false; 
+  }); }
+
 function _temAcessoDashboard(perfil) {
   return perfil.role === 'administrador'
       || perfil.acessoDashboard === true;
@@ -272,6 +280,7 @@ function _criarPerfilBase(user) {
     nome:             user.displayName || user.email.split('@')[0],
     role:             'utilizador',
     acessoRegisto:    true,   // preserva o comportamento antigo (role utilizador = acesso ao registo)
+    acessoVendas: false,
     acessoDashboard:  false,
     acessoEditor:     false,
     acessoInventario: false,
@@ -288,6 +297,7 @@ function _criarPerfilBase(user) {
 
 function _normalizarPerfil(perfil) {
   if (perfil.acessoRegisto    === undefined) perfil.acessoRegisto    = true; // retrocompat: docs antigos de 'utilizador' tinham acesso implícito
+  if (perfil.acessoVendas === undefined) perfil.acessoVendas = false;
   if (perfil.acessoDashboard  === undefined) perfil.acessoDashboard  = false;
   if (perfil.acessoEditor     === undefined) perfil.acessoEditor     = false;
   if (perfil.acessoInventario === undefined) perfil.acessoInventario = false;
