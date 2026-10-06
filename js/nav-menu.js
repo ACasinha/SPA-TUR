@@ -28,6 +28,15 @@
         return p && (p.role === 'administrador' || p.acessoRegisto === true);
       }
     },
+    { 
+      id: 'nav-vendas', 
+      label: 'Vendas', 
+      icone: 'point_of_sale', 
+      rota: '/vendas',
+      visible: function(p) { 
+        return p.role === 'administrador' || p.acessoVendas === true; 
+     } 
+   },
     {
       id:      'nav-dashboard',
       label:   'Dashboard',
@@ -455,6 +464,7 @@
     if (perfil.role === 'administrador') return 'Administrador';
     var extras = [];
     if (perfil.acessoRegisto)     extras.push('Registo');
+    if (perfil.acessoVendas) extras.push('Vendas');
     if (perfil.acessoDashboard)  extras.push('Dashboard');
     if (perfil.acessoEditor)     extras.push('Editor');
     if (perfil.acessoInventario) extras.push('Inventário');
