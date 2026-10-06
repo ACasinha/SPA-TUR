@@ -26,6 +26,14 @@
       indicador: _carregarIndicadorRegisto
     },
     {
+      id:     'vendas',
+      titulo: 'Vendas e Inventário',
+      desc:   'Registar vendas diárias e fazer o inventário mensal.',
+      icone:  'point_of_sale',
+      rota:   '/vendas',
+      visivel: function(p) { return p.role === 'administrador' || p.acessoVendas === true; }
+    },
+    {
       id:     'dashboard',
       titulo: 'Dashboard de Análise',
       desc:   'Gráficos e estatísticas de visitantes.',
@@ -282,6 +290,7 @@
     if (perfil.role === 'administrador') return 'Administrador';
     var extras = [];
     if (perfil.acessoRegisto)    extras.push('Registo');
+    if (perfil.acessoVendas) extras.push('Vendas');
     if (perfil.acessoDashboard)  extras.push('Dashboard');
     if (perfil.acessoEditor)     extras.push('Editor');
     if (perfil.acessoInventario) extras.push('Inventário');
