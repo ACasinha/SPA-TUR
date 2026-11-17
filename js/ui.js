@@ -839,7 +839,10 @@ window.spaConfirmar = function(mensagem, opcoes) {
     btnConfirm.textContent = opcoes.textoConfirmar || 'Confirmar';
     btnConfirm.classList.toggle('btn-modal-perigo', !!opcoes.perigo);
 
+    var resolvido = false;
     function limpar(resultado) {
+      if (resolvido) return;
+      resolvido = true;
       overlay.classList.remove('show');
       btnConfirm.removeEventListener('click', onConfirm);
       btnCancel.removeEventListener('click', onCancel);

@@ -657,6 +657,7 @@ input[type="number"] {
 .btn-modal-perigo:hover:not(:disabled) {
   box-shadow: 0 5px 14px rgba(192,57,43,0.4);
 }
+#modalConfirmarSPA { z-index: 2500; }
 .modal-confirmar-spa { max-width: 420px; }
 
 .modal-resumo {

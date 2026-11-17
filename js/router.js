@@ -118,11 +118,14 @@ function _navegar(caminho, pushState) {
   if (_rotaActual && _rotaActual.caminho === caminho) return;
 
   _navegando = true;
-  _mostrarTransicao(true);
 
   var promessaLeave = Promise.resolve();
   if (_viewActual && typeof _viewActual.beforeLeave === 'function') {
-    promessaLeave = Promise.resolve(_viewActual.beforeLeave());
+    try {
+      promessaLeave = Promise.resolve(_viewActual.beforeLeave());
+    } catch (errLeave) {
+      promessaLeave = Promise.reject(errLeave);
+    }
   }
 
   var viewAnterior = _rotaActual ? _rotaActual.rota.view : null;
@@ -134,6 +137,7 @@ function _navegar(caminho, pushState) {
         _navegando = false;
         return Promise.reject({ __cancelled: true });
       }
+      _mostrarTransicao(true);
       return _carregarView(rota.view);
     })
     .then(function(modulo) {
@@ -364,13 +368,20 @@ function _onLinkClick(e) {
   routerNavegar(caminho);
 }
 
+var _transicaoTimer = null;
+
 function _mostrarTransicao(mostrar) {
   var el = document.getElementById('spa-transition');
   if (!el) return;
+  clearTimeout(_transicaoTimer);
+  _transicaoTimer = null;
   if (mostrar) {
     el.classList.add('activo');
   } else {
-    setTimeout(function() { el.classList.remove('activo'); }, 80);
+    _transicaoTimer = setTimeout(function() {
+      el.classList.remove('activo');
+      _transicaoTimer = null;
+    }, 80);
   }
 }
 
