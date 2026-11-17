@@ -13,11 +13,18 @@
     spaSetHeader({titulo:'Gestão de Utilizadores'});
     _carregar();
     _al(document,'keydown',function(e){
-      if(e.key==='Escape'){_fecharModal();_fecharModalEditar();}
+      if(e.key==='Escape'){_fecharModal();_fecharModalEditar();fecharAlterarEmail();_fecharModalLink();}
     });
-    ['modalNovoUser','modalEditarUser'].forEach(function(id){
+    ['modalNovoUser','modalEditarUser','modalAlterarEmail','modalLinkPassword'].forEach(function(id){
       var el=document.getElementById(id);
-      if(el)_al(el,'click',function(e){if(e.target===el){if(id==='modalNovoUser')_fecharModal();else _fecharModalEditar();}});
+      if(el)_al(el,'click',function(e){
+        if(e.target===el){
+          if(id==='modalNovoUser')_fecharModal();
+          else if(id==='modalEditarUser')_fecharModalEditar();
+          else if(id==='modalAlterarEmail')fecharAlterarEmail();
+          else _fecharModalLink();
+        }
+      });
     });
     // Inicializar visibilidade dos grupos de acesso
     onRoleChange('userRole','roleInfoNovo','grupoAcessosNovo');
@@ -37,8 +44,14 @@
 
   function _badgeRole(role,aR,aD,aE,aI,aV){
     if(role==='administrador')return '<span class="badge-role badge-admin">Admin</span>';
-    var ex='';if(aR)ex+=' 📋';if(aD)ex+=' 📊';if(aE)ex+=' ✏️';if(aI)ex+=' 📦';if(aV)ex+=' 🛒';
-    return '<span class="badge-role badge-user'+(ex?' badge-user-extra':'')+'">Utilizador'+ex+'</span>';
+    var icons=[];
+    if(aR)icons.push('<span class="material-symbols-rounded" aria-label="Registo Diário" title="Registo Diário" style="font-size:13px">edit_document</span>');
+    if(aD)icons.push('<span class="material-symbols-rounded" aria-label="Dashboard" title="Dashboard" style="font-size:13px">analytics</span>');
+    if(aE)icons.push('<span class="material-symbols-rounded" aria-label="Editor Mensal" title="Editor Mensal" style="font-size:13px">edit_calendar</span>');
+    if(aI)icons.push('<span class="material-symbols-rounded" aria-label="Inventário" title="Inventário" style="font-size:13px">inventory_2</span>');
+    if(aV)icons.push('<span class="material-symbols-rounded" aria-label="Vendas" title="Vendas" style="font-size:13px">point_of_sale</span>');
+    var ex=icons.length?' '+icons.join(' '):'';
+    return '<span class="badge-role badge-user'+(icons.length?' badge-user-extra':'')+'">Utilizador'+ex+'</span>';
   }
 
   function _carregar(){
@@ -49,7 +62,7 @@
       .then(function(users){
         if(lo)lo.classList.remove('show');
         if(!users.length){
-          tb.innerHTML='<tr><td colspan="5" class="empty-state"><span class="empty-state-icon">👥</span><div>Nenhum utilizador encontrado.</div></td></tr>';
+          tb.innerHTML='<tr><td colspan="5" class="empty-state"><span class="empty-state-icon material-symbols-rounded" aria-hidden="true">group</span><div>Nenhum utilizador encontrado.</div></td></tr>';
           return;
         }
         tb.innerHTML='';
@@ -59,14 +72,14 @@
           var bRole=_badgeRole(u.role,u.acessoRegisto,u.acessoDashboard,u.acessoEditor,u.acessoInventario,u.acessoVendas);
           var bEst='<span class="estado-pill"><span class="badge-status '+(u.ativo?'ativo':'inativo')+'"></span>'+(u.ativo?'Ativo':'Inativo')+'</span>';
           var ul=_fmt(u.ultimoLoginEm);
-          var bEd='<button class="btn-action btn-editar" onclick="window.__admin&&window.__admin.abrirEditar(\''+uid+'\')">✏️ Editar</button>';
+          var bEd='<button class="btn-action btn-editar" onclick="window.__admin&&window.__admin.abrirEditar(\''+uid+'\')"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:15px">edit</span>Editar</button>';
           var bTg=u.ativo
-            ?'<button class="btn-action btn-desativar" onclick="window.__admin&&window.__admin.toggle(\''+uid+'\',false)">🚫 Desativar</button>'
-            :'<button class="btn-action btn-ativar" onclick="window.__admin&&window.__admin.toggle(\''+uid+'\',true)">✅ Ativar</button>';
+            ?'<button class="btn-action btn-desativar" onclick="window.__admin&&window.__admin.toggle(\''+uid+'\',false)"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:15px">block</span>Desativar</button>'
+            :'<button class="btn-action btn-ativar" onclick="window.__admin&&window.__admin.toggle(\''+uid+'\',true)"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:15px">check_circle</span>Ativar</button>';
           tr.innerHTML=
             '<div class="user-card-header"><span class="user-card-nome">'+nome+'</span><span class="user-card-badges">'+bRole+bEst+'</span></div>'+
             '<div class="user-card-email">'+email+'</div>'+
-            '<div class="user-card-ultimo-login">🕐 Último Login: '+ul+'</div>'+
+            '<div class="user-card-ultimo-login"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:14px">schedule</span>Último Login: '+ul+'</div>'+
             '<div class="user-card-actions">'+bEd+bTg+'</div>'+
             '<td data-label="Utilizador"><strong>'+nome+'</strong><span class="user-email-sub">'+email+'</span></td>'+
             '<td data-label="Role">'+bRole+'</td>'+
@@ -184,10 +197,20 @@
   }
 
   function toggle(uid,ativar){
-    if(!confirm('Tem a certeza que deseja '+(ativar?'ativar':'desativar')+' este utilizador?'))return;
-    (ativar?ativarUtilizador:desativarUtilizador)(uid)
-      .then(function(resp){mostrarToast('✓ '+resp.mensagem,'sucesso');_carregar();})
-      .catch(function(err){mostrarToast('Erro: '+err.message,'erro');});
+    var msg='Tem a certeza que deseja '+(ativar?'ativar':'desativar')+' este utilizador?';
+    var pedir=typeof window.spaConfirmar==='function'
+      ?window.spaConfirmar(msg,{
+        titulo:ativar?'Ativar utilizador':'Desativar utilizador',
+        textoConfirmar:ativar?'Ativar':'Desativar',
+        perigo:!ativar
+      })
+      :Promise.resolve(true);
+    pedir.then(function(ok){
+      if(!ok)return;
+      (ativar?ativarUtilizador:desativarUtilizador)(uid)
+        .then(function(resp){mostrarToast('✓ '+resp.mensagem,'sucesso');_carregar();})
+        .catch(function(err){mostrarToast('Erro: '+err.message,'erro');});
+    });
   }
 
   function abrirAlterarEmail() {
@@ -232,15 +255,33 @@ function gerarNovoLink() {
 function confirmarApagar() {
   var uid  = (document.getElementById('editUserUid')  || {}).value || '';
   var nome = (document.getElementById('editUserNome') || {}).value || '';
-  if (!confirm('Eliminar definitivamente "' + nome + '"? Esta ação não pode ser desfeita.')) return;
-  if (!confirm('Confirma novamente: a conta e todo o histórico de acesso serão removidos permanentemente.')) return;
-  apagarUtilizador(uid)
-    .then(function (resp) {
-      mostrarToast('✓ ' + resp.mensagem, 'sucesso');
-      _fecharModalEditar();
-      _carregar();
-    })
-    .catch(function (err) { mostrarToast('Erro: ' + err.message, 'erro'); });
+  var p1 = typeof window.spaConfirmar === 'function'
+    ? window.spaConfirmar('Eliminar definitivamente "' + nome + '"? Esta ação não pode ser desfeita.', {
+        titulo: 'Eliminar utilizador',
+        textoConfirmar: 'Continuar',
+        perigo: true
+      })
+    : Promise.resolve(true);
+  p1.then(function(ok) {
+    if (!ok) return;
+    var p2 = typeof window.spaConfirmar === 'function'
+      ? window.spaConfirmar('Confirma novamente: a conta e todo o histórico de acesso serão removidos permanentemente.', {
+          titulo: 'Confirmação final',
+          textoConfirmar: 'Eliminar definitivamente',
+          perigo: true
+        })
+      : Promise.resolve(true);
+    p2.then(function(ok2) {
+      if (!ok2) return;
+      apagarUtilizador(uid)
+        .then(function (resp) {
+          mostrarToast('✓ ' + resp.mensagem, 'sucesso');
+          _fecharModalEditar();
+          _carregar();
+        })
+        .catch(function (err) { mostrarToast('Erro: ' + err.message, 'erro'); });
+    });
+  });
 }
 
   function onTogglePasswordAgora(){

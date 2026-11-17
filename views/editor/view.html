@@ -84,7 +84,7 @@
 
     <div class="secao-card" id="estadoVazioCard">
       <div class="grelha-vazia">
-        <span class="grelha-vazia-icone">📋</span>
+        <span class="grelha-vazia-icone material-symbols-rounded" aria-hidden="true">assignment</span>
         <div class="grelha-vazia-titulo">Nenhuma grelha carregada</div>
         <div>Escolha um local e um mês e clique em <strong>Carregar dados</strong> para começar.</div>
       </div>
@@ -93,8 +93,8 @@
     <div class="secao-card" id="secaoGrelha" style="display:none">
       <div class="secao-card-header"
            onclick="window.__editor&&window.__editor.toggleSecaoGrelha()"
-           role="button" tabindex="0"
-           onkeydown="if(event.key==='Enter'||event.key===' ')window.__editor&&window.__editor.toggleSecaoGrelha()">
+           role="button" tabindex="0" aria-expanded="true" aria-controls="secaoCorpo"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.__editor&&window.__editor.toggleSecaoGrelha();}">
         <h2 id="secaoGrelhaTitle">Grelha Mensal</h2>
         <div class="secao-meta">
           <span class="secao-total-badge" id="secaoTotalBadge">0 registos</span>
@@ -114,7 +114,7 @@
     <div class="ed-tab-panel" id="edPainelExtras" role="tabpanel" style="display:none">
       <div class="secao-card" id="estadoVazioExtras">
       <div class="grelha-vazia">
-        <span class="grelha-vazia-icone">📋</span>
+        <span class="grelha-vazia-icone material-symbols-rounded" aria-hidden="true">assignment</span>
         <div class="grelha-vazia-titulo">Nenhuma grelha carregada</div>
         <div>Escolha um local e um mês e clique em <strong>Carregar dados</strong> para começar.</div>
       </div>
@@ -161,14 +161,14 @@
 </div><!-- /editor-container -->
 
 <!-- MODAL EXTRAS -->
-<div class="modal-overlay" id="modalExtras">
+<div class="modal-overlay" id="modalExtras" role="dialog" aria-modal="true" aria-labelledby="modalExtrasTitulo">
   <div class="modal-box modal-extras-box">
     <div class="modal-header">
-      <h2 id="modalExtrasTitulo"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">edit</span>Editar</h2>
+      <h2 id="modalExtrasTitulo"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">edit</span>Editar</h2>
       <div class="modal-extras-meta" id="modalExtrasMeta"></div>
     </div>
     <div id="modalExtrasSelectorDiaWrap" style="display:none">
-      <label class="modal-extras-label">Dia</label>
+      <label class="modal-extras-label" for="modalExtrasSelectorDia">Dia</label>
       <select id="modalExtrasSelectorDia" class="modal-extras-select-dia"
               onchange="window.__editor&&window.__editor.onSelectorDiaChange(this.value)">
       </select>
@@ -203,10 +203,10 @@
 </div>
 
 <!-- MODAL CONFIRMAR GUARDAR -->
-<div class="modal-overlay" id="modalGuardar">
+<div class="modal-overlay" id="modalGuardar" role="dialog" aria-modal="true" aria-labelledby="modalGuardarTitulo">
   <div class="modal-box">
     <div class="modal-header">
-      <h2><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span>Confirmar Registo de Alterações</h2>
+      <h2 id="modalGuardarTitulo"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span>Confirmar Registo de Alterações</h2>
     </div>
     <div class="modal-body">
       <p>Está prestes a guardar alterações na base de dados. Esta operação
@@ -217,7 +217,7 @@
       <button class="btn-modal-cancelar"
               onclick="window.__editor&&window.__editor.fecharModalGuardar()">Cancelar</button>
       <button class="btn-modal-confirmar"
-              onclick="window.__editor&&window.__editor.executarGuardar()"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check_circle</span>Confirmar e Guardar</button>
+              onclick="window.__editor&&window.__editor.executarGuardar()"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check_circle</span>Confirmar e Guardar</button>
     </div>
   </div>
 </div>
@@ -225,11 +225,11 @@
 <!-- ============================================================
      MODAL CONFLITO — Países + Extras (Operadores / Sugestões / Observações)
 ============================================================ -->
-<div class="modal-overlay" id="modalConflito">
+<div class="modal-overlay" id="modalConflito" role="dialog" aria-modal="true" aria-labelledby="modalConflitoTitulo">
   <div class="modal-box modal-conflito-box">
 
     <div class="modal-header">
-      <h2><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">warning</span>Conflito de Dados</h2>
+      <h2 id="modalConflitoTitulo"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">warning</span>Conflito de Dados</h2>
       <div class="conflito-meta" id="conflitoMeta"></div>
     </div>
 
@@ -295,26 +295,26 @@
             <span class="conflito-extras-acoes-label">Manter para Operadores:</span>
             <button class="btn-conflito btn-conflito-manter btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('operadores','servidor')">
-              ✓ Servidor
+              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Servidor
             </button>
             <button class="btn-conflito btn-conflito-offline btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('operadores','offline')">
-              ✓ Offline
+              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Offline
             </button>
           </div>
         </div>
 
         <!-- Sugestões -->
         <div class="conflito-extras-bloco">
-          <div class="conflito-extras-titulo">💬 Sugestões e Críticas</div>
+          <div class="conflito-extras-titulo"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">forum</span>Sugestões e Críticas</div>
           <div class="conflito-comparacao conflito-comparacao-extras">
             <div class="conflito-lado">
-              <div class="conflito-lado-titulo servidor">📊 Servidor</div>
+              <div class="conflito-lado-titulo servidor"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">database</span>Servidor</div>
               <div class="conflito-extras-lista" id="conflitoSugServidor"></div>
             </div>
             <div class="conflito-vs">VS</div>
             <div class="conflito-lado">
-              <div class="conflito-lado-titulo offline">📦 Offline</div>
+              <div class="conflito-lado-titulo offline"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">wifi_off</span>Offline</div>
               <div class="conflito-extras-lista" id="conflitoSugOffline"></div>
             </div>
           </div>
@@ -322,26 +322,26 @@
             <span class="conflito-extras-acoes-label">Manter para Sugestões:</span>
             <button class="btn-conflito btn-conflito-manter btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('sugestoes','servidor')">
-              ✓ Servidor
+              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Servidor
             </button>
             <button class="btn-conflito btn-conflito-offline btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('sugestoes','offline')">
-              ✓ Offline
+              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Offline
             </button>
           </div>
         </div>
 
         <!-- Observações -->
         <div class="conflito-extras-bloco">
-          <div class="conflito-extras-titulo">📝 Outras Observações</div>
+          <div class="conflito-extras-titulo"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">edit_note</span>Outras Observações</div>
           <div class="conflito-comparacao conflito-comparacao-extras">
             <div class="conflito-lado">
-              <div class="conflito-lado-titulo servidor">📊 Servidor</div>
+              <div class="conflito-lado-titulo servidor"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">database</span>Servidor</div>
               <div class="conflito-extras-obs" id="conflitoObsServidor"></div>
             </div>
             <div class="conflito-vs">VS</div>
             <div class="conflito-lado">
-              <div class="conflito-lado-titulo offline">📦 Offline</div>
+              <div class="conflito-lado-titulo offline"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">wifi_off</span>Offline</div>
               <div class="conflito-extras-obs" id="conflitoObsOffline"></div>
             </div>
           </div>
@@ -349,11 +349,11 @@
             <span class="conflito-extras-acoes-label">Manter para Observações:</span>
             <button class="btn-conflito btn-conflito-manter btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('observacoes','servidor')">
-              ✓ Servidor
+              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Servidor
             </button>
             <button class="btn-conflito btn-conflito-offline btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('observacoes','offline')">
-              ✓ Offline
+              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Offline
             </button>
           </div>
         </div>
@@ -372,15 +372,15 @@
               onclick="window.__editor&&window.__editor.fecharModalConflito()">Cancelar</button>
       <button class="btn-conflito btn-conflito-manter"
               onclick="window.__editor&&window.__editor.resolverConflito('manter_servidor')">
-        ✓ Manter tudo do servidor
+        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check</span>Manter tudo do servidor
       </button>
       <button class="btn-conflito btn-conflito-offline"
               onclick="window.__editor&&window.__editor.resolverConflito('usar_offline')">
-        ✓ Usar tudo do offline
+        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check</span>Usar tudo do offline
       </button>
       <button class="btn-conflito btn-conflito-fundir"
               onclick="window.__editor&&window.__editor.activarModoFusao()">
-        ✏️ Editar e fundir
+        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">edit</span>Editar e fundir
       </button>
     </div>
 

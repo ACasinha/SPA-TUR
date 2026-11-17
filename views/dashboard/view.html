@@ -21,26 +21,26 @@
 </div><!-- /dashboard-container -->
 
 <!-- Modal de edição (admin) -->
-<div class="edit-overlay" id="editOverlay">
+<div class="edit-overlay" id="editOverlay" role="dialog" aria-modal="true" aria-labelledby="editBoxTitulo">
   <div class="edit-box">
     <h2 id="editBoxTitulo">Editar Gráfico</h2>
     <div class="edit-field">
-      <label id="editLabelTitulo">Título</label>
+      <label id="editLabelTitulo" for="editTitulo">Título</label>
       <input type="text" id="editTitulo" placeholder="Título do gráfico"
              onkeydown="if(event.key==='Enter')guardarEdicao()">
     </div>
     <div class="edit-field">
-      <label id="editLabelSub">Subtítulo</label>
+      <label id="editLabelSub" for="editSub">Subtítulo</label>
       <input type="text" id="editSub" placeholder="Subtítulo (opcional)">
     </div>
     <div class="edit-field" id="editGrupoUrl">
-      <label id="editLabelUrl">URL do iframe (Google Sheets)</label>
+      <label id="editLabelUrl" for="editUrl">URL do iframe (Google Sheets)</label>
       <textarea id="editUrl" rows="3"
         placeholder="https://docs.google.com/spreadsheets/d/.../pubchart?..."></textarea>
     </div>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
       <div class="edit-field" id="editGrupoLargura" style="flex:1;min-width:140px">
-        <label>Largura</label>
+        <label for="editLargura">Largura</label>
         <select id="editLargura">
           <option value="metade">½ — Metade</option>
           <option value="dois-tercos">⅔ — Dois terços</option>
@@ -48,7 +48,7 @@
         </select>
       </div>
       <div class="edit-field" id="editGrupoAltura" style="flex:1;min-width:140px">
-        <label>Altura</label>
+        <label for="editAltura">Altura</label>
         <select id="editAltura">
           <option value="sm">Pequena (260px)</option>
           <option value="md" selected>Média (360px)</option>
@@ -58,8 +58,8 @@
       </div>
     </div>
     <div class="edit-actions">
-      <button class="btn-edit-cancelar" onclick="fecharEditOverlay()">Cancelar</button>
-      <button class="btn-edit-guardar"  onclick="guardarEdicao()">💾 Guardar</button>
+      <button type="button" class="btn-edit-cancelar" onclick="fecharEditOverlay()">Cancelar</button>
+      <button type="button" class="btn-edit-guardar" onclick="guardarEdicao()"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;margin-right:4px;vertical-align:middle;">save</span>Guardar</button>
     </div>
   </div>
 </div>

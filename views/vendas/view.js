@@ -94,7 +94,13 @@
   }
 
   function beforeLeave() {
-    if (_dirtyV || _dirtyI) return confirm('Tem alterações por guardar. Tem a certeza que quer sair?');
+    if (_dirtyV || _dirtyI) {
+      return window.spaConfirmar('Tem alterações por guardar. Tem a certeza que quer sair?', {
+        titulo: 'Alterações por guardar',
+        textoConfirmar: 'Sair sem guardar',
+        perigo: true
+      });
+    }
     return true;
   }
 
@@ -219,7 +225,9 @@
   function _activarTab(tab) {
     _tab = tab;
     document.querySelectorAll('.vd-tab').forEach(function(b) {
-      b.classList.toggle('ativa', b.getAttribute('data-tab') === tab);
+      var ativa = b.getAttribute('data-tab') === tab;
+      b.classList.toggle('ativa', ativa);
+      b.setAttribute('aria-selected', ativa ? 'true' : 'false');
     });
     var mapa = { vendas: 'vdPainelVendas', inventario: 'vdPainelInventario', config: 'vdPainelConfig' };
     Object.keys(mapa).forEach(function(t) {
@@ -239,8 +247,20 @@
     var mes   =  (document.getElementById('vdMes')   || {}).value || '';
     if (!local) { mostrarToast('Escolha um local.', 'erro'); return; }
     if (!mes)   { mostrarToast('Escolha o mês.', 'erro'); return; }
-    if ((_dirtyV || _dirtyI) && !confirm('Tem alterações por guardar. Se continuar serão perdidas. Continuar?')) return;
+    if (_dirtyV || _dirtyI) {
+      window.spaConfirmar('Tem alterações por guardar. Se continuar serão perdidas. Continuar?', {
+        titulo: 'Alterações por guardar',
+        textoConfirmar: 'Continuar',
+        perigo: true
+      }).then(function(ok) {
+        if (ok) _executarCarregar(local, mes);
+      });
+      return;
+    }
+    _executarCarregar(local, mes);
+  }
 
+  function _executarCarregar(local, mes) {
     var btn = document.getElementById('vdBtnCarregar');
     if (btn) btn.disabled = true;
 
@@ -367,8 +387,19 @@
     });
     totV = Math.round(totV * 100) / 100;
 
-    if (!totQ && !confirm('Nenhuma venda indicada. Registar este dia sem vendas?')) return;
+    if (!totQ) {
+      window.spaConfirmar('Nenhuma venda indicada. Registar este dia sem vendas?', {
+        titulo: 'Dia sem vendas',
+        textoConfirmar: 'Registar'
+      }).then(function(ok) {
+        if (ok) _gravarVendas(dd, itens, totQ, totV);
+      });
+      return;
+    }
+    _gravarVendas(dd, itens, totQ, totV);
+  }
 
+  function _gravarVendas(dd, itens, totQ, totV) {
     var chave = 'd' + dd;
     var dados = { local: _local, mes: _mes, atualizadoEm: _ts(), atualizadoPor: _email(), dias: {} };
     dados.dias[chave] = { itens: itens, totalQtd: totQ, totalValor: totV, registadoPor: _email(), registadoEm: _ts() };
@@ -465,19 +496,19 @@
       'Inventário — ' + _local + ' — ' + _mesLegivel(_mes);
 
     var aviso = document.getElementById('vdInvAviso');
-    var msg = '', cls = 'vd-aviso';
+    var msgHtml = '', cls = 'vd-aviso';
     if (!_artigosLocal.length && !Object.keys(salvos).length) {
-      msg = 'Este local não tem artigos atribuídos. Contacte o administrador.';
+      msgHtml = 'Este local não tem artigos atribuídos. Contacte o administrador.';
     } else if (fechado) {
-      msg = '🔒 Inventário submetido por ' + (_docI.registadoPor || '—') + ' em ' + _formatarTs(_docI.registadoEm) +
-            (_isAdmin ? '. Como administrador pode alterá-lo.' : '. Só os administradores o podem alterar.');
+      msgHtml = '<span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">lock</span><span>Inventário submetido por ' + _esc(_docI.registadoPor || '—') + ' em ' + _esc(_formatarTs(_docI.registadoEm)) +
+            (_isAdmin ? '. Como administrador pode alterá-lo.' : '. Só os administradores o podem alterar.') + '</span>';
       cls += ' vd-aviso-info';
     } else if (!_docIAnt) {
-      msg = 'Não existe inventário do mês anterior — indique o stock anterior de cada artigo.';
+      msgHtml = 'Não existe inventário do mês anterior — indique o stock anterior de cada artigo.';
     }
     aviso.className     = cls;
-    aviso.textContent   = msg;
-    aviso.style.display = msg ? '' : 'none';
+    aviso.innerHTML     = msgHtml;
+    aviso.style.display = msgHtml ? '' : 'none';
 
     var ids = {};
     _artigosLocal.forEach(function(a) { ids[a.id] = true; });
@@ -563,9 +594,19 @@
     });
     if (!Object.keys(itens).length) return;
 
-    if (!fechado && !confirm('Submeter o inventário de ' + _mesLegivel(_mes) +
-        '? Depois de submetido só os administradores o podem alterar.')) return;
+    if (!fechado) {
+      window.spaConfirmar('Submeter o inventário de ' + _mesLegivel(_mes) + '? Depois de submetido só os administradores o podem alterar.', {
+        titulo: 'Fechar inventário',
+        textoConfirmar: 'Submeter e fechar'
+      }).then(function(ok) {
+        if (ok) _gravarInventario(itens);
+      });
+      return;
+    }
+    _gravarInventario(itens);
+  }
 
+  function _gravarInventario(itens) {
     var dados = {
       local: _local, mes: _mes, fechado: true, itens: itens,
       registadoPor: _docI ? _docI.registadoPor : _email(),
@@ -865,7 +906,8 @@
   function _btnIcone(icone, titulo, fn) {
     var b = document.createElement('button');
     b.type = 'button'; b.className = 'vd-btn-icone'; b.title = titulo;
-    b.innerHTML = '<span class="material-symbols-rounded">' + icone + '</span>';
+    b.setAttribute('aria-label', titulo);
+    b.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">' + icone + '</span>';
     b.addEventListener('click', fn);
     return b;
   }
@@ -903,10 +945,22 @@
     var a = _artigos.find(function(x) { return x.id === id; });
     if (!a) return;
     var ativo = a.ativo !== false;
-    if (ativo && !confirm('Arquivar este artigo? Deixa de aparecer nos formulários, mas o histórico é preservado.')) return;
-    db.collection('vendas_artigos').doc(id).update({ ativo: !ativo, atualizadoEm: _ts() })
-      .then(_recarregarArtigos)
-      .catch(function(err) { mostrarToast('Erro: ' + err.message, 'erro'); });
+    var executar = function() {
+      db.collection('vendas_artigos').doc(id).update({ ativo: !ativo, atualizadoEm: _ts() })
+        .then(_recarregarArtigos)
+        .catch(function(err) { mostrarToast('Erro: ' + err.message, 'erro'); });
+    };
+    if (ativo) {
+      window.spaConfirmar('Arquivar este artigo? Deixa de aparecer nos formulários, mas o histórico é preservado.', {
+        titulo: 'Arquivar artigo',
+        textoConfirmar: 'Arquivar',
+        perigo: true
+      }).then(function(ok) {
+        if (ok) executar();
+      });
+      return;
+    }
+    executar();
   }
 
   function _recarregarArtigos() {
@@ -1000,10 +1054,16 @@
 
   function eliminarLista(id) {
     if (!_isAdmin) return;
-    if (!confirm('Eliminar esta lista? Os registos já feitos não são afetados.')) return;
-    db.collection('vendas_listas').doc(id).delete()
-      .then(_recarregarListas)
-      .catch(function(err) { mostrarToast('Erro: ' + err.message, 'erro'); });
+    window.spaConfirmar('Eliminar esta lista? Os registos já feitos não são afetados.', {
+      titulo: 'Eliminar lista',
+      textoConfirmar: 'Eliminar',
+      perigo: true
+    }).then(function(ok) {
+      if (!ok) return;
+      db.collection('vendas_listas').doc(id).delete()
+        .then(_recarregarListas)
+        .catch(function(err) { mostrarToast('Erro: ' + err.message, 'erro'); });
+    });
   }
 
   function fecharModais() {

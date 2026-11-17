@@ -16,12 +16,12 @@
   </div>
 
   <div class="vd-tabs" role="tablist">
-    <button type="button" class="vd-tab ativa" data-tab="vendas" role="tab">
-      <span class="material-symbols-rounded">point_of_sale</span>Vendas diárias</button>
-    <button type="button" class="vd-tab" data-tab="inventario" role="tab">
-      <span class="material-symbols-rounded">inventory</span>Inventário mensal</button>
-    <button type="button" class="vd-tab" data-tab="config" id="vdTabConfig" role="tab" style="display:none">
-      <span class="material-symbols-rounded">settings</span>Configuração</button>
+    <button type="button" class="vd-tab ativa" data-tab="vendas" role="tab" aria-selected="true">
+      <span class="material-symbols-rounded" aria-hidden="true">point_of_sale</span>Vendas diárias</button>
+    <button type="button" class="vd-tab" data-tab="inventario" role="tab" aria-selected="false">
+      <span class="material-symbols-rounded" aria-hidden="true">inventory</span>Inventário mensal</button>
+    <button type="button" class="vd-tab" data-tab="config" id="vdTabConfig" role="tab" aria-selected="false" style="display:none">
+      <span class="material-symbols-rounded" aria-hidden="true">settings</span>Configuração</button>
   </div>
 
   <!-- ===================== VENDAS ===================== -->
@@ -139,7 +139,7 @@
 </div>
 
 <!-- MODAL — Artigo -->
-<div class="modal-overlay" id="vdModalArtigo">
+<div class="modal-overlay" id="vdModalArtigo" role="dialog" aria-modal="true" aria-labelledby="vdModalArtigoTitulo">
   <div class="modal-box">
     <div class="modal-header"><h2 id="vdModalArtigoTitulo">Novo artigo</h2></div>
     <div class="modal-body">
@@ -154,7 +154,7 @@
 </div>
 
 <!-- MODAL — Lista -->
-<div class="modal-overlay" id="vdModalLista">
+<div class="modal-overlay" id="vdModalLista" role="dialog" aria-modal="true" aria-labelledby="vdModalListaTitulo">
   <div class="modal-box vd-modal-lista">
     <div class="modal-header"><h2 id="vdModalListaTitulo">Nova lista</h2></div>
     <div class="modal-body">

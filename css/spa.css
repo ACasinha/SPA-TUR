@@ -57,6 +57,10 @@
   transition: opacity 0.18s ease;
 }
 
+[data-theme="dark"] .spa-transition {
+  background: rgba(22, 22, 22, 0.78);
+}
+
 .spa-transition.activo {
   opacity: 1;
   pointer-events: auto;
@@ -106,10 +110,33 @@
 
 .spa-erro-acesso p {
   font-size: var(--text-sm);
-  color: var(--cinza);
+  color: var(--subtexto);
   max-width: 380px;
   line-height: 1.6;
   margin: 0;
+}
+
+.spa-erro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  background: var(--terra-btn);
+  color: #FFFFFF;
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 46px;
+  box-shadow: 0 4px 14px rgba(139, 74, 43, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.spa-erro-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(139, 74, 43, 0.45);
 }
 
 /* ============================================================
@@ -152,8 +179,8 @@
 
 /* Badge de visitantes (view Registo) */
 .spa-header-badge {
-  background: rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   padding: 6px 12px;
   text-align: center;
@@ -172,7 +199,7 @@
 
 .spa-header-badge .badge-label {
   font-size: var(--text-xs);
-  opacity: 0.7;
+  opacity: 0.75;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--terra-dark);
@@ -181,7 +208,7 @@
 /* Badge de pendentes offline */
 .spa-badge-pendentes {
   background: var(--cor-aviso);
-  color: white;
+  color: #1C1C1C;
   border-radius: 20px;
   font-size: var(--text-xs);
   font-weight: 700;

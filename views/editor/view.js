@@ -85,8 +85,14 @@
   }
 
   function beforeLeave() {
-    if (_totalPendentes > 0) {
-      return confirm('Tem alterações por guardar. Tem a certeza que quer sair?');
+    if (_totalPendentes() > 0) {
+      return typeof window.spaConfirmar === 'function'
+        ? window.spaConfirmar('Tem alterações por guardar. Tem a certeza que quer sair?', {
+            titulo: 'Sair sem guardar',
+            textoConfirmar: 'Sair',
+            perigo: true
+          })
+        : true;
     }
     return true;
   }
@@ -119,7 +125,7 @@
   }
 
   function _onBeforeUnload(e) {
-    if (_totalPendentes > 0) {
+    if (_totalPendentes() > 0) {
       e.preventDefault();
       e.returnValue = 'Tem alterações por guardar.';
       return e.returnValue;
@@ -151,10 +157,23 @@
       if (im) im.focus();
       return;
     }
-    if (_totalPendentes > 0) {
-      if (!confirm('Tem alterações por guardar. Se continuar serão perdidas. Continuar?')) return;
+    if (_totalPendentes() > 0) {
+      var confirmar = typeof window.spaConfirmar === 'function'
+        ? window.spaConfirmar('Tem alterações por guardar. Se continuar serão perdidas. Continuar?', {
+            titulo: 'Alterações por guardar',
+            textoConfirmar: 'Continuar',
+            perigo: true
+          })
+        : Promise.resolve(true);
+      confirmar.then(function(ok) {
+        if (ok) _executarCarregarMes(local, mes);
+      });
+      return;
     }
+    _executarCarregarMes(local, mes);
+  }
 
+  function _executarCarregarMes(local, mes) {
     _localAtual = local; _mesAtual = mes;
     _dadosMes = {}; _alteracoes = {}; _totalAlteracoes = 0;
     _conflitosDoMes = {}; _alteracoesExtras = {};
@@ -395,9 +414,12 @@
     setTimeout(function() {
       _stickyIniciar();
       var w = document.getElementById('grelhaWrapper');
-      if (w) _al(w, 'scroll', function() {
-        if (_stickyAtivo) _stickyAgendarActualizacao();
-      }, { passive: true });
+      if (w && !w._stickyScrollBound) {
+        w._stickyScrollBound = true;
+        _al(w, 'scroll', function() {
+          if (_stickyAtivo) _stickyAgendarActualizacao();
+        }, { passive: true });
+      }
     }, 50);
   }
 
@@ -559,6 +581,15 @@
 
   function fecharModalGuardar() { _fecharModal('modalGuardar'); }
 
+  function _setBtnGuardarTudo(guardando) {
+    var btnG = document.getElementById('btnGuardarTudo');
+    if (!btnG) return;
+    btnG.disabled = !!guardando;
+    btnG.innerHTML = guardando
+      ? '<span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">hourglass_top</span>A guardar...'
+      : '<span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span>Guardar alterações';
+  }
+
   function executarGuardar() {
   fecharModalGuardar();
 
@@ -569,8 +600,7 @@
   var datas = Object.keys(mapa);
   if (!datas.length) return;
 
-  var btnG = document.getElementById('btnGuardarTudo');
-  if (btnG) { btnG.disabled = true; btnG.textContent = '⏳ A guardar...'; }
+  _setBtnGuardarTudo(true);
   mostrarToast('A guardar ' + datas.length + ' dia(s)...', 'info');
 
   var registos = datas.map(function(data) {
@@ -599,7 +629,7 @@
 
   chamarAPI('guardarRegistosLote', { local: _localAtual, registos: registos })
     .then(function(resp) {
-      if (btnG) btnG.textContent = '💾 Guardar alterações';
+      _setBtnGuardarTudo(false);
 
       if (resp.sucesso) {
         var datasExtras = Object.keys(_alteracoesExtras);
@@ -629,7 +659,7 @@
       }
     })
     .catch(function(err) {
-      if (btnG) btnG.textContent = '💾 Guardar alterações';
+      _setBtnGuardarTudo(false);
       _atualizarBarraAlteracoes();
       mostrarToast('Erro ao guardar: ' + err.message, 'erro');
     });
@@ -637,23 +667,33 @@
 
   function descartarAlteracoes() {
   if (_totalPendentes() === 0) return;
-  if (!confirm('Tem a certeza que quer descartar todas as alterações não guardadas?')) return;
+  var confirmar = typeof window.spaConfirmar === 'function'
+    ? window.spaConfirmar('Tem a certeza que quer descartar todas as alterações não guardadas?', {
+        titulo: 'Descartar alterações',
+        textoConfirmar: 'Descartar',
+        perigo: true
+      })
+    : Promise.resolve(true);
 
-  document.querySelectorAll('.cel-input.alterada').forEach(function(inp) {
-    var original = (_dadosMes[inp.dataset.data] && _dadosMes[inp.dataset.data][inp.dataset.pais]) || 0;
-    inp.value = original > 0 ? String(original) : '';
-    inp.classList.remove('alterada');
-    inp.classList.toggle('tem-valor', original > 0);
-    _recalcularTotalLinha(inp.dataset.pais);
-    _recalcularTotalDia(inp.dataset.data);
+  confirmar.then(function(ok) {
+    if (!ok) return;
+
+    document.querySelectorAll('.cel-input.alterada').forEach(function(inp) {
+      var original = (_dadosMes[inp.dataset.data] && _dadosMes[inp.dataset.data][inp.dataset.pais]) || 0;
+      inp.value = original > 0 ? String(original) : '';
+      inp.classList.remove('alterada');
+      inp.classList.toggle('tem-valor', original > 0);
+      _recalcularTotalLinha(inp.dataset.pais);
+      _recalcularTotalDia(inp.dataset.data);
+    });
+
+    var datasExtras = Object.keys(_alteracoesExtras);
+    _alteracoes = {}; _totalAlteracoes = 0; _alteracoesExtras = {};
+    datasExtras.forEach(_actualizarLinhaExtras);
+    _recalcularTotalGeral();
+    _atualizarBarraAlteracoes();
+    mostrarToast('Alterações descartadas.', 'info');
   });
-
-  var datasExtras = Object.keys(_alteracoesExtras);
-  _alteracoes = {}; _totalAlteracoes = 0; _alteracoesExtras = {};
-  datasExtras.forEach(_actualizarLinhaExtras);
-  _recalcularTotalGeral();
-  _atualizarBarraAlteracoes();
-  mostrarToast('Alterações descartadas.', 'info');
 }
 
   function activarTab(tab) {
@@ -707,6 +747,8 @@ function _atualizarBadgesTabs() {
     var aberto = !card.classList.contains('recolhido');
     card.classList.toggle('recolhido', aberto);
     icone.textContent = aberto ? '▶' : '▼';
+    var hdr = card.querySelector('.secao-card-header');
+    if (hdr) hdr.setAttribute('aria-expanded', String(!aberto));
   }
 
   // ============================================================
@@ -883,7 +925,11 @@ function _renderCalendarioExtras() {
     _modoModalExtras = modo;
 
     var titulo = document.getElementById('modalExtrasTitulo');
-    if (titulo) titulo.textContent = modo === 'adicionar' ? '➕ Adicionar Registo' : '✏️ Editar — ' + data;
+    if (titulo) {
+      titulo.innerHTML = modo === 'adicionar'
+        ? '<span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span>Adicionar Registo'
+        : '<span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">edit</span>Editar — ' + _esc(data);
+    }
     var meta = document.getElementById('modalExtrasMeta');
     if (meta) meta.textContent = _localAtual;
 

@@ -136,16 +136,6 @@ function guardarNaFila(payload) {
 // ============================================================
 
 function sincronizarFila() {
-  var resetPromise = initSync().then(function(db) {
-    return db.getAllFromIndex(SYNC_STORE, 'estado', ESTADO.A_SINCRONIZAR)
-      .then(function(presos) {
-        return Promise.all(presos.map(function(r) {
-          console.log('[Sync] Reset de registo preso:', r.id);
-          return _atualizarEstado(r.id, ESTADO.PENDENTE);
-        }));
-      });
-  }).catch(function() {});
-  
   if (_sincronizando) {
     console.log('[Sync] Sincronização já em curso — ignorar pedido duplicado.');
     return Promise.resolve();
@@ -159,6 +149,17 @@ function sincronizarFila() {
   console.log('[Sync] A iniciar sincronização...');
 
   return initSync()
+    .then(function(db) {
+      return db.getAllFromIndex(SYNC_STORE, 'estado', ESTADO.A_SINCRONIZAR)
+        .then(function(presos) {
+          if (!presos || !presos.length) return db;
+          return Promise.all(presos.map(function(r) {
+            console.log('[Sync] Reset de registo preso:', r.id);
+            return _atualizarEstado(r.id, ESTADO.PENDENTE);
+          })).then(function() { return db; });
+        })
+        .catch(function() { return db; });
+    })
     .then(function(db) {
       return db.getAllFromIndex(SYNC_STORE, 'estado', ESTADO.PENDENTE);
     })
@@ -422,11 +423,11 @@ function _mostrarToastPDF(payload) {
   toast.className = 'toast-pdf-backup';
   toast.innerHTML =
     '<div class="toast-pdf-texto">' +
-      '📄 Guarde também um PDF como backup físico deste registo.' +
+      '<span class="material-symbols-rounded" aria-hidden="true">description</span> Guarde também um PDF como backup físico deste registo.' +
     '</div>' +
     '<div class="toast-pdf-acoes">' +
-      '<button class="toast-pdf-btn" id="btnToastGerarPDF">Gerar PDF</button>' +
-      '<button class="toast-pdf-fechar" id="btnToastPDFFechar">✕</button>' +
+      '<button type="button" class="toast-pdf-btn" id="btnToastGerarPDF">Gerar PDF</button>' +
+      '<button type="button" class="toast-pdf-fechar" id="btnToastPDFFechar" aria-label="Fechar"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>' +
     '</div>';
 
   document.body.appendChild(toast);

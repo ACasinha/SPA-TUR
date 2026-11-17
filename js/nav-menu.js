@@ -10,6 +10,7 @@
 
   var _sheetAberta = false;
   var _perfilActual = null;
+  var _onKeyDown = null;
 
   var MENU_ITEMS = [
     {
@@ -265,24 +266,12 @@
     var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     btnTema.innerHTML =
       '<span class="material-symbols-rounded" id="sheetThemeIcon">' + (isDark ? 'light_mode' : 'dark_mode') + '</span>' +
-      '<span id="sheetThemeText">' + (isDark ? 'Modo Claro' : 'Modo Escuro') + '</span>';
+      '<span id="sheetThemeText">' + (isDark ? 'Tema Claro' : 'Tema Escuro') + '</span>';
 
     btnTema.addEventListener('click', function() {
-      var currentTheme = document.documentElement.getAttribute('data-theme');
-      var newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-
-      var iconEl = document.getElementById('sheetThemeIcon');
-      var textEl = document.getElementById('sheetThemeText');
-      if (iconEl) iconEl.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
-      if (textEl) textEl.textContent = newTheme === 'dark' ? 'Modo Claro' : 'Modo Escuro';
-
-      // Sincronizar botão do rodapé ou sidebar se existir
-      var sidebarIcon = document.getElementById('sidebarThemeIcon');
-      if (sidebarIcon) sidebarIcon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
-      var sidebarTxt = document.getElementById('sidebarThemeText');
-      if (sidebarTxt) sidebarTxt.textContent = newTheme === 'dark' ? 'Modo Claro' : 'Modo Escuro';
+      if (typeof window.alternarTemaSPA === 'function') {
+        window.alternarTemaSPA();
+      }
     });
     lista.appendChild(btnTema);
 
@@ -355,9 +344,10 @@
     document.body.appendChild(overlay);
 
     // Fechar com a tecla Escape
-    document.addEventListener('keydown', function(e) {
+    _onKeyDown = function(e) {
       if (e.key === 'Escape' && _sheetAberta) fecharGaveta();
-    });
+    };
+    document.addEventListener('keydown', _onKeyDown);
   }
 
   // ── Controlo da gaveta "Mais" ──────────────────────────────
@@ -384,18 +374,23 @@
     if (!overlay) return;
 
     if (overlay.contains(document.activeElement)) {
-    if (btnMais) btnMais.focus();
-    else document.activeElement.blur();
-  }
+      if (btnMais) btnMais.focus();
+      else document.activeElement.blur();
+    }
 
     _sheetAberta = false;
     overlay.classList.remove('visivel');
-    overlay.setAttribute('aria-expanded', 'true');
+    overlay.inert = true;
     if (btnMais) btnMais.setAttribute('aria-expanded', 'false');
   }
 
   // ── Destruir elementos anteriores ─────────────────────────
   function _destruirElementos() {
+    if (_onKeyDown) {
+      document.removeEventListener('keydown', _onKeyDown);
+      _onKeyDown = null;
+    }
+
     var navAntiga = document.getElementById('bottomNav');
     if (navAntiga && navAntiga.parentNode) {
       navAntiga.parentNode.removeChild(navAntiga);

@@ -237,26 +237,14 @@
     btnTema.id = 'btnSidebarTema';
     btnTema.className = 'sidebar-item sidebar-action-btn';
     var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    btnTema.setAttribute('data-tooltip', isDark ? 'Modo Claro' : 'Modo Escuro');
+    btnTema.setAttribute('data-tooltip', isDark ? 'Modo claro' : 'Modo escuro');
     btnTema.innerHTML =
       '<span class="sidebar-item-icon material-symbols-rounded" id="sidebarThemeIcon">' + (isDark ? 'light_mode' : 'dark_mode') + '</span>' +
-      '<span class="sidebar-item-label" id="sidebarThemeText">' + (isDark ? 'Modo Claro' : 'Modo Escuro') + '</span>';
+      '<span class="sidebar-item-label" id="sidebarThemeText">' + (isDark ? 'Modo claro' : 'Modo escuro') + '</span>';
     btnTema.addEventListener('click', function() {
-      var current = document.documentElement.getAttribute('data-theme');
-      var novo = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', novo);
-      localStorage.setItem('theme', novo);
-
-      var iconEl = document.getElementById('sidebarThemeIcon');
-      var textEl = document.getElementById('sidebarThemeText');
-      if (iconEl) iconEl.textContent = novo === 'dark' ? 'light_mode' : 'dark_mode';
-      if (textEl) textEl.textContent = novo === 'dark' ? 'Modo Claro' : 'Modo Escuro';
-      btnTema.setAttribute('data-tooltip', novo === 'dark' ? 'Modo Claro' : 'Modo Escuro');
-
-      var sheetIcon = document.getElementById('sheetThemeIcon');
-      if (sheetIcon) sheetIcon.textContent = novo === 'dark' ? 'light_mode' : 'dark_mode';
-      var sheetTxt = document.getElementById('sheetThemeText');
-      if (sheetTxt) sheetTxt.textContent = novo === 'dark' ? 'Modo Claro' : 'Modo Escuro';
+      if (typeof window.alternarTemaSPA === 'function') {
+        window.alternarTemaSPA();
+      }
     });
     bottom.appendChild(btnTema);
 
@@ -328,6 +316,7 @@
     toggle.className = 'sidebar-toggle';
     toggle.type      = 'button';
     toggle.setAttribute('aria-label', _colapsada ? 'Expandir menu' : 'Colapsar menu');
+    toggle.setAttribute('aria-expanded', String(!_colapsada));
     toggle.innerHTML =
       '<span class="sidebar-toggle-icon material-symbols-rounded">chevron_left</span>' +
       '<span class="sidebar-toggle-label">Colapsar</span>';
@@ -423,6 +412,7 @@
     var toggle = document.getElementById('sidebarToggle');
     if (toggle) {
       toggle.setAttribute('aria-label', _colapsada ? 'Expandir menu' : 'Colapsar menu');
+      toggle.setAttribute('aria-expanded', String(!_colapsada));
     }
   }
 
@@ -592,5 +582,6 @@
 
   window.construirSidebar    = construirSidebar;
   window.sidebarNavegar      = sidebarNavegar;
+  window.destruirSidebarSPA  = _destruirSidebar;
 
 })();

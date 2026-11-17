@@ -37,10 +37,6 @@
         '</div>'
     });
 
-    // FIX: mostrar o botão PDF do rodapé (tem id agora)
-    var btnPdf = document.getElementById('btnRodapePdf');
-    if (btnPdf) btnPdf.style.display = '';
-
     _inicializarFormulario();
 
     _actualizarBadgePendentes();
@@ -63,17 +59,19 @@
 
   function beforeLeave() {
     if (_dadosAlterados) {
-      return confirm('Tem dados por guardar. Tem a certeza que quer sair?');
+      return typeof window.spaConfirmar === 'function'
+        ? window.spaConfirmar('Tem dados por guardar. Tem a certeza que quer sair?', {
+            titulo: 'Sair sem guardar',
+            textoConfirmar: 'Sair',
+            perigo: true
+          })
+        : true;
     }
     return true;
   }
 
   function unmount() {
     clearTimeout(_verificacaoTimer);
-
-    // FIX: esconder o botão PDF ao sair desta view
-    var btnPdf = document.getElementById('btnRodapePdf');
-    if (btnPdf) btnPdf.style.display = 'none';
 
     _listeners.forEach(function(l) {
       l.target.removeEventListener(l.tipo, l.fn);
@@ -163,7 +161,7 @@
 
     var obsEl = document.getElementById('observacoes');
     if (obsEl) {
-      obsEl.addEventListener('input', function() {
+      _addListener(obsEl, 'input', function() {
         if (!verificarLocalEscolhido()) { this.value = ''; return; }
         _dadosAlterados = true;
       });
@@ -171,7 +169,7 @@
 
     var container = document.querySelector('.container');
     if (container) {
-      container.addEventListener('input', function(e) {
+      _addListener(container, 'input', function(e) {
         var alvo = e.target;
         if (alvo.classList.contains('op-nome') || alvo.classList.contains('sug-nac')) {
           if (!verificarLocalEscolhido()) {
@@ -334,6 +332,15 @@
   // GUARDAR REGISTO
   // ============================================================
 
+  function _setBtnGuardar(guardando) {
+    var btn = document.getElementById('btnGuardar');
+    if (!btn) return;
+    btn.disabled = !!guardando;
+    btn.innerHTML = guardando
+      ? '<span class="material-symbols-rounded" aria-hidden="true" style="margin-right: 6px; vertical-align: middle;">hourglass_top</span>A guardar...'
+      : '<span class="material-symbols-rounded" aria-hidden="true" style="margin-right: 6px; vertical-align: middle;">save</span>Guardar Registo';
+  }
+
   window.sinalizarAlteracao = function() {
     _dadosAlterados = true;
   };
@@ -372,8 +379,7 @@
       return;
     }
 
-    var btn = document.getElementById('btnGuardar');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A guardar...'; }
+    _setBtnGuardar(true);
 
     var partes        = data.split('-');
     var dataFormatada = partes[2] + '/' + partes[1] + '/' + partes[0];
@@ -390,12 +396,12 @@
     if (!navigator.onLine) {
       if (typeof syncGuardarNaFila !== 'function') {
         mostrarToast('Módulo de sincronização não disponível.', 'erro');
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar Registo'; }
+        _setBtnGuardar(false);
         return;
       }
       syncGuardarNaFila(payload)
         .then(function() {
-          if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar Registo'; }
+          _setBtnGuardar(false);
           _dadosAlterados = false;
           mostrarToast('📦 Guardado localmente. Será enviado ao reconectar.', 'info');
           if (typeof mostrarBanner === 'function')
@@ -403,7 +409,7 @@
           _actualizarBadgePendentes();
         })
         .catch(function(err) {
-          if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar Registo'; }
+          _setBtnGuardar(false);
           mostrarToast('Erro ao guardar localmente: ' + err.message, 'erro');
         });
       return;
@@ -412,7 +418,7 @@
     mostrarToast('A guardar...', 'info');
     apiGuardarRegisto(payload,
       function onSuccess(resp) {
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar Registo'; }
+        _setBtnGuardar(false);
         if (resp.sucesso) {
           _dadosAlterados = false;
           mostrarToast('✓ ' + resp.mensagem, 'sucesso');
@@ -426,7 +432,7 @@
         }
       },
       function onFailure(err) {
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar Registo'; }
+        _setBtnGuardar(false);
         if (typeof syncGuardarNaFila === 'function') {
           mostrarToast('Sem ligação. A guardar localmente...', 'info');
           syncGuardarNaFila(payload)

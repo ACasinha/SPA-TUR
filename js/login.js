@@ -84,20 +84,25 @@ function fazerLogin() {
 // ============================================================
 
 function logout(temAlteracoes) {
-  if (temAlteracoes) {
-    if (!confirm('Tem alterações por guardar. Tem a certeza que quer sair?')) return;
-  } else {
-    if (!confirm('Deseja terminar a sessão?')) return;
-  }
+  var msg = temAlteracoes
+    ? 'Tem alterações por guardar. Tem a certeza que quer sair?'
+    : 'Deseja terminar a sessão?';
 
-  if (typeof limparCacheUtilizador === 'function') limparCacheUtilizador();
+  var confirmar = typeof window.spaConfirmar === 'function'
+    ? window.spaConfirmar(msg, { titulo: 'Terminar sessão', textoConfirmar: 'Terminar sessão', perigo: !!temAlteracoes })
+    : Promise.resolve(true);
 
-  if (_opcoesLogin && typeof _opcoesLogin.onSessaoTerminada === 'function') {
-    _opcoesLogin.onSessaoTerminada();
-  }
+  confirmar.then(function(ok) {
+    if (!ok) return;
+    if (typeof limparCacheUtilizador === 'function') limparCacheUtilizador();
 
-  apiLogout().then(function() {
-    _mostrarEcraLogin();
+    if (_opcoesLogin && typeof _opcoesLogin.onSessaoTerminada === 'function') {
+      _opcoesLogin.onSessaoTerminada();
+    }
+
+    apiLogout().then(function() {
+      _mostrarEcraLogin();
+    });
   });
 }
 

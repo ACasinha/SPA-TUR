@@ -3,7 +3,7 @@
 
   <div class="admin-actions">
     <button class="btn-novo-user" onclick="window.__admin&&window.__admin.abrirNovo()">
-      ➕ Novo Utilizador
+      <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px;">person_add</span>Novo Utilizador
     </button>
   </div>
 
@@ -13,7 +13,7 @@
     <span>Acesso total — registo, dashboard, editor, inventário e gestão de utilizadores</span>
   </div>
   <div class="role-item">
-    <span class="badge-role badge-user badge-user-extra">Utilizador 📋📊✏️📦</span>
+    <span class="badge-role badge-user badge-user-extra">Utilizador</span>
     <span>Acesso apenas aos módulos atribuídos (Registo Diário, Dashboard, Editor Mensal e/ou Inventário) — tem de ter pelo menos um</span>
   </div>
 </div>
@@ -31,7 +31,7 @@
       </thead>
       <tbody id="usersTableBody">
         <tr><td colspan="5" class="empty-state">
-          <span class="empty-state-icon">👥</span>
+          <span class="empty-state-icon material-symbols-rounded" aria-hidden="true">group</span>
           <div>A carregar utilizadores...</div>
         </td></tr>
       </tbody>
@@ -41,13 +41,13 @@
 </div>
 
 <!-- Modal Novo / Editar Utilizador -->
-<div class="modal-overlay" id="modalNovoUser">
+<div class="modal-overlay" id="modalNovoUser" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
   <div class="modal-box">
     <div class="modal-header"><h2 id="modalTitulo">Novo Utilizador</h2></div>
     <div class="modal-body">
-      <div class="form-group"><label>Nome Completo *</label>
+      <div class="form-group"><label for="userNome">Nome Completo *</label>
         <input type="text" id="userNome" placeholder="Nome e Sobrenome"></div>
-      <div class="form-group"><label>Email *</label>
+      <div class="form-group"><label for="userEmail">Email *</label>
         <input type="email" id="userEmail" placeholder="utilizador@exemplo.pt"></div>
       <div class="form-group">
   <label class="checkbox-label">
@@ -58,14 +58,14 @@
 </div>
 
 <div class="form-group" id="passwordGroupNovo" style="display:none">
-  <label>Password *</label>
+  <label for="userPassword">Password *</label>
   <input type="password" id="userPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
 </div>
 
 <div class="role-info" id="infoConvitePorEmail" style="display:block">
   Será gerado um link seguro que poderá copiar e partilhar manualmente com o utilizador (ex: WhatsApp, SMS) para ele definir a sua própria password.
 </div>
-      <div class="form-group"><label>Role *</label>
+      <div class="form-group"><label for="userRole">Role *</label>
         <select id="userRole" onchange="window.__admin&&window.__admin.onRoleChange('userRole','roleInfoNovo','grupoAcessosNovo')">
           <option value="utilizador">Utilizador</option>
           <option value="administrador">Administrador — Acesso total</option>
@@ -97,30 +97,30 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modalEditarUser">
+<div class="modal-overlay" id="modalEditarUser" role="dialog" aria-modal="true" aria-labelledby="modalEditarTitulo">
   <div class="modal-box">
-    <div class="modal-header"><h2>Editar Utilizador</h2></div>
+    <div class="modal-header"><h2 id="modalEditarTitulo">Editar Utilizador</h2></div>
     <div class="modal-body">
       <input type="hidden" id="editUserUid">
-      <div class="form-group"><label>Nome Completo *</label>
+      <div class="form-group"><label for="editUserNome">Nome Completo *</label>
         <input type="text" id="editUserNome"></div>
-      <div class="form-group"><label>Email</label>
+      <div class="form-group"><label for="editUserEmail">Email</label>
         <input type="email" id="editUserEmail" disabled style="opacity:0.6"></div>
       <div class="form-group" style="display:flex;gap:8px;flex-wrap:wrap">
   <button type="button" class="btn-action btn-editar"
           onclick="window.__admin&&window.__admin.abrirAlterarEmail()">
-    ✉️ Alterar e-mail
+    <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px;">mail</span>Alterar e-mail
   </button>
   <button type="button" class="btn-action btn-ativar"
         onclick="window.__admin&&window.__admin.gerarNovoLink()">
-  🔗 Gerar novo link
+  <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px;">link</span>Gerar novo link
 </button>
-  <button type="button" class="btn-action" style="background:linear-gradient(135deg,#c0392b,#922b21)"
+  <button type="button" class="btn-action btn-perigo-admin"
           onclick="window.__admin&&window.__admin.confirmarApagar()">
-    🗑️ Eliminar definitivamente
+    <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px;">delete</span>Eliminar definitivamente
   </button>
 </div>
-      <div class="form-group"><label>Role *</label>
+      <div class="form-group"><label for="editUserRole">Role *</label>
         <select id="editUserRole" onchange="window.__admin&&window.__admin.onRoleChange('editUserRole','roleInfoEditar','grupoAcessosEditar')">
           <option value="utilizador">Utilizador</option>
           <option value="administrador">Administrador — Acesso total</option>
@@ -151,13 +151,13 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modalAlterarEmail">
+<div class="modal-overlay" id="modalAlterarEmail" role="dialog" aria-modal="true" aria-labelledby="modalAlterarEmailTitulo">
   <div class="modal-box">
-    <div class="modal-header"><h2>Alterar E-mail de Registo</h2></div>
+    <div class="modal-header"><h2 id="modalAlterarEmailTitulo">Alterar E-mail de Registo</h2></div>
     <div class="modal-body">
       <input type="hidden" id="alterarEmailUid">
       <div class="form-group">
-        <label>Novo E-mail</label>
+        <label for="alterarEmailNovo">Novo E-mail</label>
         <input type="email" id="alterarEmailNovo" placeholder="novo@exemplo.pt">
       </div>
       <div class="role-info" style="display:block">
@@ -171,21 +171,21 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modalLinkPassword">
+<div class="modal-overlay" id="modalLinkPassword" role="dialog" aria-modal="true" aria-labelledby="modalLinkPasswordTitulo">
   <div class="modal-box">
-    <div class="modal-header"><h2>🔗 Link de Definição de Password</h2></div>
+    <div class="modal-header"><h2 id="modalLinkPasswordTitulo"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">link</span>Link de Definição de Password</h2></div>
     <div class="modal-body">
       <p style="margin-bottom:10px">Partilhe este link com o utilizador. É válido por tempo limitado e só pode ser usado uma vez.</p>
       <div class="form-group">
-        <input type="text" id="linkPasswordValor" readonly onclick="this.select()">
+        <input type="text" id="linkPasswordValor" readonly aria-label="Link de definição de password" onclick="this.select()">
       </div>
       <div id="linkPasswordCopiado" style="display:none;color:var(--verde);font-size:var(--text-sm);font-weight:600;margin-top:6px">
-        ✓ Copiado para a área de transferência.
+        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Copiado para a área de transferência.
       </div>
     </div>
     <div class="modal-actions">
       <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModalLink()">Fechar</button>
-      <button class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.copiarLink()">📋 Copiar Link</button>
+      <button class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.copiarLink()"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">content_copy</span>Copiar Link</button>
     </div>
   </div>
 </div>

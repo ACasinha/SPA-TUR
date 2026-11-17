@@ -3,13 +3,18 @@
   "short_name": "Portal TUR",
   "description": "Portal dos Serviços de Turismo — Município de Reguengos de Monsaraz",
   "start_url": "./index.html",
-  "scope": "/",
+  "scope": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
   "background_color": "#FDFAF6",
   "theme_color": "#8B4A2B",
   "lang": "pt",
   "icons": [
+    {
+      "src": "icons/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
     {
       "src": "icons/icon.svg",
       "type": "image/svg+xml",
@@ -20,7 +25,19 @@
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-512.png",

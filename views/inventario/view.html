@@ -18,10 +18,10 @@
   <div class="inv-tabs-wrapper">
     <div class="inv-tabs-scroll">
       <div class="inv-tabs-bar" id="invTabsBar" role="tablist">
-        <button type="button" class="inv-tab-btn ativa" data-tab="painel" role="tab"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">table</span>Painel</button>
-        <button type="button" class="inv-tab-btn" data-tab="materiais" role="tab"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">newsstand</span>Materiais</button>
-        <button type="button" class="inv-tab-btn" data-tab="movimentos" role="tab"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">swap_vert</span>Movimentos</button>
-        <button type="button" class="inv-tab-btn" data-tab="config" id="invTabConfigBtn" role="tab" style="display:none"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">settings</span>Configurações</button>
+        <button type="button" class="inv-tab-btn ativa" data-tab="painel" role="tab" aria-selected="true"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">table</span>Painel</button>
+        <button type="button" class="inv-tab-btn" data-tab="materiais" role="tab" aria-selected="false"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">newsstand</span>Materiais</button>
+        <button type="button" class="inv-tab-btn" data-tab="movimentos" role="tab" aria-selected="false"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">swap_vert</span>Movimentos</button>
+        <button type="button" class="inv-tab-btn" data-tab="config" id="invTabConfigBtn" role="tab" aria-selected="false" style="display:none"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">settings</span>Configurações</button>
       </div>
     </div>
   </div>
@@ -34,7 +34,7 @@
     <!-- Pesquisa de texto + pills de filtro (geradas pelo JS a partir da configuração) -->
     <div class="inv-filtros-busca">
       <input type="text" id="filtroTexto" class="inv-filtros-texto"
-             placeholder="🔍 Pesquisar por nome..." autocomplete="off">
+             placeholder="Pesquisar por nome..." aria-label="Pesquisar material por nome" autocomplete="off">
     </div>
     <div class="inv-pills-area" id="invPillsArea"></div>
  
@@ -85,48 +85,48 @@
       <h3 class="inv-subtitulo">Registar Movimento</h3>
       <div class="inv-form-grid">
         <div class="field-group">
-          <label>Material</label>
+          <label for="movMaterial">Material</label>
           <select id="movMaterial"></select>
         </div>
         <div class="field-group">
-          <label>Local</label>
+          <label for="movLocal">Local</label>
           <select id="movLocal"></select>
         </div>
         <div class="field-group">
-          <label>Tipo</label>
+          <label for="movTipo">Tipo</label>
           <select id="movTipo">
             <option value="entrada">↑ Entrada</option>
             <option value="saida">↓ Saída</option>
           </select>
         </div>
         <div class="field-group">
-          <label>Quantidade</label>
+          <label for="movQuantidade">Quantidade</label>
           <input type="number" id="movQuantidade" min="1" placeholder="0">
         </div>
         <div class="field-group">
-          <label>Data</label>
+          <label for="movData">Data</label>
           <input type="date" id="movData">
         </div>
         <div class="field-group inv-field-wide">
-          <label>Observações</label>
+          <label for="movObservacoes">Observações</label>
           <textarea id="movObservacoes" placeholder="Observações sobre este movimento (opcional)..."></textarea>
         </div>
       </div>
       <button type="button" class="btn-inv-registar"
               onclick="window.__inventario&&window.__inventario.registarMovimento()">
-        <span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">save</span>Registar Movimento
+        <span class="material-symbols-rounded" aria-hidden="true" style="margin-right: 6px; vertical-align: middle;">save</span>Registar Movimento
       </button>
     </div>
 
     <h3 class="inv-subtitulo inv-subtitulo-historico">Histórico Recente</h3>
     <div class="inv-filtros inv-filtros-select">
-      <select id="filtroMovMaterial"></select>
-      <select id="filtroMovLocal"></select>
-      <select id="filtroMovTipo">
+      <select id="filtroMovMaterial" aria-label="Filtrar movimentos por material"></select>
+      <select id="filtroMovLocal" aria-label="Filtrar movimentos por local"></select>
+      <select id="filtroMovTipo" aria-label="Filtrar movimentos por tipo">
         <option value="">Todos os tipos</option>
         <option value="entrada">↑ Entradas</option>
         <option value="saida">↓ Saídas</option>
-        <option value="ajuste">🛠 Ajustes</option>
+        <option value="ajuste">Ajustes</option>
       </select>
     </div>
 
@@ -157,42 +157,42 @@
     <div class="inv-config-grelha">
 
       <div class="inv-config-bloco">
-        <h3>📍 Locais de Armazenamento</h3>
+        <h3><span class="material-symbols-rounded inv-config-ico" aria-hidden="true">location_on</span>Locais de Armazenamento</h3>
         <div class="inv-config-lista" id="invConfigLocais"></div>
         <div class="inv-config-add">
-          <input type="text" id="novoLocal" placeholder="Novo local..."
+          <input type="text" id="novoLocal" placeholder="Novo local..." aria-label="Novo local de armazenamento"
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('locais','novoLocal');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('locais','novoLocal')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">add</span></button>
+          <button type="button" aria-label="Adicionar local" onclick="window.__inventario&&window.__inventario.adicionarConfig('locais','novoLocal')"><span class="material-symbols-rounded" aria-hidden="true">add</span></button>
         </div>
       </div>
 
       <div class="inv-config-bloco">
-        <h3>📂 Categorias</h3>
+        <h3><span class="material-symbols-rounded inv-config-ico" aria-hidden="true">folder</span>Categorias</h3>
         <div class="inv-config-lista" id="invConfigCategorias"></div>
         <div class="inv-config-add">
-          <input type="text" id="novaCategoria" placeholder="Nova categoria..."
+          <input type="text" id="novaCategoria" placeholder="Nova categoria..." aria-label="Nova categoria"
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('categorias','novaCategoria');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('categorias','novaCategoria')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">add</span></button>
+          <button type="button" aria-label="Adicionar categoria" onclick="window.__inventario&&window.__inventario.adicionarConfig('categorias','novaCategoria')"><span class="material-symbols-rounded" aria-hidden="true">add</span></button>
         </div>
       </div>
 
       <div class="inv-config-bloco">
-        <h3>🎭 Temáticas</h3>
+        <h3><span class="material-symbols-rounded inv-config-ico" aria-hidden="true">category</span>Temáticas</h3>
         <div class="inv-config-lista" id="invConfigTematicas"></div>
         <div class="inv-config-add">
-          <input type="text" id="novaTematica" placeholder="Nova temática..."
+          <input type="text" id="novaTematica" placeholder="Nova temática..." aria-label="Nova temática"
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('tematicas','novaTematica');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('tematicas','novaTematica')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">add</span></button>
+          <button type="button" aria-label="Adicionar temática" onclick="window.__inventario&&window.__inventario.adicionarConfig('tematicas','novaTematica')"><span class="material-symbols-rounded" aria-hidden="true">add</span></button>
         </div>
       </div>
 
       <div class="inv-config-bloco">
-        <h3>🌐 Idiomas</h3>
+        <h3><span class="material-symbols-rounded inv-config-ico" aria-hidden="true">language</span>Idiomas</h3>
         <div class="inv-config-lista" id="invConfigIdiomas"></div>
         <div class="inv-config-add">
-          <input type="text" id="novoIdioma" placeholder="Novo idioma..."
+          <input type="text" id="novoIdioma" placeholder="Novo idioma..." aria-label="Novo idioma"
                  onkeydown="if(event.key==='Enter'){event.preventDefault();window.__inventario&&window.__inventario.adicionarConfig('idiomas','novoIdioma');}">
-          <button type="button" onclick="window.__inventario&&window.__inventario.adicionarConfig('idiomas','novoIdioma')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">add</span></button>
+          <button type="button" aria-label="Adicionar idioma" onclick="window.__inventario&&window.__inventario.adicionarConfig('idiomas','novoIdioma')"><span class="material-symbols-rounded" aria-hidden="true">add</span></button>
         </div>
       </div>
 
@@ -203,101 +203,101 @@
 </div><!-- /inventario-container -->
 
 <!-- MODAL — Novo / Editar Material -->
-<div class="modal-overlay" id="modalMaterial">
+<div class="modal-overlay" id="modalMaterial" role="dialog" aria-modal="true" aria-labelledby="modalMaterialTitulo">
   <div class="modal-box">
     <div class="modal-header"><h2 id="modalMaterialTitulo">Novo Material</h2></div>
     <div class="modal-body">
       <input type="hidden" id="materialId">
       <div class="field-group">
-        <label>Nome do Material</label>
+        <label for="materialNome">Nome do Material</label>
         <input type="text" id="materialNome" placeholder="Ex: Mapa de Percursos Pedestres">
       </div>
       <div class="field-group">
-        <label>Categoria</label>
+        <label for="materialCategoria">Categoria</label>
         <select id="materialCategoria"></select>
       </div>
       <div class="field-group">
-        <label>Temática</label>
+        <label for="materialTematica">Temática</label>
         <select id="materialTematica"></select>
       </div>
       <div class="field-group">
-        <label>Idioma</label>
+        <label for="materialIdioma">Idioma</label>
         <select id="materialIdioma"></select>
       </div>
       <div class="field-group">
-        <label>Stock Mínimo (alerta)</label>
+        <label for="materialStockMinimo">Stock Mínimo (alerta)</label>
         <input type="number" id="materialStockMinimo" min="0" placeholder="0">
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal-cancelar"
+      <button type="button" class="btn-modal-cancelar"
               onclick="window.__inventario&&window.__inventario.fecharModalMaterial()">Cancelar</button>
-      <button class="btn-modal-confirmar"
-              onclick="window.__inventario&&window.__inventario.guardarMaterial()">💾 Guardar</button>
+      <button type="button" class="btn-modal-confirmar"
+              onclick="window.__inventario&&window.__inventario.guardarMaterial()"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;margin-right:4px;vertical-align:middle;">save</span>Guardar</button>
     </div>
   </div>
 </div>
 
 <!-- MODAL — Movimento Rápido (a partir de um cartão/linha) -->
-<div class="modal-overlay" id="modalMovimentoRapido">
+<div class="modal-overlay" id="modalMovimentoRapido" role="dialog" aria-modal="true" aria-labelledby="modalMovRapidoTitulo">
   <div class="modal-box">
-    <div class="modal-header"><h2>Registar Movimento</h2></div>
+    <div class="modal-header"><h2 id="modalMovRapidoTitulo">Registar Movimento</h2></div>
     <div class="modal-body">
       <div class="inv-mov-rapido-meta" id="movRapidoMeta"></div>
       <div class="field-group">
-        <label>Local</label>
+        <label for="movRapidoLocal">Local</label>
         <select id="movRapidoLocal"></select>
       </div>
       <div class="field-group">
-        <label>Quantidade</label>
+        <label for="movRapidoQuantidade">Quantidade</label>
         <input type="number" id="movRapidoQuantidade" min="1" placeholder="0">
       </div>
       <div class="field-group">
-        <label>Data</label>
+        <label for="movRapidoData">Data</label>
         <input type="date" id="movRapidoData">
       </div>
       <div class="field-group">
-        <label>Observações</label>
+        <label for="movRapidoObservacoes">Observações</label>
         <textarea id="movRapidoObservacoes" placeholder="Observações (opcional)..."></textarea>
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal-cancelar"
+      <button type="button" class="btn-modal-cancelar"
               onclick="window.__inventario&&window.__inventario.fecharModalMovimentoRapido()">Cancelar</button>
-      <button class="btn-modal-saida"
-              onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('saida')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">arrow_downward</span> Saída</button>
-      <button class="btn-modal-entrada"
-              onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('entrada')"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">arrow_upward</span> Entrada</button>
+      <button type="button" class="btn-modal-saida"
+              onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('saida')"><span class="material-symbols-rounded" aria-hidden="true" style="margin-right: 6px; vertical-align: middle;">arrow_downward</span>Saída</button>
+      <button type="button" class="btn-modal-entrada"
+              onclick="window.__inventario&&window.__inventario.confirmarMovimentoRapido('entrada')"><span class="material-symbols-rounded" aria-hidden="true" style="margin-right: 6px; vertical-align: middle;">arrow_upward</span>Entrada</button>
     </div>
   </div>
 </div>
 
 <!-- MODAL — Correção de Stock (após contagem física / reset) -->
-<div class="modal-overlay" id="modalCorrecaoStock">
+<div class="modal-overlay" id="modalCorrecaoStock" role="dialog" aria-modal="true" aria-labelledby="modalCorrecaoTitulo">
   <div class="modal-box modal-correcao-box">
     <div class="modal-header">
-      <h2>Correção de Stock</h2>
+      <h2 id="modalCorrecaoTitulo">Correção de Stock</h2>
       <div class="inv-mov-rapido-meta" id="correcaoMeta"></div>
     </div>
     <div class="modal-body">
       <div class="inv-correcao-acoes-topo">
         <button type="button" class="inv-correcao-zerar-tudo"
                 onclick="window.__inventario&&window.__inventario.zerarTodosCorrecao()">
-          <span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">delete</span> Repor todos os locais a zero
+          <span class="material-symbols-rounded" aria-hidden="true" style="margin-right: 6px; vertical-align: middle;">delete</span>Repor todos os locais a zero
         </button>
       </div>
       <div class="inv-correcao-lista" id="correcaoLista"></div>
       <div class="field-group" style="margin-top:14px">
-        <label>Observações da correção</label>
+        <label for="correcaoObservacoes">Observações da correção</label>
         <textarea id="correcaoObservacoes"
                   placeholder="Ex: contagem física de inventário, material danificado/extraviado, etc. (opcional)"></textarea>
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal-cancelar"
+      <button type="button" class="btn-modal-cancelar"
               onclick="window.__inventario&&window.__inventario.fecharModalCorrecao()">Cancelar</button>
-      <button class="btn-modal-confirmar"
-              onclick="window.__inventario&&window.__inventario.guardarCorrecaoStock()"><span class="material-symbols-rounded" style="margin-right: 6px; vertical-align: middle;">save</span> Guardar Correções</button>
+      <button type="button" class="btn-modal-confirmar"
+              onclick="window.__inventario&&window.__inventario.guardarCorrecaoStock()"><span class="material-symbols-rounded" aria-hidden="true" style="margin-right: 6px; vertical-align: middle;">save</span>Guardar Correções</button>
     </div>
   </div>
 </div>

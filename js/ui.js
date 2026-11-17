@@ -188,6 +188,20 @@ function _criarLinhaPaisExtra(nomePais) {
 
 // ── Pesquisa de países ────────────────────────────────────────
 
+var _pesquisaListenersBound = false;
+
+function _posicionarDropdownPesquisa() {
+  var input = document.getElementById('inputPesquisaPais');
+  var lista = document.getElementById('listaPesquisaPaises');
+  if (!input || !lista) return;
+  var r = input.getBoundingClientRect();
+  lista.style.position = 'fixed';
+  lista.style.top      = r.bottom + 'px';
+  lista.style.left     = r.left + 'px';
+  lista.style.width    = r.width + 'px';
+  lista.style.zIndex   = '9000';
+}
+
 function _inicializarPesquisa() {
   var input = document.getElementById('inputPesquisaPais');
   if (!input) return;
@@ -198,42 +212,39 @@ function _inicializarPesquisa() {
   }
   if (!lista) return;
 
-  function posicionarDropdown() {
-    var r = input.getBoundingClientRect();
-    lista.style.position = 'fixed';
-    lista.style.top      = (r.bottom) + 'px';
-    lista.style.left     = r.left + 'px';
-    lista.style.width    = r.width + 'px';
-    lista.style.zIndex   = '9000';
-  }
-
   var novoInput = input.cloneNode(true);
   input.parentNode.replaceChild(novoInput, input);
   input = novoInput;
 
   input.addEventListener('input', function() {
-    posicionarDropdown();
+    _posicionarDropdownPesquisa();
     _filtrarPaises(input.value.trim());
   });
   input.addEventListener('focus', function() {
     if (input.value.trim()) {
-      posicionarDropdown();
+      _posicionarDropdownPesquisa();
       _filtrarPaises(input.value.trim());
     }
   });
 
-  window.addEventListener('scroll', function() {
-    if (lista.style.display === 'block') posicionarDropdown();
-  }, { passive: true });
-  window.addEventListener('resize', function() {
-    if (lista.style.display === 'block') posicionarDropdown();
-  }, { passive: true });
-
-  document.addEventListener('click', function(e) {
-    if (e.target !== input && !lista.contains(e.target)) {
-      lista.style.display = 'none';
-    }
-  });
+  if (!_pesquisaListenersBound) {
+    _pesquisaListenersBound = true;
+    window.addEventListener('scroll', function() {
+      var l = document.getElementById('listaPesquisaPaises');
+      if (l && l.style.display === 'block') _posicionarDropdownPesquisa();
+    }, { passive: true });
+    window.addEventListener('resize', function() {
+      var l = document.getElementById('listaPesquisaPaises');
+      if (l && l.style.display === 'block') _posicionarDropdownPesquisa();
+    }, { passive: true });
+    document.addEventListener('click', function(e) {
+      var inp = document.getElementById('inputPesquisaPais');
+      var l = document.getElementById('listaPesquisaPaises');
+      if (l && e.target !== inp && !l.contains(e.target)) {
+        l.style.display = 'none';
+      }
+    });
+  }
 }
 
 function _filtrarPaises(termo) {
@@ -382,11 +393,6 @@ function construirTabelaOperadores(n, dados) {
     _adicionarLinhaDesktop(tbody, {});
     // Mobile começa vazio — utilizador carrega via botão
   }
-}
-
-function removerLinhaOperadorDesktop(btn) {
-  var tr = btn.closest('tr');
-  if (tr) tr.remove();
 }
 
 // ── Adicionar linha no desktop ──────────────────────────────
@@ -804,9 +810,61 @@ function mostrarToast(msg, tipo) {
   t.innerHTML = '';
   while (div.firstChild) t.appendChild(div.firstChild);
 
-  t.className = 'toast ' + tipo + ' show';
-  setTimeout(function () { t.classList.remove('show'); }, 3800);
+  t.className = 'toast ' + (tipo || 'info') + ' show';
+  clearTimeout(t._rmzTimer);
+  t._rmzTimer = setTimeout(function () { t.classList.remove('show'); }, 3800);
 }
+
+// ============================================================
+// MODAL DE CONFIRMAÇÃO ACESSÍVEL DA SPA
+// ============================================================
+
+window.spaConfirmar = function(mensagem, opcoes) {
+  opcoes = opcoes || {};
+  var overlay = document.getElementById('modalConfirmarSPA');
+  var tituloEl = document.getElementById('modalConfirmarTitulo');
+  var textoEl  = document.getElementById('modalConfirmarTexto');
+  var btnCancel = document.getElementById('modalConfirmarBtnCancelar');
+  var btnConfirm = document.getElementById('modalConfirmarBtnConfirmar');
+
+  if (!overlay || !textoEl || !btnCancel || !btnConfirm) {
+    return Promise.resolve(false);
+  }
+
+  return new Promise(function(resolve) {
+    var focoAnterior = document.activeElement;
+    if (tituloEl) tituloEl.textContent = opcoes.titulo || 'Confirmar ação';
+    textoEl.textContent = mensagem || '';
+    btnCancel.textContent  = opcoes.textoCancelar || 'Cancelar';
+    btnConfirm.textContent = opcoes.textoConfirmar || 'Confirmar';
+    btnConfirm.classList.toggle('btn-modal-perigo', !!opcoes.perigo);
+
+    function limpar(resultado) {
+      overlay.classList.remove('show');
+      btnConfirm.removeEventListener('click', onConfirm);
+      btnCancel.removeEventListener('click', onCancel);
+      overlay.removeEventListener('click', onBackdrop);
+      document.removeEventListener('keydown', onKeyDown);
+      if (focoAnterior && typeof focoAnterior.focus === 'function') {
+        focoAnterior.focus();
+      }
+      resolve(resultado);
+    }
+
+    function onConfirm() { limpar(true); }
+    function onCancel()  { limpar(false); }
+    function onBackdrop(e) { if (e.target === overlay) limpar(false); }
+    function onKeyDown(e) { if (e.key === 'Escape') { e.preventDefault(); limpar(false); } }
+
+    btnConfirm.addEventListener('click', onConfirm);
+    btnCancel.addEventListener('click', onCancel);
+    overlay.addEventListener('click', onBackdrop);
+    document.addEventListener('keydown', onKeyDown);
+
+    overlay.classList.add('show');
+    btnCancel.focus();
+  });
+};
 
 // ============================================================
 // LIMPAR
@@ -836,14 +894,20 @@ function limparFormularioParcial() {
 }
 
 function limparFormulario() {
-  if (!confirm('Tem a certeza que deseja limpar todos os dados?')) return;
-  limparFormularioParcial();
-  document.getElementById('data').valueAsDate = new Date();
-  document.getElementById('local').value = '';
-  mostrarBanner('', '');
-  ultimoLocalVerificado = '';
-  ultimaDataVerificada  = '';
-  mostrarToast('Formulário limpo.', 'sucesso');
+  spaConfirmar('Tem a certeza que deseja limpar todos os dados?', {
+    titulo: 'Limpar formulário',
+    textoConfirmar: 'Limpar tudo',
+    perigo: true
+  }).then(function(ok) {
+    if (!ok) return;
+    limparFormularioParcial();
+    document.getElementById('data').valueAsDate = new Date();
+    document.getElementById('local').value = '';
+    mostrarBanner('', '');
+    ultimoLocalVerificado = '';
+    ultimaDataVerificada  = '';
+    mostrarToast('Formulário limpo.', 'sucesso');
+  });
 }
 
 // ============================================================
@@ -896,7 +960,12 @@ function carregarDados(resp) {
 function toggleSecao(idCorpo, idIcone) {
   var corpo  = document.getElementById(idCorpo);
   var icone  = document.getElementById(idIcone);
-  var aberto = corpo.style.display !== 'none';
-  corpo.style.display = aberto ? 'none' : '';
-  icone.textContent   = aberto ? '▼' : '▲';
+  if (!corpo) return;
+  var estavaAberto = corpo.style.display !== 'none';
+  corpo.style.display = estavaAberto ? 'none' : '';
+  if (icone) icone.textContent = estavaAberto ? '▼' : '▲';
+  var headerEl = corpo.previousElementSibling;
+  if (headerEl && headerEl.hasAttribute('aria-expanded')) {
+    headerEl.setAttribute('aria-expanded', estavaAberto ? 'false' : 'true');
+  }
 }

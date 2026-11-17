@@ -44,22 +44,22 @@
      OVERLAY DE LOGIN
      Partilhado pela SPA — auth.js controla visibilidade
 ============================================================ -->
-<div class="login-overlay" id="loginOverlay">
+<div class="login-overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginTitulo">
   <div class="login-card">
     <div class="login-logo">
       <img src="img/logo-small.png" alt="Logo Município de Reguengos de Monsaraz">
     </div>
-    <div class="login-titulo">Bem-vindo(a)</div>
+    <div class="login-titulo" id="loginTitulo">Bem-vindo(a)</div>
     <div class="login-sub" id="loginSubtitulo">Portal dos Serviços de Turismo - Município de Reguengos de Monsaraz</div>
-    <div class="login-erro" id="loginErro"></div>
+    <div class="login-erro" id="loginErro" role="alert"></div>
     <div class="login-field">
-      <label>Email</label>
+      <label for="loginUser">Email</label>
       <input type="email" id="loginUser" placeholder="nome@exemplo.pt"
              autocomplete="username" inputmode="email"
              onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
     </div>
     <div class="login-field">
-      <label>Password</label>
+      <label for="loginPass">Password</label>
       <input type="password" id="loginPass" placeholder="Password"
              autocomplete="current-password"
              onkeydown="if(event.key==='Enter')fazerLogin()">
@@ -71,31 +71,31 @@
 <!-- ============================================================
      OVERLAY DE DEFINIÇÃO DE PASSWORD (link seguro por e-mail)
 ============================================================ -->
-<div class="login-overlay hidden" id="defPasswordOverlay">
+<div class="login-overlay hidden" id="defPasswordOverlay" role="dialog" aria-modal="true" aria-labelledby="defPasswordTitulo">
   <div class="login-card">
     <div class="login-logo">
       <img src="img/logo-small.png" alt="Logo Município de Reguengos de Monsaraz">
     </div>
-    <div class="login-titulo">Definir Password</div>
+    <div class="login-titulo" id="defPasswordTitulo">Definir Password</div>
     <div class="login-sub" id="defPasswordEmail" style="text-transform:none;letter-spacing:0"></div>
-    <div class="login-erro" id="defPasswordErro"></div>
+    <div class="login-erro" id="defPasswordErro" role="alert"></div>
 
     <div id="defPasswordEstado">A verificar o link...</div>
 
     <div id="defPasswordForm" style="display:none">
       <div class="login-field">
-        <label>Nova Password</label>
+        <label for="defPasswordNova">Nova Password</label>
         <input type="password" id="defPasswordNova" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
       </div>
       <div class="login-field">
-        <label>Confirmar Password</label>
+        <label for="defPasswordConfirmar">Confirmar Password</label>
         <input type="password" id="defPasswordConfirmar" placeholder="Repita a password" autocomplete="new-password">
       </div>
       <button class="btn-login" id="btnDefPassword">Guardar password</button>
     </div>
 
     <div id="defPasswordSucesso" style="display:none">
-      <p>✓ Password definida com sucesso.</p>
+      <p style="display:inline-flex;align-items:center;gap:6px;"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span> Password definida com sucesso.</p>
       <button class="btn-login" onclick="irParaLogin()" style="margin-top:12px">Ir para o login →</button>
     </div>
   </div>
@@ -105,9 +105,9 @@
      BANNER PWA (topo — primeira abertura)
 ============================================================ -->
 <div class="install-banner" id="installBanner">
-  <span>📱 Instale esta app no seu dispositivo para acesso rápido</span>
+  <span style="display:inline-flex;align-items:center;gap:6px;"><span class="material-symbols-rounded" aria-hidden="true">install_mobile</span> Instale esta app no seu dispositivo para acesso rápido</span>
   <button class="btn-instalar" id="btnInstalar">Instalar</button>
-  <button class="btn-instalar-fechar" id="btnInstalarFechar">✕</button>
+  <button class="btn-instalar-fechar" id="btnInstalarFechar" aria-label="Fechar banner de instalação"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 
 <!-- ============================================================
@@ -146,7 +146,21 @@
 </div><!-- /app-shell -->
 
 <!-- TOAST GLOBAL — fora do shell para sobrepor qualquer view -->
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- MODAL DE CONFIRMAÇÃO ACESSÍVEL DA SPA -->
+<div class="modal-overlay" id="modalConfirmarSPA" role="dialog" aria-modal="true" aria-labelledby="modalConfirmarTitulo" aria-describedby="modalConfirmarTexto">
+  <div class="modal-box modal-confirmar-spa">
+    <div class="modal-header">
+      <h2 id="modalConfirmarTitulo">Confirmar ação</h2>
+    </div>
+    <div class="modal-body" id="modalConfirmarTexto"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-modal btn-modal-cancelar" id="modalConfirmarBtnCancelar">Cancelar</button>
+      <button type="button" class="btn-modal btn-modal-confirmar" id="modalConfirmarBtnConfirmar">Confirmar</button>
+    </div>
+  </div>
+</div>
 
 <!-- ============================================================
      DEPENDÊNCIAS EXTERNAS
@@ -194,29 +208,50 @@
 
 <script>
 // 1. Verificar e aplicar o tema imediatamente (evita o "flash" branco)
-const currentTheme = localStorage.getItem('theme') || 'light';
-document.documentElement.setAttribute('data-theme', currentTheme);
-
-// 2. Ouvir cliques no DOCUMENT (Delegação de Eventos)
-document.addEventListener('click', (e) => {
-  // Verifica se o clique foi no botão ou dentro do botão (no ícone)
-  const btn = e.target.closest('#theme-toggle');
-  if (!btn) return; // Se não for o botão do tema, ignora
-
-  const themeIcon = btn.querySelector('#theme-icon');
-  let currentTheme = document.documentElement.getAttribute('data-theme');
-  let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-  // Atualiza o HTML e o LocalStorage
-  document.documentElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-
-  // Atualiza o texto do ícone diretamente a partir do botão clicado
-  if (themeIcon) {
-    themeIcon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
+(function() {
+  function obterTemaInicial() {
+    var guardado = localStorage.getItem('theme');
+    if (guardado === 'dark' || guardado === 'light') return guardado;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
-});
 
-  </script>
+  window.aplicarTemaSPA = function(tema) {
+    var ehEscuro = tema === 'dark';
+    document.documentElement.setAttribute('data-theme', tema);
+    localStorage.setItem('theme', tema);
+
+    var metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) metaTheme.setAttribute('content', ehEscuro ? '#161616' : '#8B4A2B');
+
+    var themeIcon = document.getElementById('theme-icon');
+    if (themeIcon) themeIcon.textContent = ehEscuro ? 'light_mode' : 'dark_mode';
+
+    var sheetIcon = document.getElementById('sheetThemeIcon');
+    var sheetText = document.getElementById('sheetThemeText');
+    if (sheetIcon) sheetIcon.textContent = ehEscuro ? 'light_mode' : 'dark_mode';
+    if (sheetText) sheetText.textContent = ehEscuro ? 'Tema Claro' : 'Tema Escuro';
+
+    var sbIcon = document.getElementById('sidebarThemeIcon');
+    var sbText = document.getElementById('sidebarThemeText');
+    var sbBtn  = document.getElementById('btnSidebarTema');
+    if (sbIcon) sbIcon.textContent = ehEscuro ? 'light_mode' : 'dark_mode';
+    if (sbText) sbText.textContent = ehEscuro ? 'Modo claro' : 'Modo escuro';
+    if (sbBtn)  sbBtn.setAttribute('data-tooltip', ehEscuro ? 'Modo claro' : 'Modo escuro');
+  };
+
+  window.alternarTemaSPA = function() {
+    var actual = document.documentElement.getAttribute('data-theme') || 'light';
+    window.aplicarTemaSPA(actual === 'dark' ? 'light' : 'dark');
+  };
+
+  window.aplicarTemaSPA(obterTemaInicial());
+
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('#theme-toggle');
+    if (!btn) return;
+    window.alternarTemaSPA();
+  });
+})();
+</script>
 </body>
 </html>

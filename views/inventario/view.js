@@ -89,9 +89,14 @@
     var movData = document.getElementById('movData');
     if (movData) movData.value = _hojeISO();
 
-    ['modalMaterial', 'modalMovimentoRapido', 'modalCorrecaoStock'].forEach(function(id) {
+    var mapModais = {
+      modalMaterial:        fecharModalMaterial,
+      modalMovimentoRapido: fecharModalMovimentoRapido,
+      modalCorrecaoStock:   fecharModalCorrecao
+    };
+    Object.keys(mapModais).forEach(function(id) {
       var el = document.getElementById(id);
-      if (el) _al(el, 'click', function(e) { if (e.target === el) el.classList.remove('show'); });
+      if (el) _al(el, 'click', function(e) { if (e.target === el) mapModais[id](); });
     });
 
     _al(document, 'keydown', function(e) {
@@ -123,6 +128,11 @@
   function _al(target, tipo, fn, opts) {
     target.addEventListener(tipo, fn, opts);
     _listeners.push({ target: target, tipo: tipo, fn: fn, opts: opts });
+  }
+
+  function _setBtnEstado(btn, icone, texto) {
+    if (!btn) return;
+    btn.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;margin-right:6px;vertical-align:middle;">' + icone + '</span>' + _esc(texto);
   }
 
   // ============================================================
@@ -228,7 +238,9 @@
   function _activarTab(tab) {
     _tabAtiva = tab;
     document.querySelectorAll('.inv-tab-btn').forEach(function(btn) {
-      btn.classList.toggle('ativa', btn.getAttribute('data-tab') === tab);
+      var activa = btn.getAttribute('data-tab') === tab;
+      btn.classList.toggle('ativa', activa);
+      btn.setAttribute('aria-selected', activa ? 'true' : 'false');
     });
     var mapa = {
       painel:     'invPainelPainel',
@@ -488,7 +500,7 @@
     if (!lista.length) {
       grelha.innerHTML =
         '<div class="inv-estado-vazio">' +
-          '<span class="inv-estado-vazio-icone">📭</span>' +
+          '<span class="inv-estado-vazio-icone"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:2.6rem">inbox</span></span>' +
           '<div>Nenhum material encontrado com estes filtros.</div>' +
         '</div>';
     } else {
@@ -547,7 +559,7 @@
         return '<span class="inv-cartao-local-chip">' + _esc(l) + ': <strong>' + m.stockPorLocal[l] + '</strong></span>';
       }).join('');
 
-    var estadoLabel = estado === 'esgotado' ? '🔴 Esgotado' : (estado === 'baixo' ? '🟠 Stock Baixo' : '🟢 OK');
+    var estadoLabel = estado === 'esgotado' ? 'Esgotado' : (estado === 'baixo' ? 'Stock Baixo' : 'OK');
 
     card.innerHTML =
       '<div class="inv-cartao-header">' +
@@ -596,7 +608,7 @@
     if (!_materiais.length) {
       tbody.innerHTML =
         '<tr><td colspan="8" class="inv-estado-vazio-td">' +
-          'Nenhum material no catálogo. Crie o primeiro com "➕ Novo Material".' +
+          'Nenhum material no catálogo. Crie o primeiro com "Novo Material".' +
         '</td></tr>';
       return;
     }
@@ -609,7 +621,7 @@
   function _criarLinhaMaterial(m) {
     var tr          = document.createElement('tr');
     var estado      = _calcularEstado(m);
-    var estadoLabel = estado === 'esgotado' ? '🔴 Esgotado' : (estado === 'baixo' ? '🟠 Baixo' : '🟢 OK');
+    var estadoLabel = estado === 'esgotado' ? 'Esgotado' : (estado === 'baixo' ? 'Baixo' : 'OK');
     var total       = _calcularTotal(m);
 
     tr.innerHTML =
@@ -628,8 +640,10 @@
     btnMov.type = 'button';
     btnMov.className = 'btn-inv-acao';
     btnMov.title = 'Registar movimento';
+    btnMov.setAttribute('aria-label', 'Registar movimento');
     var iconMov = document.createElement('span');
     iconMov.className = 'material-symbols-rounded';
+    iconMov.setAttribute('aria-hidden', 'true');
     iconMov.textContent = 'swap_vert';
     btnMov.appendChild(iconMov);
     btnMov.addEventListener('click', function() { abrirMovimentoRapido(m.id); });
@@ -639,8 +653,10 @@
     btnCorrecao.type = 'button';
     btnCorrecao.className = 'btn-inv-acao';
     btnCorrecao.title = 'Corrigir stock';
+    btnCorrecao.setAttribute('aria-label', 'Corrigir stock');
     var iconCorrecao = document.createElement('span');
     iconCorrecao.className = 'material-symbols-rounded';
+    iconCorrecao.setAttribute('aria-hidden', 'true');
     iconCorrecao.textContent = 'data_check';
     btnCorrecao.appendChild(iconCorrecao);
     btnCorrecao.addEventListener('click', function() { abrirCorrecaoStock(m.id); });
@@ -650,8 +666,10 @@
     btnEdit.type = 'button';
     btnEdit.className = 'btn-inv-acao';
     btnEdit.title = 'Editar';
+    btnEdit.setAttribute('aria-label', 'Editar material');
     var iconEdit = document.createElement('span');
     iconEdit.className = 'material-symbols-rounded';
+    iconEdit.setAttribute('aria-hidden', 'true');
     iconEdit.textContent = 'edit';
     btnEdit.appendChild(iconEdit);
     btnEdit.addEventListener('click', function() { abrirEditarMaterial(m.id); });
@@ -660,10 +678,12 @@
     if (_isAdmin) {
       var btnArq = document.createElement('button');
       btnArq.type = 'button';
-      btnArq.className = 'btn-inv-acao';
+      btnArq.className = 'btn-inv-acao btn-inv-acao-perigo';
       btnArq.title = 'Arquivar';
+      btnArq.setAttribute('aria-label', 'Arquivar material');
       var iconArq = document.createElement('span');
       iconArq.className = 'material-symbols-rounded';
+      iconArq.setAttribute('aria-hidden', 'true');
       iconArq.textContent = 'delete';
       btnArq.appendChild(iconArq);
       btnArq.addEventListener('click', function() { arquivarMaterial(m.id); });
@@ -724,7 +744,7 @@
     if (!idioma)    { mostrarToast('Escolha um idioma.', 'erro'); return; }
 
     var btn = document.querySelector('#modalMaterial .btn-modal-confirmar');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A guardar...'; }
+    if (btn) { btn.disabled = true; _setBtnEstado(btn, 'hourglass_top', 'A guardar...'); }
 
     function _recarregarTudo() {
       return _carregarMateriais().then(function() {
@@ -741,13 +761,13 @@
         atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
       })
       .then(function() {
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar'; }
+        if (btn) { btn.disabled = false; _setBtnEstado(btn, 'save', 'Guardar'); }
         fecharModalMaterial();
         mostrarToast('✓ Material atualizado.', 'sucesso');
         return _recarregarTudo();
       })
       .catch(function(err) {
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar'; }
+        if (btn) { btn.disabled = false; _setBtnEstado(btn, 'save', 'Guardar'); }
         mostrarToast('Erro: ' + err.message, 'erro');
       });
     } else {
@@ -761,13 +781,13 @@
         criadoPor: (_perfil && _perfil.email) || ''
       })
       .then(function() {
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar'; }
+        if (btn) { btn.disabled = false; _setBtnEstado(btn, 'save', 'Guardar'); }
         fecharModalMaterial();
         mostrarToast('✓ Material criado.', 'sucesso');
         return _recarregarTudo();
       })
       .catch(function(err) {
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar'; }
+        if (btn) { btn.disabled = false; _setBtnEstado(btn, 'save', 'Guardar'); }
         mostrarToast('Erro: ' + err.message, 'erro');
       });
     }
@@ -777,23 +797,28 @@
     if (!_isAdmin) return;
     var material = _materiais.find(function(m) { return m.id === id; });
     if (!material) return;
-    if (!confirm('Arquivar "' + material.nome + '"? O material deixa de aparecer nas listas, mas o histórico de movimentos é preservado.')) return;
-
-    db.collection('materiais').doc(id).update({
-      ativo: false,
-      atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(function() {
-      mostrarToast('✓ Material arquivado.', 'sucesso');
-      return _carregarMateriais();
-    })
-    .then(function() {
-      _popularSelects();
-      _renderFiltrosPills();
-      _renderPainel();
-      _renderTabelaMateriais();
-    })
-    .catch(function(err) { mostrarToast('Erro: ' + err.message, 'erro'); });
+    window.spaConfirmar('Arquivar "' + material.nome + '"? O material deixa de aparecer nas listas, mas o histórico de movimentos é preservado.', {
+      titulo: 'Arquivar material',
+      textoConfirmar: 'Arquivar',
+      perigo: true
+    }).then(function(ok) {
+      if (!ok) return;
+      db.collection('materiais').doc(id).update({
+        ativo: false,
+        atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(function() {
+        mostrarToast('✓ Material arquivado.', 'sucesso');
+        return _carregarMateriais();
+      })
+      .then(function() {
+        _popularSelects();
+        _renderFiltrosPills();
+        _renderPainel();
+        _renderTabelaMateriais();
+      })
+      .catch(function(err) { mostrarToast('Erro: ' + err.message, 'erro'); });
+    });
   }
 
   // ============================================================
@@ -862,11 +887,11 @@
     var dataFmt      = _isoParaDMY(dataIso);
 
     var btn = document.querySelector('.btn-inv-registar');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A registar...'; }
+    if (btn) { btn.disabled = true; _setBtnEstado(btn, 'hourglass_top', 'A registar...'); }
 
     _executarMovimento(materialId, local, tipo, quantidade, dataFmt, observacoes,
       function onSuccess() {
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Registar Movimento'; }
+        if (btn) { btn.disabled = false; _setBtnEstado(btn, 'save', 'Registar Movimento'); }
         mostrarToast('✓ Movimento registado.', 'sucesso');
         var qEl = document.getElementById('movQuantidade');
         var oEl = document.getElementById('movObservacoes');
@@ -876,7 +901,7 @@
         _carregarMovimentos().then(_renderTabelaMovimentos);
       },
       function onError(err) {
-        if (btn) { btn.disabled = false; btn.textContent = '💾 Registar Movimento'; }
+        if (btn) { btn.disabled = false; _setBtnEstado(btn, 'save', 'Registar Movimento'); }
         mostrarToast('Erro: ' + err.message, 'erro');
       }
     );
@@ -946,7 +971,11 @@
 
     lista.forEach(function(mv) {
       var tr = document.createElement('tr');
-      var tipoLabel = mv.tipo === 'entrada' ? '↑ Entrada' : (mv.tipo === 'saida' ? '↓ Saída' : '🔧 Ajuste');
+      var tipoLabel = mv.tipo === 'entrada'
+        ? '<span class="material-symbols-rounded inv-tipo-ico" aria-hidden="true">arrow_upward</span>Entrada'
+        : (mv.tipo === 'saida'
+          ? '<span class="material-symbols-rounded inv-tipo-ico" aria-hidden="true">arrow_downward</span>Saída'
+          : '<span class="material-symbols-rounded inv-tipo-ico" aria-hidden="true">build</span>Ajuste');
       var qtdDisplay;
       if (mv.tipo === 'ajuste') {
         var sinal = (mv.delta || 0) > 0 ? '+' : '';
@@ -1001,8 +1030,8 @@
       linha.className = 'inv-correcao-linha';
       linha.innerHTML =
         '<span class="inv-correcao-linha-local">' + _esc(local) + '</span>' +
-        '<input type="number" min="0" class="inv-correcao-input" value="' + valorAtual + '">' +
-        '<button type="button" class="inv-correcao-linha-reset" title="Repor a zero">🔄</button>';
+        '<input type="number" min="0" class="inv-correcao-input" value="' + valorAtual + '" aria-label="Stock em ' + _esc(local) + '">' +
+        '<button type="button" class="inv-correcao-linha-reset" title="Repor a zero" aria-label="Repor stock a zero em ' + _esc(local) + '"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">restart_alt</span></button>';
       linha.dataset.local = local;
       linha.querySelector('.inv-correcao-linha-reset').addEventListener('click', function() {
         linha.querySelector('.inv-correcao-input').value = 0;
@@ -1044,7 +1073,7 @@
     var materialRef  = db.collection('materiais').doc(materialId);
 
     var btn = document.querySelector('#modalCorrecaoStock .btn-modal-confirmar');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ A guardar...'; }
+    if (btn) { btn.disabled = true; _setBtnEstado(btn, 'hourglass_top', 'A guardar...'); }
 
     db.runTransaction(function(tx) {
       return tx.get(materialRef).then(function(doc) {
@@ -1095,7 +1124,7 @@
       });
     })
     .then(function(nAjustes) {
-      if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar Correções'; }
+      if (btn) { btn.disabled = false; _setBtnEstado(btn, 'save', 'Guardar Correções'); }
       fecharModalCorrecao();
       if (!nAjustes) {
         mostrarToast('Sem alterações a guardar.', 'info');
@@ -1106,7 +1135,7 @@
       _carregarMovimentos().then(_renderTabelaMovimentos);
     })
     .catch(function(err) {
-      if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar Correções'; }
+      if (btn) { btn.disabled = false; _setBtnEstado(btn, 'save', 'Guardar Correções'); }
       mostrarToast('Erro: ' + err.message, 'erro');
     });
   }
@@ -1151,14 +1180,16 @@
       btnGuardar.type      = 'button';
       btnGuardar.className = 'inv-config-guardar';
       btnGuardar.title     = 'Guardar edição';
-      btnGuardar.innerHTML = '✓';
+      btnGuardar.setAttribute('aria-label', 'Guardar edição');
+      btnGuardar.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">check</span>';
       btnGuardar.style.display = 'none';
 
       var btnRemover = document.createElement('button');
       btnRemover.type      = 'button';
       btnRemover.className = 'inv-config-remover';
       btnRemover.title     = 'Remover';
-      btnRemover.innerHTML = '✕';
+      btnRemover.setAttribute('aria-label', 'Remover ' + entry.valor);
+      btnRemover.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">close</span>';
 
       // Mostrar botão de guardar quando o valor muda
       inp.addEventListener('input', function() {
@@ -1252,17 +1283,23 @@
 
   function removerConfigItem(lista, valor) {
     if (!_isAdmin) return;
-    if (!confirm('Remover "' + valor + '" desta lista? Materiais já existentes mantêm o valor atual.')) return;
+    window.spaConfirmar('Remover "' + valor + '" desta lista? Materiais já existentes mantêm o valor atual.', {
+      titulo: 'Remover item',
+      textoConfirmar: 'Remover',
+      perigo: true
+    }).then(function(ok) {
+      if (!ok) return;
 
-    _config[lista] = _config[lista].filter(function(v) { return v !== valor; });
+      _config[lista] = _config[lista].filter(function(v) { return v !== valor; });
 
-    _guardarConfig().then(function() {
-      _renderConfig();
-      _popularSelects();
-      _renderFiltrosPills();
-      mostrarToast('Removido.', 'info');
-    }).catch(function(err) {
-      mostrarToast('Erro: ' + err.message, 'erro');
+      _guardarConfig().then(function() {
+        _renderConfig();
+        _popularSelects();
+        _renderFiltrosPills();
+        mostrarToast('Removido.', 'info');
+      }).catch(function(err) {
+        mostrarToast('Erro: ' + err.message, 'erro');
+      });
     });
   }
 

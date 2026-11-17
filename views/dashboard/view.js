@@ -40,7 +40,7 @@
   function _renderTabs(){
     var bar=document.getElementById('tabsBar');if(!bar)return;bar.innerHTML='';
     _secoes.forEach(function(s,i){
-      var btn=document.createElement('button');btn.className='tab-btn';
+      var btn=document.createElement('button');btn.type='button';btn.className='tab-btn';
       btn.setAttribute('role','tab');btn.setAttribute('aria-selected','false');
       btn.innerHTML='<span class="tab-icone">'+_e(s.icone||'📊')+'</span><span>'+_e(s.titulo)+'</span><span class="tab-badge">'+(s.graficos?s.graficos.length:0)+'</span>';
       btn.addEventListener('click',function(){_ativarTab(i);});bar.appendChild(btn);
@@ -52,11 +52,11 @@
       var panel=document.createElement('div');panel.className='tab-panel';panel.id='panel-'+si;panel.setAttribute('role','tabpanel');
       var hd=document.createElement('div');hd.className='secao-header';
       hd.innerHTML='<div><div class="secao-titulo">'+_e(s.icone||'')+' '+_e(s.titulo)+'</div>'+(s.descricao?'<div class="secao-descricao">'+_e(s.descricao)+'</div>':'')+'</div>'+
-        (_isAdmin?'<div class="secao-meta"><button class="btn-iframe-toggle" onclick="window.__dash&&window.__dash.editSecao('+si+')">⚙️ Editar secção</button><button class="btn-iframe-toggle" onclick="window.__dash&&window.__dash.addGrafico('+si+')">➕ Gráfico</button></div>':'');
+        (_isAdmin?'<div class="secao-meta"><button type="button" class="btn-iframe-toggle" onclick="window.__dash&&window.__dash.editSecao('+si+')"><span class="material-symbols-rounded" aria-hidden="true">settings</span>Editar secção</button><button type="button" class="btn-iframe-toggle" onclick="window.__dash&&window.__dash.addGrafico('+si+')"><span class="material-symbols-rounded" aria-hidden="true">add</span>Gráfico</button></div>':'');
       panel.appendChild(hd);
       var gr=document.createElement('div');gr.className='graficos-grelha';
       if(!s.graficos||!s.graficos.length){
-        gr.innerHTML='<div class="estado-vazio" style="grid-column:1/-1"><span class="estado-vazio-icone">📭</span><div>Nenhum gráfico.</div>'+(_isAdmin?'<div style="margin-top:8px"><button class="btn-iframe-toggle" onclick="window.__dash&&window.__dash.addGrafico('+si+')">➕ Adicionar</button></div>':'')+'</div>';
+        gr.innerHTML='<div class="estado-vazio" style="grid-column:1/-1"><span class="estado-vazio-icone"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:2.6rem">inbox</span></span><div>Nenhum gráfico.</div>'+(_isAdmin?'<div style="margin-top:8px"><button type="button" class="btn-iframe-toggle" onclick="window.__dash&&window.__dash.addGrafico('+si+')"><span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar</button></div>':'')+'</div>';
       } else {
         s.graficos.forEach(function(g,gi){gr.appendChild(_card(g,si,gi));});
       }
@@ -66,10 +66,10 @@
   function _card(g,si,gi){
     var c=document.createElement('div');
     c.className='grafico-card largura-'+(g.largura||'metade')+' altura-'+(g.altura||'md');c.id='card-'+g.id;
-    var ac=_isAdmin?'<div class="grafico-card-acoes"><button class="btn-iframe-toggle" onclick="window.__dash&&window.__dash.editGrafico('+si+','+gi+')">✏️ Editar</button><button class="btn-iframe-toggle" onclick="window.__dash&&window.__dash.delGrafico('+si+','+gi+')" style="color:var(--vermelho)">✕</button></div>':'';
+    var ac=_isAdmin?'<div class="grafico-card-acoes"><button type="button" class="btn-iframe-toggle" onclick="window.__dash&&window.__dash.editGrafico('+si+','+gi+')" aria-label="Editar gráfico"><span class="material-symbols-rounded" aria-hidden="true">edit</span>Editar</button><button type="button" class="btn-iframe-toggle" onclick="window.__dash&&window.__dash.delGrafico('+si+','+gi+')" style="color:var(--vermelho)" aria-label="Remover gráfico"><span class="material-symbols-rounded" aria-hidden="true">close</span></button></div>':'';
     var body=g.url&&g.url.trim()
-      ?'<div class="grafico-card-body"><div class="grafico-skeleton" id="sk-'+g.id+'">⏳ A carregar...</div><iframe class="grafico-iframe" src="'+_ea(g.url)+'" loading="lazy" allowfullscreen onload="var e=document.getElementById(\'sk-'+g.id+'\');if(e)e.classList.add(\'oculto\')"></iframe></div>'
-      :'<div class="grafico-card-body"><div class="grafico-placeholder"><span class="grafico-placeholder-icone">📈</span><span class="grafico-placeholder-txt">Gráfico não configurado</span><span class="grafico-placeholder-sub">'+(_isAdmin?'Clique em ✏️ Editar':'Aguarda configuração')+'</span></div></div>';
+      ?'<div class="grafico-card-body"><div class="grafico-skeleton" id="sk-'+g.id+'"><span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>A carregar...</div><iframe class="grafico-iframe" src="'+_ea(g.url)+'" loading="lazy" allowfullscreen onload="var e=document.getElementById(\'sk-'+g.id+'\');if(e)e.classList.add(\'oculto\')"></iframe></div>'
+      :'<div class="grafico-card-body"><div class="grafico-placeholder"><span class="grafico-placeholder-icone"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:2.2rem">show_chart</span></span><span class="grafico-placeholder-txt">Gráfico não configurado</span><span class="grafico-placeholder-sub">'+(_isAdmin?'Clique em Editar':'Aguarda configuração')+'</span></div></div>';
     c.innerHTML='<div class="grafico-card-header"><div><div class="grafico-card-titulo">'+_e(g.titulo)+'</div>'+(g.sub?'<div class="grafico-card-sub">'+_e(g.sub)+'</div>':'')+'</div>'+ac+'</div>'+body;
     return c;
   }
@@ -125,15 +125,22 @@
     _abrirEdit('Editar Secção');
   }
   function delGrafico(si,gi){
-    if(!confirm('Remover o gráfico "'+_secoes[si].graficos[gi].titulo+'"?'))return;
-    _secoes[si].graficos.splice(gi,1);
-    _guardar().then(function(){_render();_ativarTab(si);});
+    window.spaConfirmar('Remover o gráfico "'+_secoes[si].graficos[gi].titulo+'"?', {
+      titulo: 'Remover gráfico',
+      textoConfirmar: 'Remover',
+      perigo: true
+    }).then(function(ok){
+      if(!ok)return;
+      _secoes[si].graficos.splice(gi,1);
+      _guardar().then(function(){_render();_ativarTab(si);});
+    });
   }
 
   function _guardarEdicao(){
     if(!_editando)return;
     var titulo=document.getElementById('editTitulo').value.trim();
     if(!titulo){mostrarToast('O título é obrigatório.','erro');return;}
+    var siAtivo=_editando.si;
     if(_editando.tipo==='secao'){
       _secoes[_editando.si].titulo=titulo;
       _secoes[_editando.si].icone=document.getElementById('editSub').value.trim()||'📊';
@@ -144,7 +151,7 @@
       if(gi===-1){_secoes[si].graficos.push(obj);}else{Object.assign(_secoes[si].graficos[gi],obj);}
     }
     _fecharEdit();
-    _guardar().then(function(){_render();_ativarTab(_editando?_editando.si:0);});
+    _guardar().then(function(){_render();_ativarTab(siAtivo);});
   }
 
   window.__dash={editGrafico:editGrafico,addGrafico:addGrafico,editSecao:editSecao,delGrafico:delGrafico};

@@ -51,10 +51,6 @@ function _activarShell(perfil) {
   var shell = document.getElementById('app-shell');
   if (shell) shell.style.display = '';
 
-  // Nome no header (mobile — desktop usa a sidebar)
-  var nomeEl = document.getElementById('headerNomeFuncionario');
-  if (nomeEl) nomeEl.textContent = perfil.nome || perfil.email || '—';
-
   // Menu hamburger para mobile (nav-menu.js)
   if (typeof construirMenuNav === 'function') {
     construirMenuNav(perfil);
@@ -86,6 +82,9 @@ function _activarShell(perfil) {
 }
 
 function _desactivarShell() {
+  if (typeof routerDesmontarActual === 'function') routerDesmontarActual();
+  if (typeof destruirSidebarSPA === 'function') destruirSidebarSPA();
+
   var shell = document.getElementById('app-shell');
   if (shell) shell.style.display = 'none';
 
@@ -100,6 +99,10 @@ function _desactivarShell() {
   // Limpar zona extra da sidebar (desktop)
   var extra = document.getElementById('sidebarHeaderExtra');
   if (extra) extra.innerHTML = '';
+
+  if (window.location.hash) {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
 }
 
 // ============================================================
@@ -145,34 +148,4 @@ window.spaResetHeader = function() {
   // Desktop
   var extra = document.getElementById('sidebarHeaderExtra');
   if (extra) extra.innerHTML = '';
-};
-
-/**
- * mostrarToast(msg, tipo)
- * Toast global — pode ser chamado de qualquer view.
- */
-window.mostrarToast = function(msg, tipo) {
-  var t = document.getElementById('toast');
-  if (!t) return;
-  t.innerHTML = msg;
-  t.className   = 'toast ' + (tipo || 'info') + ' show';
-  clearTimeout(t._rmzTimer);
-  t._rmzTimer = setTimeout(function() { t.classList.remove('show'); }, 3800);
-};
-
-/**
- * fazerLogout — chamado pelo menu de navegação
- */
-window.logout = function(temAlteracoes) {
-  if (temAlteracoes) {
-    if (!confirm('Tem alterações por guardar. Tem a certeza que quer sair?')) return;
-  } else {
-    if (!confirm('Deseja terminar a sessão?')) return;
-  }
-  if (typeof limparCacheUtilizador === 'function') limparCacheUtilizador();
-  if (typeof routerUnmountActual === 'function') routerUnmountActual();
-  apiLogout().then(function() {
-    history.replaceState(null, '', window.location.pathname);
-    _desactivarShell();
-  });
 };

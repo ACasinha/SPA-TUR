@@ -92,7 +92,7 @@
   margin-top: 2px;
 }
 .inicio-card-badge.visivel { display: inline-flex; }
-.inicio-card-badge.badge-aviso { background: rgba(243,156,18,0.14); color: #8a6510; }
+.inicio-card-badge.badge-aviso { background: rgba(243,156,18,0.14); color: var(--aviso-texto); }
 .inicio-card-badge.badge-erro  { background: rgba(192,57,43,0.12); color: var(--vermelho); }
 .inicio-card-badge.badge-info  { background: rgba(46,91,138,0.10); color: var(--azul); }
 
@@ -100,5 +100,5 @@
   grid-column: 1/-1;
   padding: 40px 20px;
   text-align: center;
-  color: var(--cinza);
+  color: var(--subtexto);
 }

@@ -5,7 +5,7 @@
 // VERSÃO: incrementar a cada deploy.
 // ============================================================
 
-const VERSAO       = '2.1.6.a';
+const VERSAO       = '2.1.7';
 const CACHE_SHELL  = 'rmz-shell-v'  + VERSAO;   // HTML/CSS/JS do shell
 const CACHE_VIEWS  = 'rmz-views-v'  + VERSAO;   // HTML/JS das views (lazy)
 const CACHE_ASSETS = 'rmz-assets-v' + VERSAO;   // Fontes, imagens, CDN
@@ -18,6 +18,7 @@ const SHELL_ASSETS = [
   './manifest.json',
   './css/styles.css',
   './css/spa.css',
+  './css/nav-menu.css',
   './views/registo/view.html',
   './views/registo/view.js',
   './views/registo/view.css',
@@ -44,17 +45,23 @@ const SHELL_ASSETS = [
   './img/logo-small.png',
   './img/logo-small-white.png',
   './img/logo-turismo.png',
+  './icons/icon.svg',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
 ];
 
 // ── Assets externos (CDN) ────────────────────────────────────
 const CDN_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap',
+  'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200',
   'https://cdn.jsdelivr.net/npm/idb@8/build/umd.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js',
+  'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check-compat.js',
 ];
 
 // ── Pedidos que NUNCA devem ser interceptados ────────────────
@@ -139,6 +146,9 @@ self.addEventListener('fetch', function(e) {
 
   var url = e.request.url;
 
+  // ── 0. Sondas de conectividade → nunca interceptar ───────────
+  if (e.request.cache === 'no-store' || url.indexOf('_ping=') !== -1) return;
+
   // ── 1. API / Firebase → sempre rede (sem interceptar) ──────
   if (ehPedidoDeRede(url)) return;
 
@@ -186,8 +196,10 @@ function _cacheFirst(request, cacheName) {
   return caches.match(request).then(function(cached) {
     if (cached) return cached;
     return fetch(request).then(function(resp) {
-      var clone = resp.clone();
-      caches.open(cacheName).then(function(c) { c.put(request, clone); });
+      if (resp && (resp.ok || resp.type === 'opaque')) {
+        var clone = resp.clone();
+        caches.open(cacheName).then(function(c) { c.put(request, clone); });
+      }
       return resp;
     });
   });
@@ -196,8 +208,10 @@ function _cacheFirst(request, cacheName) {
 // Stale-While-Revalidate — shell assets e views lazy
 function _staleWhileRevalidate(request, cacheName) {
   var fetchPromise = fetch(request).then(function(resp) {
-    var clone = resp.clone();
-    caches.open(cacheName).then(function(c) { c.put(request, clone); });
+    if (resp && (resp.ok || resp.type === 'opaque')) {
+      var clone = resp.clone();
+      caches.open(cacheName).then(function(c) { c.put(request, clone); });
+    }
     return resp;
   }).catch(function() { return null; });
 
@@ -210,8 +224,10 @@ function _staleWhileRevalidate(request, cacheName) {
 function _networkFirst(request, cacheName) {
   return fetch(request)
     .then(function(resp) {
-      var clone = resp.clone();
-      caches.open(cacheName).then(function(c) { c.put(request, clone); });
+      if (resp && (resp.ok || resp.type === 'opaque')) {
+        var clone = resp.clone();
+        caches.open(cacheName).then(function(c) { c.put(request, clone); });
+      }
       return resp;
     })
     .catch(function() {
@@ -223,9 +239,11 @@ function _networkFirst(request, cacheName) {
 function _spaNavigate(request) {
   return fetch(request)
     .then(function(resp) {
-      // Guardar a página HTML no cache do shell
-      var clone = resp.clone();
-      caches.open(CACHE_SHELL).then(function(c) { c.put(request, clone); });
+      if (resp && (resp.ok || resp.type === 'opaque')) {
+        // Guardar a página HTML no cache do shell
+        var clone = resp.clone();
+        caches.open(CACHE_SHELL).then(function(c) { c.put(request, clone); });
+      }
       return resp;
     })
     .catch(function() {
@@ -262,10 +280,7 @@ self.addEventListener('message', function(e) {
   // Informar os clientes da versão actual
   if (e.data && e.data.type === 'GET_VERSION') {
     if (e.ports && e.ports[0]) {
-
-    e.ports[0].postMessage({ type: 'VERSION', versao: VERSAO 
-
-    });
+      e.ports[0].postMessage({ type: 'VERSION', versao: VERSAO });
+    }
   }
-}
 });

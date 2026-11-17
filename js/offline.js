@@ -75,13 +75,17 @@ function tentarReconectar() {
   }
   _tentativasReconectar++;
   var btn = document.getElementById('btnReconectar');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ A verificar...'; }
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>A verificar...';
+  }
 
-  fetch(window.location.origin + '/manifest.json', { cache: 'no-store', mode: 'no-cors' })
-    .then(function() {
+  fetch('./manifest.json?_ping=' + Date.now(), { cache: 'no-store' })
+    .then(function(resp) {
+      if (!resp || !resp.ok) throw new Error('offline');
       verificarLigacao();
       if (!navigator.onLine) {
-        if (btn) { btn.disabled = false; btn.textContent = '🔄 Verificar ligação'; }
+        resetarBotaoReconectar(false);
         var r = MAX_TENTATIVAS_JANELA - _tentativasReconectar;
         if (typeof mostrarToast === 'function')
           mostrarToast('Ainda sem ligação.' + (r > 0 ? ' ' + r + ' tentativa(s) restante(s).' : ''), 'erro');
@@ -91,14 +95,19 @@ function tentarReconectar() {
     })
     .catch(function() {
       verificarLigacao();
-      if (btn) { btn.disabled = false; btn.textContent = '🔄 Verificar ligação'; }
+      resetarBotaoReconectar(false);
     });
 }
 
-function resetarBotaoReconectar() {
+function resetarBotaoReconectar(limparTentativas) {
   var btn = document.getElementById('btnReconectar');
-  if (btn) { btn.disabled = false; btn.textContent = '🔄 Verificar ligação'; }
-  _tentativasReconectar = 0;
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">cached</span>Verificar ligação';
+  }
+  if (limparTentativas !== false) {
+    _tentativasReconectar = 0;
+  }
 }
 
 // ============================================================
@@ -109,6 +118,11 @@ function resetarBotaoReconectar() {
 // Esta função limita-se a mostrá-lo e a registar o listener
 // de fecho ao clicar fora, uma única vez.
 // ============================================================
+
+var _pdfUltimaFoco = null;
+function _onPdfEscape(e) {
+  if (e.key === 'Escape') fecharModalPDF();
+}
 
 function mostrarModalPDF() {
   var modal = document.getElementById('modalEscolhaPDF');
@@ -122,12 +136,21 @@ function mostrarModalPDF() {
     modal._overlayListenerAdded = true;
   }
 
+  _pdfUltimaFoco = document.activeElement;
   modal.style.display = 'flex';
+  document.addEventListener('keydown', _onPdfEscape);
+  var primeiroFoco = modal.querySelector('button');
+  if (primeiroFoco) primeiroFoco.focus();
 }
 
 function fecharModalPDF() {
   var modal = document.getElementById('modalEscolhaPDF');
   if (modal) modal.style.display = 'none';
+  document.removeEventListener('keydown', _onPdfEscape);
+  if (_pdfUltimaFoco && typeof _pdfUltimaFoco.focus === 'function') {
+    _pdfUltimaFoco.focus();
+  }
+  _pdfUltimaFoco = null;
 }
 
 // Alias usado pelo banner offline e pelo botão do rodapé

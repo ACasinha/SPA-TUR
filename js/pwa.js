@@ -78,8 +78,8 @@ function instalarApp() {
 
 // Centraliza a verificação de visibilidade e reatribui os cliques aos botões que entram/saem do DOM
 function verificarVisibilidadeInstalacao() {
-  var path = window.location.pathname;
-  var naRaiz = path === '/' || path.endsWith('/index.html') || window.location.hash === '#/' || window.location.hash === '';
+  var hash = window.location.hash.replace(/^#/, '') || '/';
+  var naRaiz = hash === '/' || hash === '';
   var jaInstalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 
   // Se já estiver instalada, esconde tudo forçadamente

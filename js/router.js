@@ -75,14 +75,20 @@ var OUTLET_ID = 'spa-outlet';
 // INICIALIZAÇÃO
 // ============================================================
 
+var _listenersLigados = false;
+
 function routerInit(perfil) {
   _perfilUtiliz = perfil;
-  document.addEventListener('click', _onLinkClick);
 
-  window.addEventListener('popstate', function() {
-    var caminhoHash = window.location.hash.replace(/^#/, '') || '/';
-    _navegar(caminhoHash, false);
-  });
+  if (!_listenersLigados) {
+    document.addEventListener('click', _onLinkClick);
+
+    window.addEventListener('popstate', function() {
+      var caminhoHash = window.location.hash.replace(/^#/, '') || '/';
+      _navegar(caminhoHash, false);
+    });
+    _listenersLigados = true;
+  }
 
   var caminhoInicial = window.location.hash.replace(/^#/, '') || '/';
   _navegar(caminhoInicial, false);
@@ -122,7 +128,12 @@ function _navegar(caminho, pushState) {
   var viewAnterior = _rotaActual ? _rotaActual.rota.view : null;
 
   promessaLeave
-    .then(function() {
+    .then(function(permitido) {
+      if (permitido === false) {
+        _mostrarTransicao(false);
+        _navegando = false;
+        return Promise.reject({ __cancelled: true });
+      }
       return _carregarView(rota.view);
     })
     .then(function(modulo) {
@@ -162,16 +173,17 @@ function _navegar(caminho, pushState) {
       if (typeof sidebarNavegar === 'function') {
         sidebarNavegar(caminho);
       }
+
+      if (typeof window.verificarVisibilidadeInstalacao === 'function') {
+        window.verificarVisibilidadeInstalacao();
+      }
     })
     .catch(function(err) {
+      if (err && err.__cancelled) return;
       console.error('[Router] Erro ao navegar para', caminho, err);
       _mostrarTransicao(false);
       _navegando = false;
     });
-
-  if (typeof window.verificarVisibilidadeInstalacao === 'function') {
-    window.verificarVisibilidadeInstalacao();
-  }
 }
 
 // ============================================================
@@ -268,23 +280,18 @@ function _carregarCss(url, nomeView) {
     return Promise.resolve();
   }
 
-  return fetch(url, { method: 'HEAD' })
-    .then(function(r) {
-      if (!r.ok) return;
-      return new Promise(function(resolve) {
-        var link = document.createElement('link');
-        link.rel  = 'stylesheet';
-        link.href = url;
-        link.setAttribute('data-view-css', nomeView);
-        link.onload = link.onerror = resolve;
-        document.head.appendChild(link);
+  return new Promise(function(resolve) {
+    var link = document.createElement('link');
+    link.rel  = 'stylesheet';
+    link.href = url;
+    link.setAttribute('data-view-css', nomeView);
+    link.onload = link.onerror = resolve;
+    document.head.appendChild(link);
 
-        if (_recursosView[nomeView]) {
-          _recursosView[nomeView].cssEl = link;
-        }
-      });
-    })
-    .catch(function() {});
+    if (_recursosView[nomeView]) {
+      _recursosView[nomeView].cssEl = link;
+    }
+  });
 }
 
 // ============================================================
@@ -372,18 +379,31 @@ function _mostrarErroAcesso(mensagem) {
   if (!outlet) return;
   outlet.innerHTML =
     '<div class="spa-erro-acesso">' +
-      '<span class="spa-erro-icone">🔒</span>' +
+      '<span class="spa-erro-icone material-symbols-rounded" aria-hidden="true">lock</span>' +
       '<h2>Acesso negado</h2>' +
       '<p>' + String(mensagem || '').replace(/</g, '&lt;') + '</p>' +
-      '<button onclick="routerNavegar(\'/\')" class="btn btn-guardar">← Voltar ao início</button>' +
+      '<button type="button" onclick="routerNavegar(\'/\')" class="spa-erro-btn">← Voltar ao início</button>' +
     '</div>';
 }
 
 function routerDefinirPerfil(perfil) { _perfilUtiliz = perfil; }
 
-window.routerInit          = routerInit;
-window.routerNavegar       = routerNavegar;
-window.routerDefinirPerfil = routerDefinirPerfil;
+function routerDesmontarActual() {
+  var viewAnterior = _rotaActual ? _rotaActual.rota.view : null;
+  if (_viewActual && typeof _viewActual.unmount === 'function') {
+    _viewActual.unmount();
+  }
+  if (viewAnterior) {
+    _removerRecursosView(viewAnterior);
+  }
+  _viewActual = null;
+  _rotaActual = null;
+}
+
+window.routerInit            = routerInit;
+window.routerNavegar         = routerNavegar;
+window.routerDefinirPerfil   = routerDefinirPerfil;
+window.routerDesmontarActual = routerDesmontarActual;
 
 function _scrollParaTopo() {
   var html = document.documentElement;

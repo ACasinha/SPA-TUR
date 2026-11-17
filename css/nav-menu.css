@@ -217,12 +217,12 @@
 }
 
 .bottom-sheet-btn-fechar {
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--surface-subtle);
   border: none;
   color: var(--subtexto, #5A5A5A);
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -231,7 +231,7 @@
 }
 
 .bottom-sheet-btn-fechar:hover {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--surface-hover);
   color: var(--texto, #2C2C2C);
 }
 
