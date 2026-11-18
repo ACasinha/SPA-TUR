@@ -581,8 +581,8 @@
       '<div class="inv-cartao-rodape">' +
         '<span class="inv-cartao-minimo">Mín.: ' + (m.stockMinimo || 0) + '</span>' +
         '<div class="inv-cartao-rodape-btns">' +
-          '<button type="button" class="inv-cartao-btn-corrigir"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">data_check</span>Ajustar Stock</button>' +
-          '<button type="button" class="inv-cartao-btn"><span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">swap_vert</span>Novo Movimento</button>' +
+          '<button type="button" class="inv-cartao-btn-corrigir"><span class="material-symbols-rounded inv-cartao-btn-ico" aria-hidden="true">data_check</span>Ajustar Stock</button>' +
+          '<button type="button" class="inv-cartao-btn"><span class="material-symbols-rounded inv-cartao-btn-ico" aria-hidden="true">swap_vert</span>Novo Movimento</button>' +
         '</div>' +
       '</div>';
 
