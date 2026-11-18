@@ -11,7 +11,7 @@
 
   <div class="painel-controlo">
     <div class="filtro-grupo">
-      <label for="selectorLocal"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 14px; margin-right: 6px; vertical-align: middle;">location_on</span>Local / Posto</label>
+      <label for="selectorLocal"><span class="material-symbols-rounded" aria-hidden="true">location_on</span>Local / Posto</label>
       <select id="selectorLocal">
         <option value="" disabled selected>Escolha uma opção...</option>
         <optgroup label="Lista completa de países">
@@ -31,13 +31,12 @@
       </select>
     </div>
     <div class="filtro-grupo">
-      <label for="inputMes"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 14px; margin-right: 6px; vertical-align: middle;">calendar_month</span>Mês</label>
-      <input type="month" id="inputMes"
-             onkeydown="if(event.key==='Enter')window.__editor&&window.__editor.carregarMes()">
+      <label for="inputMes"><span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>Mês</label>
+      <input type="month" id="inputMes">
     </div>
     <button type="button" class="btn-carregar" id="btnCarregar"
             onclick="window.__editor&&window.__editor.carregarMes()">
-      <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; vertical-align: middle;">search</span>Carregar dados
+      <span class="material-symbols-rounded" id="btnCarregarIco" aria-hidden="true">search</span><span id="btnCarregarTxt">Carregar dados</span>
     </button>
   </div>
 
@@ -68,14 +67,14 @@
     <div class="grelha-acoes" id="grelhaAcoes" style="display:none">
       <div class="grelha-info" id="grelhaInfoTexto">—</div>
       <span class="alteracoes-badge" id="alteracoesBadge"></span>
-      <button type="button" class="btn-limpar-alteracoes"
+      <button type="button" class="btn-limpar-alteracoes" id="btnLimparAlteracoes"
               onclick="window.__editor&&window.__editor.descartarAlteracoes()"
-              title="Descartar todas as alterações não guardadas">
-        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; vertical-align: middle;">delete</span>Descartar alterações
+              title="Descartar todas as alterações não guardadas" disabled>
+        <span class="material-symbols-rounded" aria-hidden="true">delete</span>Descartar alterações
       </button>
       <button type="button" class="btn-guardar-tudo" id="btnGuardarTudo"
               onclick="window.__editor&&window.__editor.confirmarGuardar()" disabled>
-        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; vertical-align: middle;">save</span>Guardar alterações
+        <span class="material-symbols-rounded" aria-hidden="true">save</span>Guardar alterações
       </button>
     </div>
 
@@ -126,11 +125,11 @@
   <div class="extras-vista-toggle" role="group" aria-label="Tipo de vista">
     <button type="button" class="extras-vista-btn" data-vista="calendario"
             onclick="window.__editor&&window.__editor.definirVistaExtras('calendario')">
-      <span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;vertical-align:middle">calendar_month</span> Calendário
+      <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>Calendário
     </button>
     <button type="button" class="extras-vista-btn ativa" data-vista="lista"
             onclick="window.__editor&&window.__editor.definirVistaExtras('lista')">
-      <span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;vertical-align:middle">table_rows</span> Lista
+      <span class="material-symbols-rounded" aria-hidden="true">table_rows</span>Lista
     </button>
   </div>
 </div>
@@ -178,13 +177,13 @@
       <div id="modalExtrasOpLista" class="modal-extras-lista"></div>
       <button type="button" class="btn-modal-add-linha"
               onclick="window.__editor&&window.__editor.modalAdicionarOperador()">
-        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span>Adicionar operador
+        <span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar operador
       </button>
       <div class="modal-extras-secao-titulo" style="margin-top:16px">Sugestões e Críticas</div>
       <div id="modalExtrasSugLista" class="modal-extras-lista"></div>
       <button type="button" class="btn-modal-add-linha"
               onclick="window.__editor&&window.__editor.modalAdicionarSugestao()">
-        <span class="material-symbols-rounded" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">add</span>Adicionar sugestão
+        <span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar sugestão
       </button>
       <label class="modal-extras-secao-titulo" for="modalExtrasObservacoes" style="display:block;margin-top:16px">Outras Observações</label>
       <textarea id="modalExtrasObservacoes" class="modal-extras-obs"
@@ -197,7 +196,7 @@
       <button type="button" class="btn-modal-cancelar"
               onclick="window.__editor&&window.__editor.fecharModalExtras()">Cancelar</button>
       <button type="button" class="btn-modal-confirmar"
-              onclick="window.__editor&&window.__editor.guardarModalExtras()"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span>Guardar</button>
+              onclick="window.__editor&&window.__editor.guardarModalExtras()"><span class="material-symbols-rounded" aria-hidden="true">save</span>Guardar</button>
     </div>
   </div>
 </div>
@@ -217,7 +216,7 @@
       <button type="button" class="btn-modal-cancelar"
               onclick="window.__editor&&window.__editor.fecharModalGuardar()">Cancelar</button>
       <button type="button" class="btn-modal-confirmar"
-              onclick="window.__editor&&window.__editor.executarGuardar()"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check_circle</span>Confirmar e Guardar</button>
+              onclick="window.__editor&&window.__editor.executarGuardar()"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Confirmar e Guardar</button>
     </div>
   </div>
 </div>
@@ -239,12 +238,12 @@
       <div class="conflito-tabs" id="conflitoTabs" role="tablist">
         <button type="button" class="conflito-tab ativa" data-tab="paises" role="tab" aria-selected="true"
                 onclick="window.__editor&&window.__editor.activarTabConflito('paises')">
-          <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">globe</span>Países
+          <span class="material-symbols-rounded" aria-hidden="true">globe</span>Países
           <span class="conflito-tab-badge" id="conflitoTabBadgePaises" style="display:none">!</span>
         </button>
         <button type="button" class="conflito-tab" data-tab="extras" role="tab" aria-selected="false"
                 onclick="window.__editor&&window.__editor.activarTabConflito('extras')">
-          <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">identity_platform</span>Operadores &amp; Extras
+          <span class="material-symbols-rounded" aria-hidden="true">identity_platform</span>Operadores &amp; Extras
           <span class="conflito-tab-badge" id="conflitoTabBadgeExtras" style="display:none">!</span>
         </button>
       </div>
@@ -295,11 +294,11 @@
             <span class="conflito-extras-acoes-label">Manter para Operadores:</span>
             <button type="button" class="btn-conflito btn-conflito-manter btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('operadores','servidor')">
-              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Servidor
+              <span class="material-symbols-rounded" aria-hidden="true">check</span>Servidor
             </button>
             <button type="button" class="btn-conflito btn-conflito-offline btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('operadores','offline')">
-              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Offline
+              <span class="material-symbols-rounded" aria-hidden="true">check</span>Offline
             </button>
           </div>
         </div>
@@ -322,11 +321,11 @@
             <span class="conflito-extras-acoes-label">Manter para Sugestões:</span>
             <button type="button" class="btn-conflito btn-conflito-manter btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('sugestoes','servidor')">
-              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Servidor
+              <span class="material-symbols-rounded" aria-hidden="true">check</span>Servidor
             </button>
             <button type="button" class="btn-conflito btn-conflito-offline btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('sugestoes','offline')">
-              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Offline
+              <span class="material-symbols-rounded" aria-hidden="true">check</span>Offline
             </button>
           </div>
         </div>
@@ -349,11 +348,11 @@
             <span class="conflito-extras-acoes-label">Manter para Observações:</span>
             <button type="button" class="btn-conflito btn-conflito-manter btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('observacoes','servidor')">
-              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Servidor
+              <span class="material-symbols-rounded" aria-hidden="true">check</span>Servidor
             </button>
             <button type="button" class="btn-conflito btn-conflito-offline btn-conflito-sm"
                     onclick="window.__editor&&window.__editor.resolverExtrasSecao('observacoes','offline')">
-              <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Offline
+              <span class="material-symbols-rounded" aria-hidden="true">check</span>Offline
             </button>
           </div>
         </div>
@@ -372,15 +371,15 @@
               onclick="window.__editor&&window.__editor.fecharModalConflito()">Cancelar</button>
       <button type="button" class="btn-conflito btn-conflito-manter"
               onclick="window.__editor&&window.__editor.resolverConflito('manter_servidor')">
-        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check</span>Manter tudo do servidor
+        <span class="material-symbols-rounded" aria-hidden="true">check</span>Manter tudo do servidor
       </button>
       <button type="button" class="btn-conflito btn-conflito-offline"
               onclick="window.__editor&&window.__editor.resolverConflito('usar_offline')">
-        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">check</span>Usar tudo do offline
+        <span class="material-symbols-rounded" aria-hidden="true">check</span>Usar tudo do offline
       </button>
       <button type="button" class="btn-conflito btn-conflito-fundir"
               onclick="window.__editor&&window.__editor.activarModoFusao()">
-        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">edit</span>Editar e fundir
+        <span class="material-symbols-rounded" aria-hidden="true">edit</span>Editar e fundir
       </button>
     </div>
 

@@ -49,11 +49,17 @@
 
     var hoje   = new Date();
     var mesStr = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0');
+    var selLocal = document.getElementById('selectorLocal');
+    if (selLocal) {
+      _al(selLocal, 'keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); carregarMes(); }
+      });
+    }
     var inputMes = document.getElementById('inputMes');
     if (inputMes) {
       inputMes.value = mesStr;
       _al(inputMes, 'keydown', function(e) {
-        if (e.key === 'Enter') carregarMes();
+        if (e.key === 'Enter') { e.preventDefault(); carregarMes(); }
       });
     }
 
@@ -187,6 +193,7 @@
     if (vaziaExtras) vaziaExtras.style.display = '';
 
     _mostrarLoading(true);
+    _setBtnCarregar(true);
 
     Promise.all([
       chamarAPI('obterDadosMes',  { local: local, mes: mes }),
@@ -194,6 +201,7 @@
     ])
     .then(function(res) {
       _mostrarLoading(false);
+      _setBtnCarregar(false);
       var respDados     = res[0];
       var respConflitos = res[1];
 
@@ -220,6 +228,7 @@
     })
     .catch(function(err) {
       _mostrarLoading(false);
+      _setBtnCarregar(false);
       mostrarToast('Erro ao carregar dados: ' + err.message, 'erro');
     });
   }
@@ -548,6 +557,7 @@
   function _atualizarBarraAlteracoes() {
   var badge = document.getElementById('alteracoesBadge');
   var btnG  = document.getElementById('btnGuardarTudo');
+  var btnL  = document.getElementById('btnLimparAlteracoes');
   var aviso = document.getElementById('secaoAlteracoesAviso');
   var n     = _totalPendentes();
   if (badge) {
@@ -560,6 +570,7 @@
     }
   }
   if (btnG)  btnG.disabled = n === 0;
+  if (btnL)  btnL.disabled = n === 0;
   if (aviso) aviso.classList.toggle('visivel', _totalAlteracoes > 0);
   _atualizarBadgesTabs();
 }
@@ -588,8 +599,8 @@
     if (!btnG) return;
     btnG.disabled = !!guardando;
     btnG.innerHTML = guardando
-      ? '<span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">hourglass_top</span>A guardar...'
-      : '<span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">save</span>Guardar alterações';
+      ? '<span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>A guardar...'
+      : '<span class="material-symbols-rounded" aria-hidden="true">save</span>Guardar alterações';
   }
 
   function executarGuardar() {
@@ -654,7 +665,7 @@
           el.classList.remove('alterada');
         });
         datasExtras.forEach(_actualizarLinhaExtras);
-        mostrarToast('✓ ' + resp.mensagem, 'sucesso');
+        mostrarToast(resp.mensagem, 'sucesso');
       } else {
         mostrarToast('Erro: ' + resp.mensagem, 'erro');
         _atualizarBarraAlteracoes();
@@ -1028,10 +1039,10 @@ function _renderCalendarioExtras() {
         '<input type="text" class="modal-extras-op-nome" placeholder="Nome do operador ou agência"' +
                ' value="' + _esc(op.operador || '') + '">' +
         '<button type="button" class="btn-rem-modal-linha modal-op-cartao-rem"' +
-                ' aria-label="Remover operador">✕</button>' +
+                ' aria-label="Remover operador"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>' +
       '</div>' +
       '<div class="modal-op-nac-lista">' + nacHtml + '</div>' +
-      '<button type="button" class="btn-modal-add-nac">+ Adicionar nacionalidade</button>' +
+      '<button type="button" class="btn-modal-add-nac"><span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar nacionalidade</button>' +
       '<div class="modal-op-cartao-total-wrap">' +
         '<span class="modal-op-cartao-total-label">TOTAL</span>' +
         '<input type="number" class="modal-extras-op-total" inputmode="numeric"' +
@@ -1064,7 +1075,7 @@ function _renderCalendarioExtras() {
       '<select class="modal-op-nac-select">' + optsHtml + '</select>' +
       '<input type="number" inputmode="numeric" class="modal-op-nac-num"' +
              ' min="0" placeholder="0" value="' + _esc(String(num || '')) + '">' +
-      '<button type="button" class="btn-rem-nac-modal" aria-label="Remover">✕</button>' +
+      '<button type="button" class="btn-rem-nac-modal" aria-label="Remover nacionalidade"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>' +
     '</div>';
   }
 
@@ -1117,7 +1128,7 @@ function _renderCalendarioExtras() {
       '<input type="text" class="modal-extras-sug-texto"' +
              ' placeholder="Sugestão ou crítica" value="' + _esc(s.sugestao || '') + '">' +
       '<select class="modal-extras-sug-nac">' + optsHtml + '</select>' +
-      '<button type="button" class="btn-rem-modal-linha" aria-label="Remover">✕</button>';
+      '<button type="button" class="btn-rem-modal-linha" aria-label="Remover sugestão"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>';
     div.querySelector('.btn-rem-modal-linha').addEventListener('click', function() { div.remove(); });
     return div;
   }
@@ -1456,7 +1467,7 @@ function _renderCalendarioExtras() {
     var acoesEl = document.getElementById(mapaAcoes[secao]);
     if (acoesEl) {
       acoesEl.innerHTML =
-        '<span class="conflito-extras-resolvido">✓ Mantido: ' + labelOrigem + '</span>';
+        '<span class="conflito-extras-resolvido">Mantido: ' + labelOrigem + '</span>';
     }
 
     // Verificar se todas as secções com diferença já foram resolvidas
@@ -1548,7 +1559,7 @@ function _renderCalendarioExtras() {
       fecharModalConflito();
       _atualizarBadgeConflitos();
       _actualizarLinhaExtras(dataFmt);
-      mostrarToast('✓ Conflito resolvido.', 'sucesso');
+      mostrarToast('Conflito resolvido.', 'sucesso');
     })
     .catch(function(err) { mostrarToast('Erro: ' + err.message, 'erro'); });
   }
@@ -1703,6 +1714,15 @@ function _renderCalendarioExtras() {
   // ============================================================
   // UTILITÁRIOS
   // ============================================================
+
+  function _setBtnCarregar(carregando) {
+    var btn = document.getElementById('btnCarregar');
+    var ico = document.getElementById('btnCarregarIco');
+    var txt = document.getElementById('btnCarregarTxt');
+    if (btn) btn.disabled = !!carregando;
+    if (ico) ico.textContent = carregando ? 'hourglass_top' : 'search';
+    if (txt) txt.textContent = carregando ? 'A carregar...' : 'Carregar dados';
+  }
 
   function _mostrarLoading(mostrar) {
     var el    = document.getElementById('grelhaLoading');

@@ -1,22 +1,40 @@
 <!-- views/admin/view.html -->
 <div class="admin-container">
 
-  <div class="admin-actions">
-    <button class="btn-novo-user" onclick="window.__admin&&window.__admin.abrirNovo()">
-      <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px;">person_add</span>Novo Utilizador
+  <div class="admin-toolbar">
+    <div class="admin-filtros">
+      <div class="admin-busca-wrap">
+        <span class="material-symbols-rounded admin-busca-ico" aria-hidden="true">search</span>
+        <input type="search" id="adminPesquisa" placeholder="Pesquisar por nome ou e-mail..." aria-label="Pesquisar utilizadores">
+      </div>
+      <select id="adminFiltroRole" aria-label="Filtrar por função">
+        <option value="todos">Todas as funções</option>
+        <option value="administrador">Admin</option>
+        <option value="utilizador">Utilizador</option>
+      </select>
+      <select id="adminFiltroEstado" aria-label="Filtrar por estado">
+        <option value="todos">Todos os estados</option>
+        <option value="ativo">Ativos</option>
+        <option value="inativo">Inativos</option>
+      </select>
+    </div>
+    <button type="button" class="btn-novo-user" onclick="window.__admin&&window.__admin.abrirNovo()">
+      <span class="material-symbols-rounded" aria-hidden="true">person_add</span>Novo Utilizador
     </button>
   </div>
 
   <div class="roles-legenda" id="rolesLegenda">
-  <div class="role-item">
-    <span class="badge-role badge-admin">Admin</span>
-    <span>Acesso total — registo, dashboard, editor, inventário e gestão de utilizadores</span>
+    <div class="role-item">
+      <span class="badge-role badge-admin">Admin</span>
+      <span>Acesso total — registo, vendas, dashboard, editor, inventário e gestão de utilizadores</span>
+    </div>
+    <div class="role-item">
+      <span class="badge-role badge-user badge-user-extra">Utilizador</span>
+      <span>Acesso apenas aos módulos atribuídos (Registo Diário, Vendas, Dashboard, Editor Mensal e/ou Inventário)</span>
+    </div>
   </div>
-  <div class="role-item">
-    <span class="badge-role badge-user badge-user-extra">Utilizador</span>
-    <span>Acesso apenas aos módulos atribuídos (Registo Diário, Dashboard, Editor Mensal e/ou Inventário) — tem de ter pelo menos um</span>
-  </div>
-</div>
+
+  <div class="admin-count" id="adminCount" aria-live="polite"></div>
 
   <div class="users-table-container">
     <div class="loading-overlay" id="loadingUsers">
@@ -40,7 +58,7 @@
 
 </div>
 
-<!-- Modal Novo / Editar Utilizador -->
+<!-- Modal Novo Utilizador -->
 <div class="modal-overlay" id="modalNovoUser" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
   <div class="modal-box">
     <div class="modal-header"><h2 id="modalTitulo">Novo Utilizador</h2></div>
@@ -50,21 +68,21 @@
       <div class="form-group"><label for="userEmail">Email *</label>
         <input type="email" id="userEmail" placeholder="utilizador@exemplo.pt"></div>
       <div class="form-group">
-  <label class="checkbox-label">
-    <input type="checkbox" id="userDefinirPasswordAgora"
-           onchange="window.__admin&&window.__admin.onTogglePasswordAgora()">
-    <span>Definir a password agora, em vez de enviar convite por e-mail</span>
-  </label>
-</div>
+        <label class="checkbox-label">
+          <input type="checkbox" id="userDefinirPasswordAgora"
+                 onchange="window.__admin&&window.__admin.onTogglePasswordAgora()">
+          <span>Definir a password agora, em vez de enviar convite por e-mail</span>
+        </label>
+      </div>
 
-<div class="form-group" id="passwordGroupNovo" style="display:none">
-  <label for="userPassword">Password *</label>
-  <input type="password" id="userPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
-</div>
+      <div class="form-group" id="passwordGroupNovo" style="display:none">
+        <label for="userPassword">Password *</label>
+        <input type="password" id="userPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
 
-<div class="role-info" id="infoConvitePorEmail" style="display:block">
-  Será gerado um link seguro que poderá copiar e partilhar manualmente com o utilizador (ex: WhatsApp, SMS) para ele definir a sua própria password.
-</div>
+      <div class="role-info" id="infoConvitePorEmail" style="display:block">
+        Será gerado um link seguro que poderá copiar e partilhar manualmente com o utilizador (ex: WhatsApp, SMS) para ele definir a sua própria password.
+      </div>
       <div class="form-group"><label for="userRole">Role *</label>
         <select id="userRole" onchange="window.__admin&&window.__admin.onRoleChange('userRole','roleInfoNovo','grupoAcessosNovo')">
           <option value="utilizador">Utilizador</option>
@@ -90,13 +108,16 @@
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModal()">Cancelar</button>
-      <button class="btn-modal btn-guardar" id="btnGuardarUser"
-              onclick="window.__admin&&window.__admin.guardar()">Guardar</button>
+      <button type="button" class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModal()">Cancelar</button>
+      <button type="button" class="btn-modal btn-guardar" id="btnGuardarUser"
+              onclick="window.__admin&&window.__admin.guardar()">
+        <span class="material-symbols-rounded" aria-hidden="true">save</span>Guardar
+      </button>
     </div>
   </div>
 </div>
 
+<!-- Modal Editar Utilizador -->
 <div class="modal-overlay" id="modalEditarUser" role="dialog" aria-modal="true" aria-labelledby="modalEditarTitulo">
   <div class="modal-box">
     <div class="modal-header"><h2 id="modalEditarTitulo">Editar Utilizador</h2></div>
@@ -105,21 +126,21 @@
       <div class="form-group"><label for="editUserNome">Nome Completo *</label>
         <input type="text" id="editUserNome"></div>
       <div class="form-group"><label for="editUserEmail">Email</label>
-        <input type="email" id="editUserEmail" disabled style="opacity:0.6"></div>
-      <div class="form-group" style="display:flex;gap:8px;flex-wrap:wrap">
-  <button type="button" class="btn-action btn-editar"
-          onclick="window.__admin&&window.__admin.abrirAlterarEmail()">
-    <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px;">mail</span>Alterar e-mail
-  </button>
-  <button type="button" class="btn-action btn-ativar"
-        onclick="window.__admin&&window.__admin.gerarNovoLink()">
-  <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px;">link</span>Gerar novo link
-</button>
-  <button type="button" class="btn-action btn-perigo-admin"
-          onclick="window.__admin&&window.__admin.confirmarApagar()">
-    <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px;">delete</span>Eliminar definitivamente
-  </button>
-</div>
+        <input type="email" id="editUserEmail" disabled></div>
+      <div class="form-group admin-modal-quick-actions">
+        <button type="button" class="btn-action btn-editar"
+                onclick="window.__admin&&window.__admin.abrirAlterarEmail()">
+          <span class="material-symbols-rounded" aria-hidden="true">mail</span>Alterar e-mail
+        </button>
+        <button type="button" class="btn-action btn-ativar" id="btnGerarNovoLink"
+                onclick="window.__admin&&window.__admin.gerarNovoLink()">
+          <span class="material-symbols-rounded" aria-hidden="true">link</span>Gerar novo link
+        </button>
+        <button type="button" class="btn-action btn-perigo-admin"
+                onclick="window.__admin&&window.__admin.confirmarApagar()">
+          <span class="material-symbols-rounded" aria-hidden="true">delete</span>Eliminar definitivamente
+        </button>
+      </div>
       <div class="form-group"><label for="editUserRole">Role *</label>
         <select id="editUserRole" onchange="window.__admin&&window.__admin.onRoleChange('editUserRole','roleInfoEditar','grupoAcessosEditar')">
           <option value="utilizador">Utilizador</option>
@@ -130,7 +151,7 @@
         <div class="form-group"><label class="checkbox-label">
           <input type="checkbox" id="editAcessoRegisto">
           <span>Permitir acesso ao Registo Diário</span></label></div>
-         <div class="form-group"><label class="checkbox-label">
+        <div class="form-group"><label class="checkbox-label">
           <input type="checkbox" id="editAcessoVendas">
           <span>Permitir acesso a Vendas e Inventário Mensal de Vendas</span></label></div>
         <div class="form-group"><label class="checkbox-label">
@@ -145,12 +166,16 @@
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModalEditar()">Cancelar</button>
-      <button class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.guardarEdicao()">Guardar</button>
+      <button type="button" class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModalEditar()">Cancelar</button>
+      <button type="button" class="btn-modal btn-guardar" id="btnGuardarEdicao"
+              onclick="window.__admin&&window.__admin.guardarEdicao()">
+        <span class="material-symbols-rounded" aria-hidden="true">save</span>Guardar
+      </button>
     </div>
   </div>
 </div>
 
+<!-- Modal Alterar E-mail -->
 <div class="modal-overlay" id="modalAlterarEmail" role="dialog" aria-modal="true" aria-labelledby="modalAlterarEmailTitulo">
   <div class="modal-box">
     <div class="modal-header"><h2 id="modalAlterarEmailTitulo">Alterar E-mail de Registo</h2></div>
@@ -165,27 +190,33 @@
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharAlterarEmail()">Cancelar</button>
-      <button class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.guardarAlterarEmail()">Guardar</button>
+      <button type="button" class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharAlterarEmail()">Cancelar</button>
+      <button type="button" class="btn-modal btn-guardar" id="btnGuardarAlterarEmail"
+              onclick="window.__admin&&window.__admin.guardarAlterarEmail()">
+        <span class="material-symbols-rounded" aria-hidden="true">save</span>Guardar
+      </button>
     </div>
   </div>
 </div>
 
+<!-- Modal Link Password -->
 <div class="modal-overlay" id="modalLinkPassword" role="dialog" aria-modal="true" aria-labelledby="modalLinkPasswordTitulo">
   <div class="modal-box">
-    <div class="modal-header"><h2 id="modalLinkPasswordTitulo"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 18px; margin-right: 6px; vertical-align: middle;">link</span>Link de Definição de Password</h2></div>
+    <div class="modal-header"><h2 id="modalLinkPasswordTitulo"><span class="material-symbols-rounded" aria-hidden="true">link</span>Link de Definição de Password</h2></div>
     <div class="modal-body">
       <p style="margin-bottom:10px">Partilhe este link com o utilizador. É válido por tempo limitado e só pode ser usado uma vez.</p>
       <div class="form-group">
         <input type="text" id="linkPasswordValor" readonly aria-label="Link de definição de password" onclick="this.select()">
       </div>
-      <div id="linkPasswordCopiado" style="display:none;color:var(--verde);font-size:var(--text-sm);font-weight:600;margin-top:6px">
-        <span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">check</span>Copiado para a área de transferência.
+      <div id="linkPasswordCopiado" class="admin-link-copiado" style="display:none">
+        <span class="material-symbols-rounded" aria-hidden="true">check</span>Copiado para a área de transferência.
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModalLink()">Fechar</button>
-      <button class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.copiarLink()"><span class="material-symbols-rounded" aria-hidden="true" style="font-size: 16px; margin-right: 4px; vertical-align: middle;">content_copy</span>Copiar Link</button>
+      <button type="button" class="btn-modal btn-cancelar" onclick="window.__admin&&window.__admin.fecharModalLink()">Fechar</button>
+      <button type="button" class="btn-modal btn-guardar" onclick="window.__admin&&window.__admin.copiarLink()">
+        <span class="material-symbols-rounded" aria-hidden="true">content_copy</span>Copiar Link
+      </button>
     </div>
   </div>
 </div>

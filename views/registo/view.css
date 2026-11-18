@@ -56,9 +56,11 @@
 ============================================================ */
 .field-group { display:flex; flex-direction:column; gap:5px; }
 .field-group label {
+  display: inline-flex; align-items: center; gap: 6px;
   font-size:var(--text-xs); font-weight:700; text-transform:uppercase;
   letter-spacing:1px; color:var(--terra);
 }
+.field-group label .material-symbols-rounded { font-size: 16px; line-height: 1; flex-shrink: 0; }
 
 input[type="text"],
 input[type="email"],
@@ -79,7 +81,7 @@ textarea {
               background var(--transition-base);
   -webkit-appearance: none;
   appearance: none;
-  min-height: 50px;
+  min-height: 48px;
 }
 
 input[type="text"]:focus,
@@ -109,18 +111,21 @@ textarea:disabled {
 select:not(.op-nac-select):not(.sug-nac) {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B4A2B' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 40px;
+  background-position: right 12px center;
+  padding-right: 36px;
   cursor: pointer;
 }
+[data-theme="dark"] select:not(.op-nac-select):not(.sug-nac) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23E09169' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
 
-::placeholder { color: var(--cinza); opacity: 0.5; }
+::placeholder { color: var(--subtexto); opacity: 0.5; }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
   -webkit-text-fill-color: var(--texto);
-  -webkit-box-shadow: 0 0 0px 1000px var(--branco) inset;
+  -webkit-box-shadow: 0 0 0px 1000px var(--elementos) inset;
   transition: background-color 5000s ease-in-out 0s;
 }
 
@@ -130,16 +135,23 @@ input:-webkit-autofill:focus {
 ============================================================ */
 .meta-card {
   background: var(--elementos);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
   padding: var(--spacing-md) var(--spacing-lg);
   margin-bottom: var(--gap);
   box-shadow: var(--sombra);
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-md);
-  grid-template-columns: 1fr;
+  align-items: flex-end;
 }
-@media (min-width: 520px) {
-  .meta-card { grid-template-columns: 1fr 1fr; }
+.meta-card .field-group {
+  flex: 1;
+  min-width: 180px;
+}
+@media (max-width: 600px) {
+  .meta-card { flex-direction: column; align-items: stretch; }
+  .meta-card .field-group { min-width: 100%; }
 }
 
 .section-card {
@@ -764,6 +776,9 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important;
   background-position: right 8px center;
   min-height: 40px;
   cursor: pointer;
+}
+[data-theme="dark"] .op-cartao-nac-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23E09169' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 .op-cartao-nac-select:focus {
   outline: none;

@@ -83,6 +83,7 @@
     _lig('vdBtnNovoArtigo',        'click',  function() { abrirArtigo(null); });
     _lig('vdBtnNovaLista',         'click',  function() { abrirLista(null); });
 
+    _lig('vdLocal',                'keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); carregar(); } });
     _lig('vdMes',                  'keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); carregar(); } });
     _lig('vdArtNome',              'keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); guardarArtigo(); } });
     _lig('vdArtPreco',             'keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); guardarArtigo(); } });
@@ -257,10 +258,20 @@
   // ============================================================
 
   function carregar() {
-    var local = ((document.getElementById('vdLocal') || {}).value || '').trim();
-    var mes   =  (document.getElementById('vdMes')   || {}).value || '';
-    if (!local) { mostrarToast('Escolha um local.', 'erro'); return; }
-    if (!mes)   { mostrarToast('Escolha o mês.', 'erro'); return; }
+    var localEl = document.getElementById('vdLocal');
+    var mesEl   = document.getElementById('vdMes');
+    var local   = ((localEl || {}).value || '').trim();
+    var mes     =  (mesEl   || {}).value || '';
+    if (!local) {
+      mostrarToast('Escolha um local / posto.', 'erro');
+      if (localEl) localEl.focus();
+      return;
+    }
+    if (!mes) {
+      mostrarToast('Escolha o mês.', 'erro');
+      if (mesEl) mesEl.focus();
+      return;
+    }
     if (_dirtyV || _dirtyI) {
       window.spaConfirmar('Tem alterações por guardar. Se continuar serão perdidas. Continuar?', {
         titulo: 'Alterações por guardar',

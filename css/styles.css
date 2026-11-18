@@ -635,21 +635,31 @@ input[type="number"] {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
 }
 .btn-modal-cancelar {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   background: var(--elementos); color: var(--subtexto);
   border: 1.5px solid var(--border); border-radius: var(--radius-sm);
   padding: 10px 18px; font-size: var(--text-sm); font-weight: 600; min-height: 40px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
 }
-.btn-modal-cancelar:hover { border-color: var(--subtexto); background: var(--terra-pale); color: var(--texto); }
+.btn-modal-cancelar:hover:not(:disabled) {
+  border-color: var(--terra-light); background: var(--terra-pale); color: var(--terra);
+}
 
 .btn-modal-confirmar {
-  background: linear-gradient(135deg, var(--verde-btn) 0%, var(--verde-btn-dark) 100%);
-  color: #FFFFFF; border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  background: linear-gradient(135deg, var(--terra-btn) 0%, var(--terra-btn-end) 100%);
+  color: #FFFFFF; border: none; border-radius: var(--radius-sm);
   padding: 10px 20px; font-size: var(--text-sm); font-weight: 700; min-height: 40px;
-  box-shadow: 0 3px 10px rgba(61,90,62,0.3);
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(139,74,43,0.28);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 .btn-modal-confirmar:hover:not(:disabled) {
-  transform: translateY(-1px); box-shadow: 0 5px 14px rgba(61,90,62,0.4);
+  transform: translateY(-1px); box-shadow: 0 5px 14px rgba(139,74,43,0.38);
 }
+.btn-modal-confirmar:active:not(:disabled) { transform: translateY(0); }
+.btn-modal-confirmar:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
 .btn-modal-perigo {
   background: linear-gradient(135deg, #c0392b 0%, #992d22 100%);
   box-shadow: 0 3px 10px rgba(192,57,43,0.3);
@@ -661,11 +671,12 @@ input[type="number"] {
 .modal-confirmar-spa { max-width: 420px; }
 
 .modal-resumo {
-  background: var(--cor-sucesso-bg);
-  border: 1px solid rgba(61,90,62,0.2);
+  background: var(--terra-pale);
+  border: 1px solid rgba(139,74,43,0.22);
   border-radius: var(--radius-sm);
   padding: 10px 14px; margin-top: 10px;
-  font-size: var(--text-xs); line-height: 1.7; color: var(--verde-dark);
+  font-size: var(--text-xs); line-height: 1.7; color: var(--terra-dark);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ============================================================
