@@ -102,8 +102,10 @@
 }
 
 .spa-erro-acesso h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: var(--text-xl);
+  font-weight: var(--display-weight);
+  letter-spacing: -0.015em;
   color: var(--terra);
   margin: 0;
 }
@@ -189,9 +191,11 @@
 @media (min-width: 520px) { .spa-header-badge { display: block; } }
 
 .spa-header-badge .badge-num {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: clamp(1.2rem, 3vw, 1.6rem);
-  font-weight: 700;
+  font-weight: var(--display-weight);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.02em;
   color: var(--terra);
   display: block;
   line-height: 1;
@@ -212,6 +216,7 @@
   border-radius: 20px;
   font-size: var(--text-xs);
   font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
   padding: 2px 8px;
   min-width: 22px;
   text-align: center;
@@ -304,7 +309,9 @@ body {
 }
 
 .spa-stub-view h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: -0.015em;
   color: var(--terra);
   font-size: var(--text-xl);
 }

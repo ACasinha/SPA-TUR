@@ -101,9 +101,10 @@
 }
 .secao-titulo {
   display: flex; align-items: center; gap: 8px;
-  font-family: 'Playfair Display', serif;
-  font-size: var(--text-xl); font-weight: 700;
-  color: var(--texto); line-height: 1.3;
+  font-family: var(--font-display);
+  font-size: var(--text-xl); font-weight: var(--display-weight);
+  letter-spacing: -0.015em;
+  color: var(--terra); line-height: 1.3;
 }
 .secao-titulo-icone {
   font-size: 1.35rem;
@@ -195,7 +196,9 @@
   font-weight: 700; font-size: var(--text-sm);
   color: var(--cinza-escuro); line-height: 1.3;
   flex: 1; min-width: 0;
+  transition: color var(--transition-fast);
 }
+.grafico-card:hover .grafico-card-titulo { color: var(--terra); }
 .grafico-card-sub {
   font-size: var(--text-xs); color: var(--cinza);
   margin-top: 2px; line-height: 1.4;
@@ -295,8 +298,10 @@
   margin: auto;
 }
 .edit-box h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: var(--text-xl); color: var(--texto);
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: -0.015em;
+  font-size: var(--text-xl); color: var(--terra);
   margin-bottom: var(--spacing-md);
 }
 .edit-field { margin-bottom: 12px; }

@@ -14,7 +14,9 @@
   margin-bottom: var(--gap-lg);
 }
 .inicio-saudacao h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: -0.015em;
   font-size: var(--text-2xl);
   color: var(--texto);
   margin-bottom: 6px;
@@ -28,9 +30,9 @@
   color: var(--subtexto);
 }
 .inicio-badge-role {
-  background: var(--surface-subtle);
-  color: var(--subtexto);
-  border: 1px solid var(--border);
+  background: var(--terra-pale);
+  color: var(--terra);
+  border: 1px solid rgba(139, 74, 43, 0.22);
   border-radius: 20px;
   padding: 3px 12px;
   font-size: var(--text-xs);
@@ -65,8 +67,11 @@
 }
 .inicio-card:hover {
   box-shadow: var(--sombra-forte);
-  border-color: var(--subtexto);
+  border-color: rgba(139, 74, 43, 0.45);
   transform: translateY(-2px);
+}
+.inicio-card:hover .inicio-card-titulo {
+  color: var(--terra);
 }
 .inicio-card-icone {
   font-size: 26px;
@@ -76,7 +81,9 @@
   padding: 8px;
 }
 .inicio-card-titulo {
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   font-size: var(--text-base);
   color: var(--texto);
 }

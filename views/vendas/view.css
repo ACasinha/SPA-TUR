@@ -160,9 +160,10 @@
   min-height: 52px; flex-wrap: wrap;
 }
 .vd-card-header h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: var(--text-lg); font-weight: 600;
-  color: var(--texto);
+  letter-spacing: -0.01em;
+  color: var(--terra);
 }
 .vd-card-corpo { padding: clamp(12px,3vw,20px); }
 .vd-dia-wrap { display: flex; align-items: center; gap: 8px; }
@@ -200,14 +201,14 @@
   border-bottom: 1px solid var(--border-subtle); vertical-align: middle;
 }
 .vd-tabela tbody tr:hover { background: var(--surface-subtle); }
-.vd-tabela .vd-num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.vd-sub { font-weight: 700; color: var(--azul); font-variant-numeric: tabular-nums; }
+.vd-tabela .vd-num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; }
+.vd-sub { font-weight: 700; color: var(--azul); font-variant-numeric: tabular-nums lining-nums; }
 
 .vd-qtd, .vd-inv-ant, .vd-inv-ent, .vd-inv-cont {
   width: 84px; min-height: 38px;
   padding: 6px 8px; text-align: center;
   font-weight: 600; font-size: var(--text-sm);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
   -moz-appearance: textfield;
 }
 .vendas-container input[type="number"] {
@@ -231,8 +232,9 @@
   background: var(--surface-subtle);
   border-top: 2px solid var(--border);
   font-size: var(--text-base); font-weight: 600; color: var(--texto);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
 }
+.vd-total-bar strong { color: var(--terra); font-weight: 700; }
 .vd-form-acoes { display: flex; justify-content: flex-end; padding: 12px clamp(14px,3vw,20px); }
 
 /* ── Resumo do mês ─────────────────────────────────────── */
@@ -245,8 +247,9 @@
   font-weight: 700; color: var(--texto);
   border-top: 2px solid var(--border);
   background: var(--surface-subtle);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
 }
+.vd-linha-total td:last-child { color: var(--terra); }
 .vd-resumo .vd-linha-total td:first-child { background: var(--editor-sticky-total); }
 
 /* ── Configuração ──────────────────────────────────────── */

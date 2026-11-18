@@ -121,9 +121,11 @@
 }
 
 .inv-subtitulo {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   font-size: var(--text-lg);
-  color: var(--texto);
+  color: var(--terra);
   margin-bottom: 14px;
 }
 .inv-subtitulo-historico { margin-top: 28px; }
@@ -315,11 +317,13 @@
   gap: 2px;
 }
 .inv-stat-num {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: clamp(1.3rem, 3vw, 1.7rem);
-  font-weight: 700;
+  font-weight: var(--display-weight);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.02em;
   color: var(--texto);
-  line-height: 1;
+  line-height: 1.05;
 }
 .inv-stat-label {
   font-size: var(--text-xs);
@@ -327,6 +331,7 @@
   letter-spacing: 0.8px;
   color: var(--cinza);
 }
+.inv-stat-box:nth-child(2) .inv-stat-num { color: var(--terra); }
 .inv-stat-box.inv-stat-aviso { background: rgba(243,156,18,0.10); border-color: rgba(243,156,18,0.22); }
 .inv-stat-box.inv-stat-aviso .inv-stat-num { color: var(--aviso-texto); }
 .inv-stat-box.inv-stat-erro { background: rgba(192,57,43,0.08); border-color: rgba(192,57,43,0.20); }
@@ -366,7 +371,9 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 .inv-cartao-titulo {
-  font-weight: 700; font-size: var(--text-sm);
+  font-family: var(--font-display);
+  font-weight: 600; font-size: var(--text-sm);
+  letter-spacing: -0.01em;
   color: var(--cinza-escuro); line-height: 1.3; flex: 1;
 }
 .inv-cartao-estado {
@@ -401,12 +408,13 @@
   display: flex; align-items: baseline; gap: 8px;
 }
 .inv-cartao-num {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.6rem, 4vw, 2rem);
-  font-weight: 700;
-  color: var(--texto);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 3.8vw, 1.95rem);
+  font-weight: var(--display-weight);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.02em;
+  color: var(--terra);
+  line-height: 1.05;
 }
 .inv-cartao-num-label {
   font-size: var(--text-xs);
@@ -423,7 +431,7 @@
   border-radius: 6px;
   padding: 3px 8px;
   color: var(--cinza-escuro);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 .inv-cartao-local-chip strong { color: var(--azul); }
 .inv-cartao-locais.inv-vazio {
@@ -450,7 +458,7 @@
   color: var(--cinza);
   white-space: nowrap;
   flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 .inv-cartao-btn-ico {
   font-size: 16px;
@@ -541,7 +549,7 @@
 .inv-tabela-materiais tbody tr:hover,
 .inv-tabela-movimentos tbody tr:hover { background: var(--surface-subtle); }
 
-.inv-td-num { text-align: right; font-weight: 600; white-space: nowrap; }
+.inv-td-num { text-align: right; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; }
 .inv-td-acoes { display: flex; gap: 4px; white-space: nowrap; }
 
 .inv-tag-estado {
@@ -651,9 +659,11 @@
 }
 .inv-config-bloco h3 {
   display: flex; align-items: center; gap: 6px;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   font-size: var(--text-base);
-  color: var(--texto);
+  color: var(--terra);
   margin-bottom: 10px;
 }
 .inv-config-ico { font-size: 18px; }
