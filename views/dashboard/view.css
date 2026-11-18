@@ -61,9 +61,9 @@
   background: transparent;
   transition: background var(--transition-base);
 }
-.tab-btn:hover { background: var(--terra-pale); color: var(--terra); }
+.tab-btn:hover { background: var(--surface-subtle); color: var(--texto); }
 .tab-btn.ativa {
-  background: var(--terra-pale);
+  background: transparent;
   color: var(--terra);
   font-weight: 700;
 }
@@ -76,7 +76,7 @@
   padding: 1px 6px; flex-shrink: 0;
   font-variant-numeric: tabular-nums;
 }
-.tab-btn.ativa .tab-badge { background: rgba(139,74,43,0.15); color: var(--terra); }
+.tab-btn.ativa .tab-badge { background: var(--terra-pale); color: var(--terra); }
 
 /* ============================================================
    PAINEL DE SECÇÃO
@@ -97,13 +97,13 @@
   gap: 12px; flex-wrap: wrap;
   margin-bottom: clamp(14px,3vw,20px);
   padding-bottom: 14px;
-  border-bottom: 2px solid var(--terra-pale);
+  border-bottom: 1px solid var(--border);
 }
 .secao-titulo {
   display: flex; align-items: center; gap: 8px;
   font-family: 'Playfair Display', serif;
   font-size: var(--text-xl); font-weight: 700;
-  color: var(--terra); line-height: 1.3;
+  color: var(--texto); line-height: 1.3;
 }
 .secao-titulo-icone {
   font-size: 1.35rem;
@@ -156,7 +156,7 @@
   flex-direction: column;
   align-self: start;   /* não estica para igualar a linha — sem buracos */
   background: var(--branco);
-  border: 1.5px solid var(--border-subtle);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--sombra-card);
@@ -165,7 +165,7 @@
   animation: slideUp 0.3s ease;
 }
 .grafico-card:hover {
-  box-shadow: 0 6px 22px rgba(139,74,43,0.13);
+  box-shadow: var(--sombra-forte);
   transform: translateY(-2px);
 }
 
@@ -189,7 +189,7 @@
   border-bottom: 1px solid var(--border-subtle);
   display: flex; align-items: center; justify-content: space-between;
   gap: 8px;
-  background: linear-gradient(90deg, rgba(139,74,43,0.03) 0%, transparent 70%);
+  background: var(--surface-subtle);
 }
 .grafico-card-titulo {
   font-weight: 700; font-size: var(--text-sm);
@@ -204,14 +204,14 @@
 .grafico-card-acoes { display: flex; gap: 4px; flex-shrink: 0; }
 .btn-iframe-toggle {
   display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-  background: rgba(139,74,43,0.10); border: none;
-  border-radius: 6px; color: var(--terra);
+  background: var(--elementos); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--subtexto);
   font-size: 0.75rem; padding: 6px 10px; cursor: pointer;
   font-weight: 600; min-height: 36px; min-width: 36px; white-space: nowrap;
-  transition: background var(--transition-fast);
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 .btn-iframe-toggle .material-symbols-rounded { font-size: 16px; }
-.btn-iframe-toggle:hover { background: rgba(139,74,43,0.18); }
+.btn-iframe-toggle:hover { background: var(--surface-hover); color: var(--texto); border-color: var(--subtexto); }
 
 /* Corpo do iframe */
 .grafico-card-body {
@@ -296,14 +296,14 @@
 }
 .edit-box h2 {
   font-family: 'Playfair Display', serif;
-  font-size: var(--text-xl); color: var(--terra);
+  font-size: var(--text-xl); color: var(--texto);
   margin-bottom: var(--spacing-md);
 }
 .edit-field { margin-bottom: 12px; }
 .edit-field label {
   display: block; font-size: var(--text-xs); font-weight: 700;
   text-transform: uppercase; letter-spacing: 1px;
-  color: var(--terra); margin-bottom: 5px;
+  color: var(--subtexto); margin-bottom: 5px;
 }
 .edit-field input,
 .edit-field select,
@@ -323,33 +323,38 @@
 }
 .edit-field textarea { min-height: 60px; resize: vertical; font-family: monospace; font-size: 0.8rem; }
 .edit-field select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B4A2B' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2352525B' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 12px center;
   padding-right: 36px; cursor: pointer;
+}
+[data-theme="dark"] .edit-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A1A1AA' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 .edit-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
 .btn-edit-guardar {
   display: inline-flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, var(--terra-btn) 0%, var(--terra-btn-end) 100%);
+  background: var(--terra-btn);
   color: white; border: none; border-radius: var(--radius-sm); padding: 10px 20px;
   font-size: var(--text-sm); font-weight: 700; min-height: 40px; cursor: pointer;
-  box-shadow: 0 2px 8px rgba(139,74,43,0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.14);
+  transition: background var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
 }
-.btn-edit-guardar:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139,74,43,0.4); }
+.btn-edit-guardar:hover { background: var(--terra-btn-hover); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18); }
 .btn-edit-cancelar {
   background: var(--elementos); color: var(--subtexto);
   border: 1.5px solid var(--border); border-radius: var(--radius-sm);
   padding: 10px 20px; font-size: var(--text-sm); font-weight: 600; min-height: 40px; cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
 }
-.btn-edit-cancelar:hover { border-color: var(--cinza); background: var(--terra-pale); }
+.btn-edit-cancelar:hover { border-color: var(--subtexto); background: var(--surface-subtle); color: var(--texto); }
 
 /* ============================================================
    BARRA ADMIN — configurar gráficos (apenas admins)
 ============================================================ */
 .admin-bar {
   display: none;
-  background: linear-gradient(90deg, rgba(46,91,138,0.08) 0%, transparent 100%);
+  background: var(--cor-info-bg);
   border: 1px solid rgba(46,91,138,0.18);
   border-radius: var(--radius-sm);
   padding: 10px 14px;

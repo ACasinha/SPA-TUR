@@ -382,7 +382,7 @@
       tdT.className        = 'td-valor';
       tdT.dataset.totalDia = dd2;
       tdT.style.cssText    = 'text-align:center;font-weight:700;font-size:var(--text-xs);color:' +
-                             (t > 0 ? 'var(--terra)' : 'var(--subtexto)');
+                             (t > 0 ? 'var(--texto)' : 'var(--subtexto)');
       tdT.textContent = t > 0 ? t : '—';
       trTotais.appendChild(tdT);
     }
@@ -531,7 +531,7 @@
     var el = tabela.querySelector('td[data-total-dia="' + dia + '"]');
     if (el) {
       el.textContent = total > 0 ? total : '—';
-      el.style.color = total > 0 ? 'var(--terra)' : 'var(--subtexto)';
+      el.style.color = total > 0 ? 'var(--texto)' : 'var(--subtexto)';
     }
   }
 

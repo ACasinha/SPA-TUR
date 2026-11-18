@@ -57,7 +57,7 @@
 }
 
 .bottom-nav-item:hover {
-  color: var(--terra, #8B4A2B);
+  color: var(--texto, #18181B);
 }
 
 .bottom-nav-item:active {
@@ -181,15 +181,15 @@
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: var(--terra-pale, #F5EBE0);
-  color: var(--terra, #8B4A2B);
+  background: var(--surface-subtle, #F4F4F5);
+  color: var(--texto, #18181B);
   font-weight: 700;
   font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid var(--border, #E8E0D5);
+  border: 1px solid var(--border, #E4E4E7);
 }
 
 .bottom-sheet-user-info {
@@ -201,7 +201,7 @@
 .bottom-sheet-user-nome {
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--texto, #2C2C2C);
+  color: var(--texto, #18181B);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -212,7 +212,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: var(--terra, #8B4A2B);
+  color: var(--subtexto, #52525B);
   margin-top: 1px;
 }
 
@@ -264,13 +264,13 @@
 
 .bottom-sheet-item:hover,
 .bottom-sheet-item:focus-visible {
-  background: rgba(139, 74, 43, 0.08);
-  color: var(--terra, #8B4A2B);
+  background: var(--surface-subtle);
+  color: var(--texto, #18181B);
   outline: none;
 }
 
 .bottom-sheet-item.activo {
-  background: rgba(139, 74, 43, 0.1);
+  background: var(--terra-pale);
   color: var(--terra, #8B4A2B);
   font-weight: 700;
 }

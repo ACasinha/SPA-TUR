@@ -13,12 +13,12 @@
   --sidebar-w:          220px;
   --sidebar-w-colapsada: 64px;
   --sidebar-transition: 0.25s ease;
-  --sidebar-bg:         #1a0f08;          /* terra muito escuro — complementa a paleta */
+  --sidebar-bg:         #181615;          /* carvão neutro escuro */
   --sidebar-bg-hover:   rgba(255,255,255,0.06);
-  --sidebar-bg-activo:  rgba(201,149,42,0.18);
-  --sidebar-border:     rgba(255,255,255,0.07);
-  --sidebar-text:       rgba(255,255,255,0.75);
-  --sidebar-text-dim:   rgba(255,255,255,0.38);
+  --sidebar-bg-activo:  rgba(201,149,42,0.14);
+  --sidebar-border:     rgba(255,255,255,0.08);
+  --sidebar-text:       rgba(255,255,255,0.78);
+  --sidebar-text-dim:   rgba(255,255,255,0.44);
   --sidebar-accent:     #C9952A;          /* --ouro */
   --sidebar-accent-rgb: 201,149,42;
 }
@@ -279,7 +279,7 @@
   left: calc(var(--sidebar-w-colapsada) + 8px);
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(26,15,8,0.96);
+  background: rgba(24,22,21,0.96);
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
@@ -539,7 +539,7 @@
   left: calc(var(--sidebar-w-colapsada) + 8px);
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(26,15,8,0.96);
+  background: rgba(24,22,21,0.96);
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
@@ -621,7 +621,7 @@
   left: calc(var(--sidebar-w-colapsada) + 8px);
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(26,15,8,0.96);
+  background: rgba(24,22,21,0.96);
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
