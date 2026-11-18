@@ -69,11 +69,12 @@
 }
 .tab-btn.ativa::after { background: var(--terra); }
 
-.tab-icone { font-size: 1rem; flex-shrink: 0; }
+.tab-icone { font-size: 18px; line-height: 1; flex-shrink: 0; }
 .tab-badge {
   background: var(--cinza-claro); color: var(--cinza);
   border-radius: 20px; font-size: 0.6rem; font-weight: 700;
   padding: 1px 6px; flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
 .tab-btn.ativa .tab-badge { background: rgba(139,74,43,0.15); color: var(--terra); }
 
@@ -99,9 +100,15 @@
   border-bottom: 2px solid var(--terra-pale);
 }
 .secao-titulo {
+  display: flex; align-items: center; gap: 8px;
   font-family: 'Playfair Display', serif;
   font-size: var(--text-xl); font-weight: 700;
   color: var(--terra); line-height: 1.3;
+}
+.secao-titulo-icone {
+  font-size: 1.35rem;
+  line-height: 1;
+  flex-shrink: 0;
 }
 .secao-descricao {
   font-size: var(--text-sm); color: var(--cinza);
@@ -368,7 +375,7 @@
 @media (max-width: 480px) {
   .tabs-bar { padding: 4px 4px 0; gap: 2px; }
   .tab-btn  { padding: 9px 12px; font-size: 0.75rem; }
-  .tab-icone { display: none; }
+  .tab-icone { font-size: 16px; }
   .dashboard-header { flex-direction: column; }
   .dashboard-header-actions { width: 100%; }
   .btn-voltar { flex: 1; justify-content: center; }

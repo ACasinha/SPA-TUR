@@ -373,7 +373,7 @@
       tdT.className        = 'td-valor';
       tdT.dataset.totalDia = dd2;
       tdT.style.cssText    = 'text-align:center;font-weight:700;font-size:var(--text-xs);color:' +
-                             (t > 0 ? 'var(--verde)' : 'var(--cinza)');
+                             (t > 0 ? 'var(--terra)' : 'var(--subtexto)');
       tdT.textContent = t > 0 ? t : '—';
       trTotais.appendChild(tdT);
     }
@@ -392,7 +392,8 @@
     document.getElementById('estadoVazioCard').style.display = 'none';
     document.getElementById('secaoGrelha').style.display     = '';
     document.getElementById('secaoGrelha').classList.remove('recolhido');
-    document.getElementById('secaoToggleIcone').textContent  = '▼';
+    var toggleEl = document.getElementById('secaoToggleIcone');
+    if (toggleEl) toggleEl.textContent = 'expand_more';
     document.getElementById('grelhaAcoes').style.display     = '';
 
     var nomeMes = new Date(ano, mesNum - 1, 1)
@@ -521,7 +522,7 @@
     var el = tabela.querySelector('td[data-total-dia="' + dia + '"]');
     if (el) {
       el.textContent = total > 0 ? total : '—';
-      el.style.color = total > 0 ? 'var(--verde)' : 'var(--cinza)';
+      el.style.color = total > 0 ? 'var(--terra)' : 'var(--subtexto)';
     }
   }
 
@@ -552,7 +553,8 @@
   if (badge) {
     if (n > 0) {
       badge.classList.add('visivel');
-      badge.textContent = '✏️ ' + n + (n === 1 ? ' alteração' : ' alterações') + ' por guardar';
+      badge.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true" style="font-size:14px">edit</span>' +
+                        '<span>' + n + (n === 1 ? ' alteração' : ' alterações') + ' por guardar</span>';
     } else {
       badge.classList.remove('visivel');
     }
@@ -570,11 +572,11 @@
   if (_totalPendentes() === 0) { mostrarToast('Não há alterações para guardar.', 'info'); return; }
   var el = document.getElementById('modalResumoTexto');
   if (el) el.textContent =
-    '📍 Local: '  + _localAtual + '\n' +
-    '📅 Mês: '    + _formatarMes(_mesAtual) + '\n' +
-    '📊 Dias com células alteradas: ' + Object.keys(_alteracoes).length + '\n' +
-    '✏️ Células alteradas: '          + _totalAlteracoes + '\n' +
-    '📝 Dias com operadores/sugestões/observações: ' + Object.keys(_alteracoesExtras).length;
+    'Local: ' + _localAtual + '\n' +
+    'Mês: '   + _formatarMes(_mesAtual) + '\n' +
+    'Dias com células alteradas: ' + Object.keys(_alteracoes).length + '\n' +
+    'Células alteradas: '          + _totalAlteracoes + '\n' +
+    'Dias com operadores/sugestões/observações: ' + Object.keys(_alteracoesExtras).length;
   var m = document.getElementById('modalGuardar');
   if (m) m.classList.add('show');
 }
@@ -654,7 +656,7 @@
         datasExtras.forEach(_actualizarLinhaExtras);
         mostrarToast('✓ ' + resp.mensagem, 'sucesso');
       } else {
-        mostrarToast('⚠️ Erro: ' + resp.mensagem, 'erro');
+        mostrarToast('Erro: ' + resp.mensagem, 'erro');
         _atualizarBarraAlteracoes();
       }
     })
@@ -723,7 +725,9 @@ function _setBadgeTab(id, n, icone, titulo) {
   var el = document.getElementById(id);
   if (!el) return;
   el.style.display = n > 0 ? '' : 'none';
-  el.textContent   = icone + ' ' + n;
+  el.innerHTML     = n > 0
+    ? '<span class="material-symbols-rounded" aria-hidden="true">' + icone + '</span>' + n
+    : '';
   el.title         = n + ' ' + titulo;
 }
 
@@ -734,19 +738,17 @@ function _atualizarBadgesTabs() {
     if (extras) cExtras++;
     if (_temConflitoPaises(d) || !extras) cPaises++;
   });
-  _setBadgeTab('edBadgeContagemConflito', cPaises,          '⚠',  'conflito(s) pendente(s)');
-  _setBadgeTab('edBadgeContagemAlt',      _totalAlteracoes, '✏️', 'alteração(ões) por guardar');
-  _setBadgeTab('edBadgeExtrasConflito',   cExtras,          '⚠',  'conflito(s) pendente(s)');
-  _setBadgeTab('edBadgeExtrasAlt',        Object.keys(_alteracoesExtras).length, '✏️', 'dia(s) por guardar');
+  _setBadgeTab('edBadgeContagemConflito', cPaises,          'warning', 'conflito(s) pendente(s)');
+  _setBadgeTab('edBadgeContagemAlt',      _totalAlteracoes, 'edit',    'alteração(ões) por guardar');
+  _setBadgeTab('edBadgeExtrasConflito',   cExtras,          'warning', 'conflito(s) pendente(s)');
+  _setBadgeTab('edBadgeExtrasAlt',        Object.keys(_alteracoesExtras).length, 'edit', 'dia(s) por guardar');
 }
 
   function toggleSecaoGrelha() {
     var card  = document.getElementById('secaoGrelha');
-    var icone = document.getElementById('secaoToggleIcone');
-    if (!card || !icone) return;
+    if (!card) return;
     var aberto = !card.classList.contains('recolhido');
     card.classList.toggle('recolhido', aberto);
-    icone.textContent = aberto ? '▶' : '▼';
     var hdr = card.querySelector('.secao-card-header');
     if (hdr) hdr.setAttribute('aria-expanded', String(!aberto));
   }
@@ -787,7 +789,9 @@ function _atualizarBadgesTabs() {
         '</td>' +
         '<td class="extras-td-chips">' + _chipsExtras(dataFmt) + '</td>' +
         '<td class="extras-td-acao">' +
-          '<button type="button" class="btn-editar-extras" data-data="' + dataFmt + '">✏️ Editar</button>' +
+          '<button type="button" class="btn-editar-extras" data-data="' + dataFmt + '">' +
+            '<span class="material-symbols-rounded" aria-hidden="true">edit</span>Editar' +
+          '</button>' +
         '</td>';
 
       tr.querySelector('.btn-editar-extras').addEventListener('click', function() {
@@ -809,8 +813,8 @@ function _atualizarBadgesTabs() {
     if (sugs.length)              chips += '<span class="extras-chip chip-sug">Sugestões (' + sugs.length + ')</span>';
     if (obs)                      chips += '<span class="extras-chip chip-obs">Observações</span>';
     if (_conflitosDoMes[dataFmt] && _temConflitoExtras(dataFmt))
-                                  chips += '<span class="extras-chip chip-conflito">⚠️ Conflito extras</span>';
-    if (_alteracoesExtras[dataFmt]) chips += '<span class="extras-chip chip-alt">✏️ Por guardar</span>';
+                                  chips += '<span class="extras-chip chip-conflito"><span class="material-symbols-rounded" aria-hidden="true">warning</span>Conflito extras</span>';
+    if (_alteracoesExtras[dataFmt]) chips += '<span class="extras-chip chip-alt"><span class="material-symbols-rounded" aria-hidden="true">edit</span>Por guardar</span>';
     return chips || '<span class="extras-sem-dados">—</span>';
   }
 
@@ -896,8 +900,8 @@ function _renderCalendarioExtras() {
     if (x.ops.length)  badges += '<span class="extras-chip chip-op" title="Operadores">Op ' + x.ops.length + '</span>';
     if (x.sugs.length) badges += '<span class="extras-chip chip-sug" title="Sugestões">Sug ' + x.sugs.length + '</span>';
     if (x.obs)         badges += '<span class="extras-chip chip-obs" title="' + _esc(x.obs.slice(0, 120)) + '">Obs</span>';
-    if (conf)          badges += '<span class="extras-chip chip-conflito">⚠️</span>';
-    if (alt)           badges += '<span class="extras-chip chip-alt">✏️</span>';
+    if (conf)          badges += '<span class="extras-chip chip-conflito" title="Conflito pendente"><span class="material-symbols-rounded" aria-hidden="true">warning</span></span>';
+    if (alt)           badges += '<span class="extras-chip chip-alt" title="Alteração por guardar"><span class="material-symbols-rounded" aria-hidden="true">edit</span></span>';
 
     html += '<button type="button" class="extras-cal-dia' +
               (eFDS ? ' fds' : '') + (eHoje ? ' hoje' : '') + (temDados ? ' com-dados' : '') +
@@ -1266,7 +1270,9 @@ function _renderCalendarioExtras() {
     _tabConflitoAtiva = tab;
 
     document.querySelectorAll('.conflito-tab').forEach(function(btn) {
-      btn.classList.toggle('ativa', btn.getAttribute('data-tab') === tab);
+      var ativa = btn.getAttribute('data-tab') === tab;
+      btn.classList.toggle('ativa', ativa);
+      btn.setAttribute('aria-selected', ativa ? 'true' : 'false');
     });
 
     var painelPaises = document.getElementById('conflitoPainelPaises');
@@ -1444,7 +1450,9 @@ function _renderCalendarioExtras() {
       sugestoes:   'conflitoSugAcoes',
       observacoes: 'conflitoObsAcoes'
     };
-    var labelOrigem = origem === 'servidor' ? '📊 Servidor' : '📦 Offline';
+    var labelOrigem = origem === 'servidor'
+      ? '<span class="material-symbols-rounded" aria-hidden="true" style="font-size:14px">database</span>Servidor'
+      : '<span class="material-symbols-rounded" aria-hidden="true" style="font-size:14px">wifi_off</span>Offline';
     var acoesEl = document.getElementById(mapaAcoes[secao]);
     if (acoesEl) {
       acoesEl.innerHTML =
@@ -1561,7 +1569,7 @@ function _renderCalendarioExtras() {
     });
     var primeiro = document.querySelector('.cel-input[data-data="' + dataFmt + '"]');
     if (primeiro) primeiro.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    mostrarToast('✏️ Valores offline pré-preenchidos. Edite países e guarde. Para os extras, use o botão ✏️ Editar na tabela abaixo.', 'info');
+    mostrarToast('Valores offline pré-preenchidos. Edite os países e guarde. Para os extras, use o botão Editar na tabela abaixo.', 'info');
   }
 
   function _actualizarColunaAposResolucao(dataFmt, paises) {

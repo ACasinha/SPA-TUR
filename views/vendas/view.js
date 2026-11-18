@@ -83,6 +83,11 @@
     _lig('vdBtnNovoArtigo',        'click',  function() { abrirArtigo(null); });
     _lig('vdBtnNovaLista',         'click',  function() { abrirLista(null); });
 
+    _lig('vdMes',                  'keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); carregar(); } });
+    _lig('vdArtNome',              'keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); guardarArtigo(); } });
+    _lig('vdArtPreco',             'keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); guardarArtigo(); } });
+    _lig('vdListaNome',            'keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); guardarLista(); } });
+
     ['vdModalArtigo', 'vdModalLista'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) _al(el, 'click', function(e) { if (e.target === el) fecharModais(); });
@@ -186,6 +191,15 @@
       return d ? d.toLocaleDateString('pt-PT') + ' ' + d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) : '';
     } catch (e) { return ''; }
   }
+  function _setBtnEstado(btnId, txtId, ocupada, icone, texto) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.disabled = !!ocupada;
+    var icoEl = btn.querySelector('.material-symbols-rounded');
+    if (icoEl && icone) icoEl.textContent = icone;
+    var txtEl = txtId ? document.getElementById(txtId) : null;
+    if (txtEl && texto !== undefined) txtEl.textContent = texto;
+  }
 
   // ============================================================
   // DADOS BASE (config, artigos, listas)
@@ -261,15 +275,14 @@
   }
 
   function _executarCarregar(local, mes) {
-    var btn = document.getElementById('vdBtnCarregar');
-    if (btn) btn.disabled = true;
+    _setBtnEstado('vdBtnCarregar', 'vdBtnCarregarTxt', true, 'hourglass_top', 'A carregar...');
 
     Promise.all([
       db.collection('vendas_registos').doc(_idDoc(local, mes)).get(),
       db.collection('vendas_inventarios').doc(_idDoc(local, mes)).get(),
       db.collection('vendas_inventarios').doc(_idDoc(local, _mesAnterior(mes))).get()
     ]).then(function(r) {
-      if (btn) btn.disabled = false;
+      _setBtnEstado('vdBtnCarregar', 'vdBtnCarregarTxt', false, 'search', 'Carregar');
       _local = local; _mes = mes;
       _docV    = r[0].exists ? r[0].data() : null;
       _docI    = r[1].exists ? r[1].data() : null;
@@ -287,7 +300,7 @@
       _renderResumoVendas();
       _renderInventario();
     }).catch(function(err) {
-      if (btn) btn.disabled = false;
+      _setBtnEstado('vdBtnCarregar', 'vdBtnCarregarTxt', false, 'search', 'Carregar');
       mostrarToast('Erro ao carregar dados: ' + err.message, 'erro');
     });
   }
@@ -347,6 +360,7 @@
         '<td>' + _esc(a.nome) + '</td>' +
         '<td class="vd-num">' + _eur(pr) + '</td>' +
         '<td class="vd-num"><input type="number" inputmode="numeric" min="0" class="vd-qtd" placeholder="0"' +
+          ' aria-label="Quantidade de ' + _esc(a.nome) + '"' +
           ' value="' + (q > 0 ? q : '') + '"' + (pode ? '' : ' disabled') + '></td>' +
         '<td class="vd-num vd-sub">—</td>';
       tr.querySelector('.vd-qtd').addEventListener('input', function() {
@@ -404,23 +418,22 @@
     var dados = { local: _local, mes: _mes, atualizadoEm: _ts(), atualizadoPor: _email(), dias: {} };
     dados.dias[chave] = { itens: itens, totalQtd: totQ, totalValor: totV, registadoPor: _email(), registadoEm: _ts() };
 
-    var btn = document.getElementById('vdBtnGuardarVendas');
-    if (btn) btn.disabled = true;
+    _setBtnEstado('vdBtnGuardarVendas', 'vdBtnGuardarVendasTxt', true, 'hourglass_top', 'A guardar...');
 
     db.collection('vendas_registos').doc(_idDoc(_local, _mes))
       .set(dados, { mergeFields: ['local', 'mes', 'atualizadoEm', 'atualizadoPor', 'dias.' + chave] })
       .then(function() {
-        if (btn) btn.disabled = false;
+        _setBtnEstado('vdBtnGuardarVendas', 'vdBtnGuardarVendasTxt', false, 'save', 'Guardar vendas');
         _docV = _docV || { dias: {} };
         _docV.dias = _docV.dias || {};
         _docV.dias[chave] = { itens: itens, totalQtd: totQ, totalValor: totV };
         _dirtyV = false;
-        mostrarToast('✓ Vendas guardadas.', 'sucesso');
+        mostrarToast('Vendas guardadas.', 'sucesso');
         _renderResumoVendas();
         if (!_dirtyI) _renderInventario();
       })
       .catch(function(err) {
-        if (btn) btn.disabled = false;
+        _setBtnEstado('vdBtnGuardarVendas', 'vdBtnGuardarVendasTxt', false, 'save', 'Guardar vendas');
         mostrarToast('Erro ao guardar: ' + err.message, 'erro');
       });
   }
@@ -533,11 +546,11 @@
       tr.dataset.preco = a.preco || 0;
       tr.innerHTML =
         '<td>' + _esc(a.nome) + '</td>' +
-        '<td class="vd-num"><input type="number" min="0" inputmode="numeric" class="vd-inv-ant" value="' + anterior + '"' + (antEdit ? '' : ' readonly') + '></td>' +
-        '<td class="vd-num"><input type="number" min="0" inputmode="numeric" class="vd-inv-ent" value="' + (entradas || '') + '" placeholder="0"' + (editavel ? '' : ' disabled') + '></td>' +
+        '<td class="vd-num"><input type="number" min="0" inputmode="numeric" class="vd-inv-ant" aria-label="Stock anterior de ' + _esc(a.nome) + '" value="' + anterior + '"' + (antEdit ? '' : ' readonly') + '></td>' +
+        '<td class="vd-num"><input type="number" min="0" inputmode="numeric" class="vd-inv-ent" aria-label="Entradas de ' + _esc(a.nome) + '" value="' + (entradas || '') + '" placeholder="0"' + (editavel ? '' : ' disabled') + '></td>' +
         '<td class="vd-num vd-inv-ven" data-v="' + venda + '">' + venda + '</td>' +
         '<td class="vd-num vd-inv-teo">' + teorico + '</td>' +
-        '<td class="vd-num"><input type="number" min="0" inputmode="numeric" class="vd-inv-cont" value="' + contado + '" data-manual="' + (s ? 1 : 0) + '"' + (editavel ? '' : ' disabled') + '></td>' +
+        '<td class="vd-num"><input type="number" min="0" inputmode="numeric" class="vd-inv-cont" aria-label="Contagem de ' + _esc(a.nome) + '" value="' + contado + '" data-manual="' + (s ? 1 : 0) + '"' + (editavel ? '' : ' disabled') + '></td>' +
         '<td class="vd-num vd-inv-dif">0</td>';
 
       ['.vd-inv-ant', '.vd-inv-ent'].forEach(function(sel) {
@@ -614,20 +627,21 @@
     };
     if (_docI) { dados.editadoPor = _email(); dados.editadoEm = _ts(); }
 
-    var btn = document.getElementById('vdBtnGuardarInv');
-    if (btn) btn.disabled = true;
+    var fechadoAntes = !!(_docI && _docI.fechado);
+    _setBtnEstado('vdBtnGuardarInv', 'vdBtnGuardarInvTxt', true, 'hourglass_top', 'A guardar...');
 
     db.collection('vendas_inventarios').doc(_idDoc(_local, _mes)).set(dados)
       .then(function() {
-        if (btn) btn.disabled = false;
+        _setBtnEstado('vdBtnGuardarInv', 'vdBtnGuardarInvTxt', false, 'lock', 'Guardar alterações');
         _docI = { local: _local, mes: _mes, fechado: true, itens: itens,
                   registadoPor: dados.registadoPor, registadoEm: _docI ? _docI.registadoEm : new Date() };
         _dirtyI = false;
-        mostrarToast('✓ Inventário guardado.', 'sucesso');
+        mostrarToast('Inventário guardado.', 'sucesso');
         _renderInventario();
       })
       .catch(function(err) {
-        if (btn) btn.disabled = false;
+        _setBtnEstado('vdBtnGuardarInv', 'vdBtnGuardarInvTxt', false, 'lock',
+          fechadoAntes ? 'Guardar alterações' : 'Submeter e fechar inventário');
         mostrarToast('Erro ao guardar: ' + err.message, 'erro');
       });
   }
@@ -875,7 +889,7 @@
       .then(function() {
         _config.locais = sel;
         _popularLocais();
-        mostrarToast('✓ Locais guardados.', 'sucesso');
+        mostrarToast('Locais guardados.', 'sucesso');
       })
       .catch(function(err) { mostrarToast('Erro: ' + err.message, 'erro'); });
   }
@@ -936,7 +950,7 @@
 
     op.then(function() {
       fecharModais();
-      mostrarToast('✓ Artigo guardado.', 'sucesso');
+      mostrarToast('Artigo guardado.', 'sucesso');
       return _recarregarArtigos();
     }).catch(function(err) { mostrarToast('Erro: ' + err.message, 'erro'); });
   }
@@ -1047,7 +1061,7 @@
 
     op.then(function() {
       fecharModais();
-      mostrarToast('✓ Lista guardada.', 'sucesso');
+      mostrarToast('Lista guardada.', 'sucesso');
       return _recarregarListas();
     }).catch(function(err) { mostrarToast('Erro: ' + err.message, 'erro'); });
   }
