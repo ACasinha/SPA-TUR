@@ -393,6 +393,8 @@ function construirTabelaOperadores(n, dados) {
     _adicionarLinhaDesktop(tbody, {});
     // Mobile começa vazio — utilizador carrega via botão
   }
+
+  atualizarContadorOperadores();
 }
 
 // ── Adicionar linha no desktop ──────────────────────────────
@@ -432,7 +434,12 @@ tbody.appendChild(tr);
 // ── Remover linha no desktop ──────────────────────────────
 function removerLinhaOperadorDesktop(btn) {
   var tr = btn.closest('tr');
-  if (tr) tr.remove();
+  if (tr) {
+    var nome = ((tr.querySelector('.op-nome') || {}).value || '').trim();
+    tr.remove();
+    if (nome && typeof sinalizarAlteracao === 'function') sinalizarAlteracao();
+    atualizarContadorOperadores();
+  }
 }
 
 // ── Adicionar cartão mobile ──────────────────────────────────
@@ -451,7 +458,10 @@ btnRemoverCartao.className = 'btn-remover-op-cartao';
 btnRemoverCartao.setAttribute('aria-label', 'Remover operador');
 btnRemoverCartao.innerHTML = '✕';
 btnRemoverCartao.addEventListener('click', function() {
+  var nome = (inputNome.value || '').trim();
   cartao.remove();
+  if (nome && typeof sinalizarAlteracao === 'function') sinalizarAlteracao();
+  atualizarContadorOperadores();
 });
 
   
@@ -466,6 +476,7 @@ btnRemoverCartao.addEventListener('click', function() {
   if (op.operador) inputNome.classList.add('input-carregado');
   inputNome.addEventListener('input', function() {
     if (typeof sinalizarAlteracao === 'function') sinalizarAlteracao();
+    atualizarContadorOperadores();
   });
   divNome.appendChild(inputNome);
   cartao.appendChild(divNome);
@@ -577,13 +588,40 @@ function _recalcularTotalCartao(cartao) {
 function adicionarLinhaOperadorDesktop() {
   if (typeof verificarLocalEscolhido === 'function' && !verificarLocalEscolhido()) return;
   var tbody = document.getElementById('tabelaOperadores');
-  if (tbody) _adicionarLinhaDesktop(tbody, {});
+  if (tbody) {
+    var tr = _adicionarLinhaDesktop(tbody, {});
+    atualizarContadorOperadores();
+    if (tr) {
+      var inp = tr.querySelector('.op-nome');
+      if (inp) inp.focus();
+    }
+  }
 }
 
 function adicionarCartaoOperadorMobile() {
   if (typeof verificarLocalEscolhido === 'function' && !verificarLocalEscolhido()) return;
   var wrap = document.getElementById('opMobileWrap');
-  if (wrap) _adicionarCartaoMobile(wrap, {});
+  if (wrap) {
+    var cartao = _adicionarCartaoMobile(wrap, {});
+    atualizarContadorOperadores();
+    if (cartao) {
+      var inp = cartao.querySelector('.op-cartao-nome');
+      if (inp) inp.focus();
+    }
+  }
+}
+
+function atualizarContadorOperadores() {
+  var el = document.getElementById('contadorOperadores');
+  if (!el) return;
+  var isMobile = window.matchMedia && window.matchMedia('(max-width: 640px)').matches;
+  var count = 0;
+  var seletor = isMobile ? '#opMobileWrap .op-cartao-nome' : '#tabelaOperadores .op-nome';
+  document.querySelectorAll(seletor).forEach(function(inp) {
+    if ((inp.value || '').trim()) count++;
+  });
+  el.textContent = count + (count === 1 ? ' registo' : ' registos');
+  el.classList.toggle('tem-dados', count > 0);
 }
 
 // ── Operadores (compatibilidade com código existente) ────────
@@ -650,32 +688,129 @@ function serializarNacOp(tr) {
   return pares.join(', ');
 }
 
+function _autoExpandirTextareaSugestao(ta) {
+  if (!ta) return;
+  ta.style.height = 'auto';
+  if (ta.scrollHeight > 0) {
+    ta.style.height = Math.max(44, ta.scrollHeight) + 'px';
+  }
+}
+
+function _reajustarTextareasSugestoes() {
+  document.querySelectorAll('#listaSugestoes .sug-texto').forEach(function(ta) {
+    _autoExpandirTextareaSugestao(ta);
+  });
+}
+
+function atualizarContadorSugestoes() {
+  var el = document.getElementById('contadorSugestoes');
+  if (!el) return;
+  var count = 0;
+  document.querySelectorAll('#listaSugestoes .sug-texto').forEach(function(ta) {
+    if ((ta.value || '').trim()) count++;
+  });
+  el.textContent = count + (count === 1 ? ' registo' : ' registos');
+  el.classList.toggle('tem-dados', count > 0);
+}
+
 function onInputSugTexto(inp) {
   if (typeof verificarLocalEscolhido === 'function' && !verificarLocalEscolhido()) {
-    inp.value = ''; return;
+    inp.value = '';
+    _autoExpandirTextareaSugestao(inp);
+    atualizarContadorSugestoes();
+    return;
   }
+  _autoExpandirTextareaSugestao(inp);
   if (typeof sinalizarAlteracao === 'function') sinalizarAlteracao();
+  atualizarContadorSugestoes();
+}
+
+function _criarCartaoSugestao(s) {
+  s = s || {};
+  var cls = s.sugestao ? 'input-carregado' : '';
+
+  var cartao = document.createElement('div');
+  cartao.className = 'sug-cartao';
+
+  var ta = document.createElement('textarea');
+  ta.className = 'sug-texto' + (cls ? ' ' + cls : '');
+  ta.rows = 1;
+  ta.placeholder = 'Escreva aqui a sugestão ou crítica do visitante...';
+  ta.setAttribute('aria-label', 'Sugestão ou crítica');
+  ta.value = s.sugestao || '';
+  ta.addEventListener('input', function() { onInputSugTexto(ta); });
+
+  var acoes = document.createElement('div');
+  acoes.className = 'sug-cartao-lateral';
+
+  var sel = document.createElement('select');
+  sel.className = 'sug-nac' + (cls ? ' ' + cls : '');
+  sel.setAttribute('aria-label', 'Nacionalidade do turista');
+  sel.innerHTML =
+    '<option value="">— País —</option>' +
+    opcoesNacionalidades(s.nacionalidade || '');
+  sel.addEventListener('change', function() {
+    if (typeof verificarLocalEscolhido === 'function' && !verificarLocalEscolhido()) {
+      sel.value = '';
+      return;
+    }
+    if (typeof sinalizarAlteracao === 'function') sinalizarAlteracao();
+  });
+
+  var btnRem = document.createElement('button');
+  btnRem.type = 'button';
+  btnRem.className = 'btn-remover-sug-cartao';
+  btnRem.setAttribute('aria-label', 'Remover sugestão');
+  btnRem.innerHTML = '✕';
+  btnRem.addEventListener('click', function() {
+    if (btnRem.disabled) return;
+    var tinhaDados = Boolean((ta.value || '').trim() || sel.value);
+    var lista = document.getElementById('listaSugestoes');
+    cartao.remove();
+    if (tinhaDados && typeof sinalizarAlteracao === 'function') sinalizarAlteracao();
+    if (lista && lista.children.length === 0) {
+      lista.appendChild(_criarCartaoSugestao({}));
+    }
+    atualizarContadorSugestoes();
+  });
+
+  acoes.appendChild(sel);
+  acoes.appendChild(btnRem);
+  cartao.appendChild(ta);
+  cartao.appendChild(acoes);
+  return cartao;
 }
 
 function construirTabelaSugestoes(n, dados) {
-  var tbody = document.getElementById('tabelaSugestoes');
-  tbody.innerHTML = '';
+  var lista = document.getElementById('listaSugestoes');
+  if (!lista) return;
+  lista.innerHTML = '';
 
-  for (var i = 0; i < n; i++) {
-    var s   = (dados && dados[i]) ? dados[i] : {};
-    var cls = s.sugestao ? 'input-carregado' : '';
-    var tr  = document.createElement('tr');
-    tr.innerHTML =
-      '<td><input type="text" class="sug-texto ' + cls + '" placeholder="Escreva aqui..."' +
-           ' value="' + esc(s.sugestao || '') + '"' +
-           ' oninput="onInputSugTexto(this)"></td>' +
-      '<td>' +
-        '<select class="sug-nac ' + cls + '">' +
-          '<option value="">— País —</option>' +
-          opcoesNacionalidades(s.nacionalidade || '') +
-        '</select>' +
-      '</td>';
-    tbody.appendChild(tr);
+  if (dados && dados.length > 0) {
+    dados.forEach(function(s) {
+      lista.appendChild(_criarCartaoSugestao(s));
+    });
+    abrirSecao('corpoSugestoes', 'iconeSugestoes');
+  } else {
+    lista.appendChild(_criarCartaoSugestao({}));
+  }
+
+  atualizarContadorSugestoes();
+  _reajustarTextareasSugestoes();
+}
+
+function adicionarLinhaSugestao() {
+  if (typeof verificarLocalEscolhido === 'function' && !verificarLocalEscolhido()) return;
+  var lista = document.getElementById('listaSugestoes');
+  if (!lista) return;
+  abrirSecao('corpoSugestoes', 'iconeSugestoes');
+  var cartao = _criarCartaoSugestao({});
+  lista.appendChild(cartao);
+  atualizarContadorSugestoes();
+  var ta = cartao.querySelector('.sug-texto');
+  if (ta) {
+    _autoExpandirTextareaSugestao(ta);
+    ta.focus();
   }
 }
 
@@ -727,9 +862,11 @@ function recolherOperadores() {
 
 function recolherSugestoes() {
   var lista = [];
-  document.querySelectorAll('#tabelaSugestoes tr').forEach(function(tr) {
-    var sug = tr.querySelector('.sug-texto')?.value.trim() || '';
-    var nac = tr.querySelector('.sug-nac')?.value        || '';
+  var itens = document.querySelectorAll('#listaSugestoes .sug-cartao');
+  if (!itens.length) itens = document.querySelectorAll('#tabelaSugestoes tr');
+  itens.forEach(function(item) {
+    var sug = item.querySelector('.sug-texto')?.value.trim() || '';
+    var nac = item.querySelector('.sug-nac')?.value          || '';
     if (sug) lista.push({ sugestao: sug, nacionalidade: nac });
   });
   return lista;
@@ -885,9 +1022,10 @@ function limparFormularioParcial() {
 
   construirTabelaPaises();
 
-  // Reconstruir operadores — volta ao estado inicial (1 linha desktop, sem cartões mobile)
+  // Reconstruir operadores e sugestões — volta ao estado inicial
   construirTabelaOperadores(NUM_LINHAS_OP);
-  construirTabelaSugestoes(NUM_LINHAS_SUG);
+  construirTabelaSugestoes(1);
+  fecharSecao('corpoSugestoes', 'iconeSugestoes');
   document.getElementById('observacoes').value = '';
 
   var inputPesquisa = document.getElementById('inputPesquisaPais');
@@ -960,15 +1098,38 @@ function carregarDados(resp) {
 // SECÇÕES RECOLHÍVEIS
 // ============================================================
 
-function toggleSecao(idCorpo, idIcone) {
-  var corpo  = document.getElementById(idCorpo);
-  var icone  = document.getElementById(idIcone);
+function abrirSecao(idCorpo, idIcone) {
+  var corpo = document.getElementById(idCorpo);
+  var icone = document.getElementById(idIcone);
   if (!corpo) return;
-  var estavaAberto = corpo.style.display !== 'none';
-  corpo.style.display = estavaAberto ? 'none' : '';
-  if (icone) icone.textContent = estavaAberto ? '▼' : '▲';
+  corpo.style.display = '';
+  if (icone) icone.textContent = '▲';
   var headerEl = corpo.previousElementSibling;
   if (headerEl && headerEl.hasAttribute('aria-expanded')) {
-    headerEl.setAttribute('aria-expanded', estavaAberto ? 'false' : 'true');
+    headerEl.setAttribute('aria-expanded', 'true');
+  }
+  if (idCorpo === 'corpoSugestoes') _reajustarTextareasSugestoes();
+}
+
+function fecharSecao(idCorpo, idIcone) {
+  var corpo = document.getElementById(idCorpo);
+  var icone = document.getElementById(idIcone);
+  if (!corpo) return;
+  corpo.style.display = 'none';
+  if (icone) icone.textContent = '▼';
+  var headerEl = corpo.previousElementSibling;
+  if (headerEl && headerEl.hasAttribute('aria-expanded')) {
+    headerEl.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function toggleSecao(idCorpo, idIcone) {
+  var corpo = document.getElementById(idCorpo);
+  if (!corpo) return;
+  var estavaAberto = corpo.style.display !== 'none';
+  if (estavaAberto) {
+    fecharSecao(idCorpo, idIcone);
+  } else {
+    abrirSecao(idCorpo, idIcone);
   }
 }

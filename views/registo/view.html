@@ -89,6 +89,7 @@
          onclick="toggleSecao('corpoOperadores','iconeOperadores')"
          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSecao('corpoOperadores','iconeOperadores');}">
       <h2>Operadores e Agências</h2>
+      <span class="section-count" id="contadorOperadores">0 registos</span>
       <span class="toggle-icone" id="iconeOperadores">▼</span>
     </div>
     <div id="corpoOperadores" style="display:none">
@@ -103,17 +104,15 @@
          onclick="toggleSecao('corpoSugestoes','iconeSugestoes')"
          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSecao('corpoSugestoes','iconeSugestoes');}">
       <h2>Sugestões e Críticas</h2>
+      <span class="section-count" id="contadorSugestoes">0 registos</span>
       <span class="toggle-icone" id="iconeSugestoes">▼</span>
     </div>
     <div class="verso-body" id="corpoSugestoes" style="display:none">
-      <div class="table-scroll">
-        <table class="sug-table">
-          <thead><tr>
-            <th>Sugestão / Crítica</th>
-            <th>Nacionalidade do turista</th>
-          </tr></thead>
-          <tbody id="tabelaSugestoes"></tbody>
-        </table>
+      <div class="sug-lista" id="listaSugestoes"></div>
+      <div class="sug-acoes">
+        <button type="button" class="btn-nova-sugestao" id="btnNovaSugestao" onclick="adicionarLinhaSugestao()">
+          + Nova Sugestão ou Crítica
+        </button>
       </div>
     </div>
   </div>

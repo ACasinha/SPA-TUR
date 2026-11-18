@@ -48,6 +48,10 @@
 
     _addListener(window, 'online',  function() { verificarLigacao(); });
     _addListener(window, 'offline', function() { verificarLigacao(); });
+    _addListener(window, 'resize',  function() {
+      if (typeof atualizarContadorOperadores === 'function') atualizarContadorOperadores();
+      if (typeof _reajustarTextareasSugestoes === 'function') _reajustarTextareasSugestoes();
+    });
     _addListener(window, 'beforeunload', _onBeforeUnload);
     _addListener(window, 'rmz-sync-update', _actualizarBadgePendentes);
     _addListener(window, 'rmz-sync-conflito', _onConflitoSync);
@@ -171,11 +175,14 @@
     if (container) {
       _addListener(container, 'input', function(e) {
         var alvo = e.target;
-        if (alvo.classList.contains('op-nome') || alvo.classList.contains('sug-nac')) {
+        if (alvo.classList.contains('op-nome') || alvo.classList.contains('op-cartao-nome') || alvo.classList.contains('sug-nac')) {
           if (!verificarLocalEscolhido()) {
             alvo.value = '';
           } else {
             sinalizarAlteracao();
+          }
+          if (alvo.classList.contains('op-nome') || alvo.classList.contains('op-cartao-nome')) {
+            if (typeof atualizarContadorOperadores === 'function') atualizarContadorOperadores();
           }
         }
       });
@@ -371,6 +378,21 @@
       if (v > 0) paises[inp.dataset.pais] = v;
     });
 
+    var sugIncompleta = null;
+    document.querySelectorAll('#listaSugestoes .sug-cartao').forEach(function(cartao) {
+      if (sugIncompleta) return;
+      var txt = ((cartao.querySelector('.sug-texto') || {}).value || '').trim();
+      var nac = (cartao.querySelector('.sug-nac') || {}).value || '';
+      if (!txt && nac) sugIncompleta = cartao;
+    });
+    if (sugIncompleta) {
+      if (typeof abrirSecao === 'function') abrirSecao('corpoSugestoes', 'iconeSugestoes');
+      var ta = sugIncompleta.querySelector('.sug-texto');
+      if (ta) ta.focus();
+      mostrarToast('Escreva o texto da sugestão/crítica ou remova a nacionalidade.', 'erro');
+      return;
+    }
+
     var operadores = typeof recolherOperadores === 'function' ? recolherOperadores() : [];
     var sugestoes  = typeof recolherSugestoes  === 'function' ? recolherSugestoes()  : [];
 
@@ -465,6 +487,7 @@
     document.querySelectorAll('.op-nac-select, .op-nac-num').forEach(function(i) { i.disabled = d; });
     document.querySelectorAll('.btn-add-nac, .btn-rem-nac').forEach(function(b) { b.disabled = d; });
     document.querySelectorAll('.sug-texto, .sug-nac').forEach(function(i) { i.disabled = d; });
+    document.querySelectorAll('.btn-nova-sugestao, .btn-remover-sug-cartao').forEach(function(b) { b.disabled = d; });
     document.querySelectorAll('.btn-novo-operador').forEach(function(b) { b.disabled = d; });
     document.querySelectorAll('.op-cartao-nome, .op-cartao-nac-select, .op-cartao-nac-num').forEach(function(i) { i.disabled = d; });
     document.querySelectorAll('.btn-remover-op-cartao, .btn-remover-op-linha, .btn-add-nac-cartao, .btn-rem-nac-cartao').forEach(function(b) { b.disabled = d; });

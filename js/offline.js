@@ -281,9 +281,11 @@ function gerarPDF(tipo) {
 
   function dadosSugestoes() {
     var rows = [];
-    document.querySelectorAll('#tabelaSugestoes tr').forEach(function(tr) {
-      var txt = (tr.querySelector('.sug-texto') || {}).value || '';
-      var nac = (tr.querySelector('.sug-nac')   || {}).value || '';
+    var itens = document.querySelectorAll('#listaSugestoes .sug-cartao');
+    if (!itens.length) itens = document.querySelectorAll('#tabelaSugestoes tr');
+    itens.forEach(function(item) {
+      var txt = ((item.querySelector('.sug-texto') || {}).value || '').trim();
+      var nac = (item.querySelector('.sug-nac')    || {}).value || '';
       if (txt) rows.push([txt, nac]);
     });
     while (rows.length < 5) rows.push(['', '']);
