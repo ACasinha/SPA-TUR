@@ -72,10 +72,10 @@
   function _badgeRole(role,aR,aD,aE,aI,aV){
     if(role==='administrador')return '<span class="badge-role badge-admin">Admin</span>';
     var icons=[];
-    if(aR)icons.push('<span class="material-symbols-rounded" aria-label="Registo Diário" title="Registo Diário">edit_document</span>');
+    if(aR)icons.push('<span class="material-symbols-rounded" aria-label="Registo Diário" title="Registo Diário">list_alt</span>');
     if(aV)icons.push('<span class="material-symbols-rounded" aria-label="Vendas" title="Vendas">point_of_sale</span>');
     if(aD)icons.push('<span class="material-symbols-rounded" aria-label="Dashboard" title="Dashboard">analytics</span>');
-    if(aE)icons.push('<span class="material-symbols-rounded" aria-label="Editor Mensal" title="Editor Mensal">edit_calendar</span>');
+    if(aE)icons.push('<span class="material-symbols-rounded" aria-label="Editor Mensal" title="Editor Mensal">edit_document</span>');
     if(aI)icons.push('<span class="material-symbols-rounded" aria-label="Inventário" title="Inventário">inventory_2</span>');
     var ex=icons.length?' '+icons.join(' '):'';
     return '<span class="badge-role badge-user'+(icons.length?' badge-user-extra':'')+'">Utilizador'+ex+'</span>';
